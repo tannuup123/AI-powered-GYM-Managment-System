@@ -1,23 +1,27 @@
 // Gemini AI Service - Handles all AI API calls
-// Uses Google Gemini Free Tier API
+// Uses Google Gemini Free Tier API via official SDK
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
 const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
-
-// List of models to try in order of preference (Flash is fastest/cheapest, Pro is fallback)
-const GEMINI_MODELS = [
-    'gemini-1.5-flash',
-    'gemini-1.5-flash-001',
-    'gemini-1.5-pro',
-    'gemini-pro'
-];
 
 // Validate API key on load
 if (!GEMINI_API_KEY) {
     console.warn('⚠️ VITE_GEMINI_API_KEY is not set! AI features will not work.');
 }
 
+// Initialize Gemini SDK
+const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
+
+// List of models to try in order of preference
+const GEMINI_MODELS = [
+    'gemini-1.5-flash',
+    'gemini-1.5-flash-latest',
+    'gemini-1.5-pro',
+    'gemini-pro'
+];
+
 /**
- * Send a prompt to Gemini with automatic model fallback
+ * Send a prompt to Gemini with SDK and fallback logic
  */
 export async function askGemini(prompt, systemInstruction = '', modelIndex = 0) {
     if (!GEMINI_API_KEY) {
@@ -28,68 +32,33 @@ export async function askGemini(prompt, systemInstruction = '', modelIndex = 0) 
         throw new Error('All Gemini models failed. Please check your API key and quota.');
     }
 
-    const currentModel = GEMINI_MODELS[modelIndex];
-    const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/${currentModel}:generateContent?key=${GEMINI_API_KEY}`;
-
-    console.log(`Using Gemini Model: ${currentModel}`);
+    const currentModelName = GEMINI_MODELS[modelIndex];
+    console.log(`Using Gemini Model: ${currentModelName}`);
 
     try {
-        const contents = [];
-
-        if (systemInstruction) {
-            contents.push({
-                role: 'user',
-                parts: [{ text: systemInstruction }]
-            });
-            contents.push({
-                role: 'model',
-                parts: [{ text: 'Understood. I will follow these instructions.' }]
-            });
+        // For gemini-1.5 models, system instruction is passed in model config
+        const modelConfig = { model: currentModelName };
+        if (systemInstruction && currentModelName.includes('1.5')) {
+            modelConfig.systemInstruction = systemInstruction;
         }
 
-        contents.push({
-            role: 'user',
-            parts: [{ text: prompt }]
-        });
+        const model = genAI.getGenerativeModel(modelConfig);
 
-        const response = await fetch(API_URL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                contents,
-                generationConfig: {
-                    temperature: 0.7,
-                    topK: 40,
-                    topP: 0.95,
-                    maxOutputTokens: 2048,
-                }
-            })
-        });
+        const result = await model.generateContent(prompt);
+        const response = await result.response;
+        return response.text();
 
-        if (!response.ok) {
-            const errData = await response.json().catch(() => ({}));
-            const errMsg = errData.error?.message || `HTTP ${response.status}`;
-            console.warn(`Model ${currentModel} failed [${response.status}]:`, errMsg);
-
-            // If 404 (Not Found) or 429 (Rate Limit) or 5xx (Server Error), try next model
-            if (response.status === 404 || response.status === 429 || response.status >= 500) {
-                console.log(`Switching to next model...`);
-                return askGemini(prompt, systemInstruction, modelIndex + 1);
-            }
-
-            throw new Error(errMsg);
-        }
-
-        const data = await response.json();
-        return data.candidates?.[0]?.content?.parts?.[0]?.text || 'No response generated.';
     } catch (error) {
-        // If it's a fetch error (network), we might want to retry the same model or switch
-        // For now, let's try switching models as a safe fallback
-        console.error(`Error with ${currentModel}:`, error);
+        console.warn(`Model ${currentModelName} failed:`, error);
+
+        // Retry with next model on any error
         if (modelIndex < GEMINI_MODELS.length - 1) {
+            console.log(`Switching to next model...`);
             return askGemini(prompt, systemInstruction, modelIndex + 1);
         }
-        throw error;
+
+        console.error('Final Gemini API Error:', error);
+        throw new Error('AI Service Unavailable. Please try again later.');
     }
 }
 
@@ -98,6 +67,10 @@ export async function askGemini(prompt, systemInstruction = '', modelIndex = 0) 
  */
 export async function askGeminiJSON(prompt, systemInstruction = '') {
     const fullInstruction = systemInstruction + '\n\nIMPORTANT: Respond ONLY with valid JSON. No markdown, no code blocks, no extra text. Just pure JSON.';
+
+    // For JSON parsing, we can also use generationConfig responseMimeType: "application/json" 
+    // but sticking to prompt engineering for broader model compatibility for now.
+
     const text = await askGemini(prompt, fullInstruction);
 
     // Clean response - remove markdown code blocks if present
