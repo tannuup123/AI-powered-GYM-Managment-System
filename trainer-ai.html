@@ -173,7 +173,7 @@
     import { onAuthStateChanged } from 'firebase/auth';
     import { ref, get } from 'firebase/database';
     import { showSuccess, showError } from './src/components/toast.js';
-    import { chatWithTrainerAI, askGeminiJSON } from './src/services/gemini-service.js';
+    import { chatWithTrainerAI, askAIJSON } from './src/services/ai-service.js';
 
     const sidebar = document.getElementById('sidebar');
     const sidebarToggle = document.getElementById('sidebarToggle');
@@ -278,7 +278,7 @@ Provide coaching insights. Respond in JSON:
   "trainingPriority": "What to focus on this week"
 }`;
 
-        const data = await askGeminiJSON(prompt, 'You are an AI coaching assistant for gym trainers. Give practical, actionable coaching advice.');
+        const data = await askAIJSON(prompt, 'You are an AI coaching assistant for gym trainers. Give practical, actionable coaching advice.');
 
         let html = '';
         
@@ -338,7 +338,7 @@ Respond in JSON:
   "motivationalQuote": "An inspiring fitness quote"
 }`;
 
-        const data = await askGeminiJSON(prompt, 'You are an expert fitness coaching AI. Provide practical, evidence-based training suggestions.');
+        const data = await askAIJSON(prompt, 'You are an expert fitness coaching AI. Provide practical, evidence-based training suggestions.');
 
         let html = '';
 

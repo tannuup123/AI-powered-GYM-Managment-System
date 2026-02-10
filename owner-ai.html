@@ -174,7 +174,7 @@
     import { onAuthStateChanged } from 'firebase/auth';
     import { ref, get } from 'firebase/database';
     import { showSuccess, showError } from './src/components/toast.js';
-    import { chatWithBusinessAI, askGeminiJSON } from './src/services/gemini-service.js';
+    import { chatWithBusinessAI, askAIJSON } from './src/services/ai-service.js';
 
     const sidebar = document.getElementById('sidebar');
     const sidebarToggle = document.getElementById('sidebarToggle');
@@ -295,7 +295,7 @@ Give JSON response:
 }`;
 
         const systemInstruction = 'You are an AI business analyst for gym businesses. Provide actionable, data-driven insights. Focus on Indian market context.';
-        const data = await askGeminiJSON(prompt, systemInstruction);
+        const data = await askAIJSON(prompt, systemInstruction);
 
         let html = '';
 
