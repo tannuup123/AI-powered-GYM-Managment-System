@@ -1,0 +1,261 @@
+/* ============================================
+   FIT TRACK PRO - Auth Page Styles
+   Login and Registration page styling
+   ============================================ */
+
+/* ===== Auth Page Layout ===== */
+.auth-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-6);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Background Animation */
+.auth-page::before {
+  content: '';
+  position: absolute;
+  width: 150%;
+  height: 150%;
+  top: -25%;
+  left: -25%;
+  background: 
+    radial-gradient(circle at 20% 80%, rgba(99, 102, 241, 0.3) 0%, transparent 40%),
+    radial-gradient(circle at 80% 20%, rgba(139, 92, 246, 0.3) 0%, transparent 40%),
+    radial-gradient(circle at 50% 50%, rgba(249, 115, 22, 0.15) 0%, transparent 60%);
+  animation: float 20s ease-in-out infinite;
+  z-index: 0;
+}
+
+/* ===== Auth Container ===== */
+.auth-container {
+  width: 100%;
+  max-width: 440px;
+  position: relative;
+  z-index: 1;
+  animation: fadeInUp var(--transition-slower) ease-out;
+}
+
+/* ===== Auth Card ===== */
+.auth-card {
+  background: var(--surface-dark-card);
+  border-radius: var(--radius-2xl);
+  border: 1px solid var(--border-color);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  padding: var(--space-10);
+  box-shadow: var(--shadow-2xl);
+}
+
+/* ===== Logo Section ===== */
+.auth-logo {
+  text-align: center;
+  margin-bottom: var(--space-8);
+}
+
+.auth-logo img {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto var(--space-4);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-lg);
+}
+
+.auth-logo h1 {
+  font-family: var(--font-display);
+  font-size: var(--text-2xl);
+  background: var(--gradient-hero);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: var(--space-2);
+}
+
+.auth-logo p {
+  color: var(--text-muted);
+  font-size: var(--text-sm);
+  margin: 0;
+}
+
+/* ===== Auth Form ===== */
+.auth-form {
+  margin-bottom: var(--space-6);
+}
+
+.auth-form .form-group {
+  margin-bottom: var(--space-5);
+}
+
+.auth-form .form-input {
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid var(--border-color);
+  padding: var(--space-4);
+  font-size: var(--text-base);
+}
+
+.auth-form .form-input:focus {
+  background: rgba(0, 0, 0, 0.4);
+  border-color: var(--primary-500);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+}
+
+.auth-form .btn-primary {
+  width: 100%;
+  padding: var(--space-4);
+  font-size: var(--text-base);
+}
+
+/* Remember Me & Forgot Password */
+.auth-options {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-6);
+  font-size: var(--text-sm);
+}
+
+.auth-options .form-check {
+  color: var(--text-secondary);
+}
+
+.auth-options a {
+  color: var(--primary-400);
+  font-weight: var(--font-medium);
+}
+
+/* ===== Social Login ===== */
+.auth-divider {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  margin: var(--space-6) 0;
+}
+
+.auth-divider::before,
+.auth-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border-color);
+}
+
+.auth-divider span {
+  color: var(--text-muted);
+  font-size: var(--text-sm);
+}
+
+.social-login-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.social-btn {
+  background: var(--surface-glass);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+}
+
+.social-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.social-btn i {
+  font-size: 1.25rem;
+}
+
+.social-btn.google i { color: #ea4335; }
+.social-btn.facebook i { color: #1877f2; }
+.social-btn.instagram i { color: #e4405f; }
+
+/* ===== Auth Footer ===== */
+.auth-footer {
+  text-align: center;
+  padding-top: var(--space-6);
+  border-top: 1px solid var(--border-color);
+}
+
+.auth-footer p {
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
+  margin: 0;
+}
+
+.auth-footer a {
+  color: var(--primary-400);
+  font-weight: var(--font-semibold);
+}
+
+.auth-footer a:hover {
+  color: var(--primary-300);
+  text-decoration: underline;
+}
+
+/* ===== Role Selection ===== */
+.role-selection {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: var(--space-4);
+  margin-bottom: var(--space-6);
+}
+
+.role-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  padding: var(--space-6);
+  background: var(--surface-glass);
+  border: 2px solid var(--border-color);
+  border-radius: var(--radius-xl);
+  cursor: pointer;
+  transition: all var(--transition-base);
+  text-decoration: none;
+  color: var(--text-primary);
+}
+
+.role-card:hover {
+  border-color: var(--primary-500);
+  background: rgba(99, 102, 241, 0.1);
+  transform: translateY(-4px);
+}
+
+.role-card.selected {
+  border-color: var(--primary-500);
+  background: rgba(99, 102, 241, 0.15);
+}
+
+.role-card i {
+  font-size: 2rem;
+  color: var(--primary-400);
+}
+
+.role-card span {
+  font-weight: var(--font-semibold);
+  font-size: var(--text-sm);
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 480px) {
+  .auth-card {
+    padding: var(--space-6);
+    border-radius: var(--radius-xl);
+  }
+  
+  .auth-logo img {
+    width: 64px;
+    height: 64px;
+  }
+  
+  .auth-logo h1 {
+    font-size: var(--text-xl);
+  }
+  
+  .role-selection {
+    grid-template-columns: 1fr;
+  }
+}

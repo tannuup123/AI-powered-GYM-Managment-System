@@ -1,0 +1,45 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  }
+  
+  
+  body {
+    background-image: url('gym\ background\ pic.avif'); 
+    background-size: cover;
+    background-position: center;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  .form-container {
+    background-color: rgba(0, 0, 0, 0.75);
+    padding: 30px 25px;
+    border-radius: 12px;
+    width: 350px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+  }
+  .form-container h2 {
+    color: #ffffff;
+    text-align: center;
+    margin-bottom: 25px;
+  }
+  .form-container button {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 25px;
+    background-color: #4CAF50;
+    color: white;
+    font-size: 16px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  .form-container button:hover {
+    background-color: #45a049;
+  }
+  

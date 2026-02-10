@@ -1,0 +1,84 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Trainer Signup - Fit Track Pro</title>
+  <link rel="stylesheet" href="signup.css">
+</head>
+<body>
+  <form id="trainerSignupForm">
+    <div class="form-container">
+    <h2>Trainer Registration</h2>
+    <input type="text" name="name" placeholder="Full Name" required>
+    <input type="email" name="email" placeholder="Email" required>
+    <input type="tel" name="phone" placeholder="Phone" required>
+    <input type="text" name="specialty" placeholder="Specialty (e.g. Yoga, Cardio)" required>
+    <input type="password" name="password" placeholder="Password" required>
+    <button type="submit">Register</button>
+    </div>
+  </form>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+<script>
+    // ✅ Firebase Config
+    const firebaseConfig = {
+      apiKey: "AIzaSyC-oca5z39s7l77EDY_Jx1psRroWtfZ2pM",
+      authDomain: "fit-track-be443.firebaseapp.com",
+      projectId: "fit-track-be443",
+      storageBucket: "fit-track-be443.firebasestorage.app",
+      messagingSenderId: "485684449281",
+      appId: "1:485684449281:web:88991ce3596959c0433000",
+      measurementId: "G-ZD4NTCKQH7"
+    };
+
+    // 🔥 Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const database = firebase.database();
+
+    // 🎯 Handle Trainer Form Submission
+    const form = document.getElementById("trainerSignupForm");
+
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+
+      const name = form.name.value.trim();
+      const email = form.email.value.trim();
+      const phone = form.phone.value.trim();
+      const specialty = form.specialty.value.trim();
+      const password = form.password.value.trim();
+
+      // ✅ Validate Email Format
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        alert("Please enter a valid email address.");
+        return;
+      }
+
+      // ✅ Create Trainer Account with Firebase Auth
+      auth.createUserWithEmailAndPassword(email, password)
+        .then((userCredential) => {
+          const user = userCredential.user;
+
+          // ✅ Save trainer details in Realtime Database
+          return database.ref("trainers/" + user.uid).set({
+            name,
+            email,
+            phone,
+            specialty
+          });
+        })
+        .then(() => {
+          alert("Trainer registered successfully!");
+          window.location.href = "index.html"; // redirect to login or dashboard
+        })
+        .catch((error) => {
+          alert("Signup failed: " + error.message);
+        });
+    });
+  </script>
+</body>
+</html>

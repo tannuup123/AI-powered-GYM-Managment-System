@@ -1,0 +1,878 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Fit Track Pro - The ultimate gym management platform for owners, trainers, and members">
+  <title>Fit Track Pro - Premium Gym Management</title>
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  
+  <!-- Styles -->
+  <link rel="stylesheet" href="./src/styles/main.css">
+  <link rel="icon" href="./public/logo.png" type="image/png">
+  
+  <style>
+    /* Landing Page Specific Styles */
+    .landing-nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      padding: var(--space-4) var(--space-8);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(15, 15, 35, 0.8);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border-color);
+    }
+    
+    .nav-brand {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      text-decoration: none;
+    }
+    
+    .nav-brand img {
+      width: 40px;
+      height: 40px;
+      border-radius: var(--radius-lg);
+    }
+    
+    .nav-brand span {
+      font-family: var(--font-display);
+      font-size: var(--text-xl);
+      font-weight: var(--font-bold);
+      background: var(--gradient-hero);
+      background-clip: text;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: var(--space-4);
+    }
+    
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: var(--space-24) var(--space-6);
+      position: relative;
+    }
+    
+    .hero-content {
+      max-width: 800px;
+      animation: fadeInUp 0.8s ease-out;
+    }
+    
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-2);
+      padding: var(--space-2) var(--space-4);
+      background: rgba(99, 102, 241, 0.15);
+      border: 1px solid rgba(99, 102, 241, 0.3);
+      border-radius: var(--radius-full);
+      font-size: var(--text-sm);
+      color: var(--primary-300);
+      margin-bottom: var(--space-6);
+    }
+    
+    .hero h1 {
+      font-size: clamp(2.5rem, 8vw, 4.5rem);
+      font-weight: var(--font-extrabold);
+      line-height: 1.1;
+      margin-bottom: var(--space-6);
+    }
+    
+    .hero h1 .gradient {
+      background: var(--gradient-hero);
+      background-clip: text;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    
+    .hero p {
+      font-size: var(--text-xl);
+      color: var(--text-secondary);
+      max-width: 600px;
+      margin: 0 auto var(--space-8);
+    }
+    
+    .hero-buttons {
+      display: flex;
+      gap: var(--space-4);
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    
+    /* Gyms Section */
+    .gyms-section {
+      padding: var(--space-24) var(--space-6);
+      background: var(--bg-dark);
+    }
+    
+    .section-header {
+      text-align: center;
+      max-width: 600px;
+      margin: 0 auto var(--space-12);
+    }
+    
+    .section-header h2 {
+      margin-bottom: var(--space-4);
+      font-size: var(--text-3xl);
+    }
+    
+    .section-header p {
+      color: var(--text-muted);
+    }
+    
+    .gyms-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+      gap: var(--space-6);
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    
+    .gym-card {
+      background: var(--bg-card);
+      border-radius: var(--radius-xl);
+      border: 1px solid var(--border-color);
+      overflow: hidden;
+      transition: all var(--transition-base);
+      cursor: pointer;
+    }
+    
+    .gym-card:hover {
+      transform: translateY(-8px);
+      border-color: var(--primary-500);
+      box-shadow: var(--shadow-glow);
+    }
+    
+    .gym-card-image {
+      width: 100%;
+      height: 180px;
+      object-fit: cover;
+      background: linear-gradient(135deg, var(--primary-600), var(--accent-600));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .gym-card-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    
+    .gym-card-image .placeholder-icon {
+      font-size: 4rem;
+      color: rgba(255,255,255,0.3);
+    }
+    
+    .gym-card-body {
+      padding: var(--space-5);
+    }
+    
+    .gym-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: var(--space-3);
+    }
+    
+    .gym-card h3 {
+      font-size: var(--text-lg);
+      font-weight: var(--font-semibold);
+      margin: 0;
+    }
+    
+    .gym-card-location {
+      display: flex;
+      align-items: center;
+      gap: var(--space-1);
+      color: var(--text-muted);
+      font-size: var(--text-sm);
+      margin-bottom: var(--space-3);
+    }
+    
+    .gym-facilities {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-2);
+      margin-bottom: var(--space-4);
+    }
+    
+    .facility-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-1);
+      padding: var(--space-1) var(--space-2);
+      background: rgba(99, 102, 241, 0.1);
+      border-radius: var(--radius-md);
+      font-size: var(--text-xs);
+      color: var(--primary-300);
+    }
+    
+    .gym-card-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-top: var(--space-3);
+      border-top: 1px solid var(--border-color);
+    }
+    
+    .gym-stats {
+      display: flex;
+      gap: var(--space-4);
+    }
+    
+    .gym-stat {
+      text-align: center;
+    }
+    
+    .gym-stat-value {
+      font-weight: var(--font-bold);
+      color: var(--text-primary);
+    }
+    
+    .gym-stat-label {
+      font-size: var(--text-xs);
+      color: var(--text-muted);
+    }
+    
+    .no-gyms {
+      text-align: center;
+      padding: var(--space-16);
+      color: var(--text-muted);
+    }
+    
+    .no-gyms i {
+      font-size: 4rem;
+      margin-bottom: var(--space-4);
+      opacity: 0.3;
+    }
+    
+    /* Features Section */
+    .features {
+      padding: var(--space-24) var(--space-6);
+      background: var(--surface-dark-elevated);
+    }
+    
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: var(--space-8);
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    
+    .feature-card {
+      background: var(--bg-card);
+      border-radius: var(--radius-xl);
+      border: 1px solid var(--border-color);
+      padding: var(--space-8);
+      transition: all var(--transition-base);
+    }
+    
+    .feature-card:hover {
+      transform: translateY(-8px);
+      border-color: var(--primary-500);
+      box-shadow: var(--shadow-glow);
+    }
+    
+    .feature-icon {
+      width: 60px;
+      height: 60px;
+      border-radius: var(--radius-lg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      margin-bottom: var(--space-5);
+    }
+    
+    .feature-icon.purple { background: rgba(139, 92, 246, 0.2); color: #a78bfa; }
+    .feature-icon.blue { background: rgba(59, 130, 246, 0.2); color: #60a5fa; }
+    .feature-icon.green { background: rgba(16, 185, 129, 0.2); color: var(--success-400); }
+    .feature-icon.orange { background: rgba(249, 115, 22, 0.2); color: var(--accent-400); }
+    
+    .feature-card h3 { margin-bottom: var(--space-3); font-size: var(--text-xl); }
+    .feature-card p { color: var(--text-muted); margin: 0; }
+    
+    /* CTA Section */
+    .cta {
+      padding: var(--space-24) var(--space-6);
+      text-align: center;
+    }
+    
+    .cta-content {
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    
+    .cta h2 { margin-bottom: var(--space-4); }
+    .cta p { margin-bottom: var(--space-8); }
+    
+    footer {
+      padding: var(--space-8) var(--space-6);
+      text-align: center;
+      border-top: 1px solid var(--border-color);
+    }
+    
+    footer p {
+      color: var(--text-muted);
+      font-size: var(--text-sm);
+      margin: 0;
+    }
+    
+    /* Gym Details Modal */
+    .gym-modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 1000;
+      background: rgba(0, 0, 0, 0.8);
+      backdrop-filter: blur(8px);
+      padding: var(--space-6);
+      overflow-y: auto;
+      align-items: flex-start;
+      justify-content: center;
+    }
+    
+    .gym-modal.active {
+      display: flex;
+    }
+    
+    .gym-modal-content {
+      background: var(--bg-card);
+      border-radius: var(--radius-xl);
+      border: 1px solid var(--border-color);
+      max-width: 700px;
+      width: 100%;
+      margin-top: var(--space-12);
+      animation: fadeInUp 0.3s ease;
+    }
+    
+    .gym-modal-image {
+      width: 100%;
+      height: 250px;
+      object-fit: cover;
+      background: linear-gradient(135deg, var(--primary-600), var(--accent-600));
+      border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .gym-modal-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+    }
+    
+    .gym-modal-image .placeholder-icon {
+      font-size: 6rem;
+      color: rgba(255,255,255,0.3);
+    }
+    
+    .gym-modal-body {
+      padding: var(--space-6);
+    }
+    
+    .gym-modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: var(--space-4);
+    }
+    
+    .gym-modal-header h2 {
+      font-size: var(--text-2xl);
+      margin: 0;
+    }
+    
+    .gym-modal-close {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-size: var(--text-2xl);
+      cursor: pointer;
+      padding: var(--space-2);
+      line-height: 1;
+    }
+    
+    .gym-modal-close:hover {
+      color: var(--text-primary);
+    }
+    
+    .gym-modal-info {
+      display: grid;
+      gap: var(--space-4);
+      margin-bottom: var(--space-6);
+    }
+    
+    .gym-modal-info-item {
+      display: flex;
+      align-items: flex-start;
+      gap: var(--space-3);
+    }
+    
+    .gym-modal-info-item i {
+      color: var(--primary-400);
+      width: 20px;
+      margin-top: 3px;
+    }
+    
+    .gym-modal-facilities {
+      margin-bottom: var(--space-6);
+    }
+    
+    .gym-modal-facilities h4 {
+      margin-bottom: var(--space-3);
+      font-size: var(--text-base);
+    }
+    
+    .gym-modal-facilities-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-2);
+    }
+    
+    .gym-modal-actions {
+      display: flex;
+      gap: var(--space-3);
+      padding-top: var(--space-4);
+      border-top: 1px solid var(--border-color);
+    }
+    
+    .gym-modal-actions .btn {
+      flex: 1;
+    }
+    
+    @media (max-width: 640px) {
+      .landing-nav {
+        padding: var(--space-4);
+      }
+      
+      .nav-brand span {
+        display: none;
+      }
+      
+      .hero-buttons {
+        flex-direction: column;
+        align-items: center;
+      }
+      
+      .hero-buttons .btn {
+        width: 100%;
+        max-width: 280px;
+      }
+      
+      .gyms-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .gym-modal-actions {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Navigation -->
+  <nav class="landing-nav">
+    <a href="/" class="nav-brand">
+      <img src="./public/logo.png" alt="Fit Track Pro">
+      <span>Fit Track Pro</span>
+    </a>
+    <div class="nav-links">
+      <a href="#gyms" class="btn btn-ghost">Explore Gyms</a>
+      <a href="./login.html" class="btn btn-ghost">Sign In</a>
+      <a href="./role.html" class="btn btn-primary">Get Started</a>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="hero-content">
+      <div class="hero-badge">
+        <i class="fa-solid fa-bolt"></i>
+        <span>Next-Gen Gym Management</span>
+      </div>
+      <h1>
+        Elevate Your Gym<br>
+        <span class="gradient">Experience</span>
+      </h1>
+      <p>
+        The complete platform for gym owners, trainers, and members. 
+        Manage memberships, track progress, and grow your fitness business.
+      </p>
+      <div class="hero-buttons">
+        <a href="./role.html" class="btn btn-primary btn-lg">
+          <i class="fa-solid fa-rocket"></i>
+          Start Free Trial
+        </a>
+        <a href="#gyms" class="btn btn-secondary btn-lg">
+          <i class="fa-solid fa-dumbbell"></i>
+          Explore Gyms
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Gyms Section -->
+  <section class="gyms-section" id="gyms">
+    <div class="container">
+      <div class="section-header">
+        <h2>🏋️ Explore Gyms Near You</h2>
+        <p>Browse registered gyms and find the perfect fit for your fitness journey</p>
+      </div>
+      
+      <div class="gyms-grid" id="gymsGrid">
+        <div class="no-gyms">
+          <i class="fa-solid fa-spinner fa-spin"></i>
+          <p>Loading gyms...</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features Section -->
+  <section class="features" id="features">
+    <div class="container">
+      <div class="section-header">
+        <h2>Everything You Need</h2>
+        <p>Powerful features designed to transform how you manage your gym</p>
+      </div>
+      
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="feature-icon purple">
+            <i class="fa-solid fa-users"></i>
+          </div>
+          <h3>Member Management</h3>
+          <p>Easily add, update, and manage member profiles with comprehensive tracking capabilities.</p>
+        </div>
+        
+        <div class="feature-card">
+          <div class="feature-icon blue">
+            <i class="fa-solid fa-file-invoice-dollar"></i>
+          </div>
+          <h3>Billing & Payments</h3>
+          <p>Generate invoices, track payments, and manage billing cycles with automated reminders.</p>
+        </div>
+        
+        <div class="feature-card">
+          <div class="feature-icon green">
+            <i class="fa-solid fa-calendar-check"></i>
+          </div>
+          <h3>Schedule Management</h3>
+          <p>Organize trainer schedules, member sessions, and class bookings effortlessly.</p>
+        </div>
+        
+        <div class="feature-card">
+          <div class="feature-icon orange">
+            <i class="fa-solid fa-bell"></i>
+          </div>
+          <h3>Smart Notifications</h3>
+          <p>Keep everyone informed with automated notifications and updates.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA Section -->
+  <section class="cta">
+    <div class="cta-content">
+      <h2>Ready to Get Started?</h2>
+      <p>Join thousands of gyms already using Fit Track Pro to streamline their operations.</p>
+      <a href="./role.html" class="btn btn-accent btn-lg">
+        <i class="fa-solid fa-arrow-right"></i>
+        Start Your Journey
+      </a>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <p>&copy; 2024 Fit Track Pro. All rights reserved.</p>
+  </footer>
+
+  <!-- Gym Details Modal -->
+  <div class="gym-modal" id="gymModal">
+    <div class="gym-modal-content">
+      <div class="gym-modal-image" id="modalImage">
+        <i class="fa-solid fa-dumbbell placeholder-icon"></i>
+      </div>
+      <div class="gym-modal-body">
+        <div class="gym-modal-header">
+          <h2 id="modalGymName">Gym Name</h2>
+          <button class="gym-modal-close" id="closeModal">&times;</button>
+        </div>
+        
+        <div class="gym-modal-info">
+          <div class="gym-modal-info-item">
+            <i class="fa-solid fa-location-dot"></i>
+            <div>
+              <div id="modalAddress">Address</div>
+              <div id="modalCity" style="color: var(--text-muted); font-size: var(--text-sm);"></div>
+            </div>
+          </div>
+          
+          <div class="gym-modal-info-item">
+            <i class="fa-solid fa-phone"></i>
+            <span id="modalPhone">Phone</span>
+          </div>
+          
+          <div class="gym-modal-info-item">
+            <i class="fa-solid fa-envelope"></i>
+            <span id="modalEmail">Email</span>
+          </div>
+          
+          <div class="gym-modal-info-item" id="descriptionRow">
+            <i class="fa-solid fa-info-circle"></i>
+            <span id="modalDescription">Description</span>
+          </div>
+        </div>
+        
+        <div class="gym-modal-facilities">
+          <h4><i class="fa-solid fa-list-check" style="color: var(--primary-400); margin-right: var(--space-2);"></i>Facilities</h4>
+          <div class="gym-modal-facilities-grid" id="modalFacilities">
+            <!-- Facilities will be populated here -->
+          </div>
+        </div>
+        
+        <div class="gym-modal-actions">
+          <a href="./member-signup.html" class="btn btn-primary" id="joinAsMember">
+            <i class="fa-solid fa-user"></i>
+            Join as Member
+          </a>
+          <a href="./trainer-signup.html" class="btn btn-secondary" id="joinAsTrainer">
+            <i class="fa-solid fa-user-tie"></i>
+            Join as Trainer
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script type="module">
+    import { database } from './src/config/firebase.js';
+    import { ref, get } from 'firebase/database';
+
+    const gymsGrid = document.getElementById('gymsGrid');
+    const gymModal = document.getElementById('gymModal');
+    const closeModal = document.getElementById('closeModal');
+
+    // Facility labels
+    const facilityLabels = {
+      ac: { label: 'Air Conditioning', icon: 'fa-snowflake' },
+      parking: { label: 'Parking', icon: 'fa-square-parking' },
+      locker: { label: 'Lockers', icon: 'fa-lock' },
+      shower: { label: 'Showers', icon: 'fa-shower' },
+      cardio: { label: 'Cardio Zone', icon: 'fa-heart-pulse' },
+      weights: { label: 'Free Weights', icon: 'fa-dumbbell' },
+      crossfit: { label: 'CrossFit', icon: 'fa-person-running' },
+      yoga: { label: 'Yoga/Pilates', icon: 'fa-spa' },
+      steam: { label: 'Steam/Sauna', icon: 'fa-hot-tub-person' },
+      trainer: { label: 'Personal Training', icon: 'fa-user-tie' }
+    };
+
+    // Load gyms
+    async function loadGyms() {
+      try {
+        const ownersSnap = await get(ref(database, 'owners'));
+        
+        if (!ownersSnap.exists()) {
+          gymsGrid.innerHTML = `
+            <div class="no-gyms" style="grid-column: 1 / -1;">
+              <i class="fa-solid fa-dumbbell"></i>
+              <p>No gyms registered yet. Be the first to <a href="./owner-signup.html" style="color: var(--primary-400);">register your gym</a>!</p>
+            </div>
+          `;
+          return;
+        }
+
+        const gyms = [];
+        ownersSnap.forEach(snap => {
+          const gym = snap.val();
+          if (gym.isPublic !== false) {
+            gym.id = snap.key;
+            // Count members
+            gym.memberCount = gym.members ? Object.keys(gym.members).length : 0;
+            gyms.push(gym);
+          }
+        });
+
+        if (gyms.length === 0) {
+          gymsGrid.innerHTML = `
+            <div class="no-gyms" style="grid-column: 1 / -1;">
+              <i class="fa-solid fa-dumbbell"></i>
+              <p>No gyms available. <a href="./owner-signup.html" style="color: var(--primary-400);">Register your gym</a>!</p>
+            </div>
+          `;
+          return;
+        }
+
+        gymsGrid.innerHTML = gyms.map(gym => `
+          <div class="gym-card" data-gym-id="${gym.id}">
+            <div class="gym-card-image">
+              ${gym.imageUrl 
+                ? `<img src="${gym.imageUrl}" alt="${gym.gymName}" onerror="this.parentElement.innerHTML='<i class=\\'fa-solid fa-dumbbell placeholder-icon\\'></i>'">`
+                : '<i class="fa-solid fa-dumbbell placeholder-icon"></i>'
+              }
+            </div>
+            <div class="gym-card-body">
+              <div class="gym-card-header">
+                <h3>${gym.gymName || 'Unnamed Gym'}</h3>
+              </div>
+              <div class="gym-card-location">
+                <i class="fa-solid fa-location-dot"></i>
+                <span>${gym.city || 'Location not specified'}</span>
+              </div>
+              <div class="gym-facilities">
+                ${renderFacilityTags(gym.facilities, 4)}
+              </div>
+              <div class="gym-card-footer">
+                <div class="gym-stats">
+                  <div class="gym-stat">
+                    <div class="gym-stat-value">${gym.memberCount}</div>
+                    <div class="gym-stat-label">Members</div>
+                  </div>
+                </div>
+                <button class="btn btn-ghost btn-sm" onclick="viewGymDetails('${gym.id}')">
+                  View Details <i class="fa-solid fa-arrow-right"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        `).join('');
+
+        // Store gyms data for modal
+        window.gymsData = {};
+        gyms.forEach(g => window.gymsData[g.id] = g);
+
+      } catch (error) {
+        console.error('Error loading gyms:', error);
+        gymsGrid.innerHTML = `
+          <div class="no-gyms" style="grid-column: 1 / -1;">
+            <i class="fa-solid fa-exclamation-triangle"></i>
+            <p>Failed to load gyms. Please try again later.</p>
+          </div>
+        `;
+      }
+    }
+
+    // Render facility tags (limited)
+    function renderFacilityTags(facilities, limit = 4) {
+      if (!facilities) return '';
+      
+      const tags = Object.entries(facilities)
+        .filter(([key, value]) => value && facilityLabels[key])
+        .slice(0, limit)
+        .map(([key]) => `
+          <span class="facility-tag">
+            <i class="fa-solid ${facilityLabels[key].icon}"></i>
+            ${facilityLabels[key].label}
+          </span>
+        `);
+      
+      const remaining = Object.keys(facilities).filter(k => facilities[k]).length - limit;
+      if (remaining > 0) {
+        tags.push(`<span class="facility-tag">+${remaining} more</span>`);
+      }
+      
+      return tags.join('');
+    }
+
+    // View gym details
+    window.viewGymDetails = function(gymId) {
+      const gym = window.gymsData[gymId];
+      if (!gym) return;
+
+      // Populate modal
+      document.getElementById('modalGymName').textContent = gym.gymName || 'Gym';
+      document.getElementById('modalAddress').textContent = gym.address || 'Address not provided';
+      document.getElementById('modalCity').textContent = `${gym.city || ''}${gym.pincode ? ' - ' + gym.pincode : ''}`;
+      document.getElementById('modalPhone').textContent = gym.phone || 'Not provided';
+      document.getElementById('modalEmail').textContent = gym.email || 'Not provided';
+      
+      const descRow = document.getElementById('descriptionRow');
+      if (gym.description) {
+        document.getElementById('modalDescription').textContent = gym.description;
+        descRow.style.display = 'flex';
+      } else {
+        descRow.style.display = 'none';
+      }
+
+      // Image
+      const modalImage = document.getElementById('modalImage');
+      if (gym.imageUrl) {
+        modalImage.innerHTML = `<img src="${gym.imageUrl}" alt="${gym.gymName}" onerror="this.parentElement.innerHTML='<i class=\\'fa-solid fa-dumbbell placeholder-icon\\'></i>'">`;
+      } else {
+        modalImage.innerHTML = '<i class="fa-solid fa-dumbbell placeholder-icon"></i>';
+      }
+
+      // Facilities
+      const modalFacilities = document.getElementById('modalFacilities');
+      if (gym.facilities && Object.keys(gym.facilities).some(k => gym.facilities[k])) {
+        modalFacilities.innerHTML = Object.entries(gym.facilities)
+          .filter(([key, value]) => value && facilityLabels[key])
+          .map(([key]) => `
+            <span class="facility-tag">
+              <i class="fa-solid ${facilityLabels[key].icon}"></i>
+              ${facilityLabels[key].label}
+            </span>
+          `).join('');
+      } else {
+        modalFacilities.innerHTML = '<span style="color: var(--text-muted);">No facilities listed</span>';
+      }
+
+      // Update join links with gym ID
+      document.getElementById('joinAsMember').href = `./member-signup.html?gymId=${gymId}`;
+      document.getElementById('joinAsTrainer').href = `./trainer-signup.html?gymId=${gymId}`;
+
+      gymModal.classList.add('active');
+    }
+
+    // Close modal
+    closeModal.addEventListener('click', () => {
+      gymModal.classList.remove('active');
+    });
+
+    gymModal.addEventListener('click', (e) => {
+      if (e.target === gymModal) {
+        gymModal.classList.remove('active');
+      }
+    });
+
+    // Escape key to close
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        gymModal.classList.remove('active');
+      }
+    });
+
+    // Load gyms on page load
+    loadGyms();
+  </script>
+</body>
+</html>

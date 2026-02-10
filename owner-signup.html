@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Create your gym owner account with Fit Track Pro">
+  <title>Owner Signup - Fit Track Pro</title>
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  
+  <!-- Styles -->
+  <link rel="stylesheet" href="./src/styles/main.css">
+  <link rel="icon" href="./public/logo.png" type="image/png">
+  
+  <style>
+    .facilities-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: var(--space-3);
+    }
+    
+    .facility-item {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+      padding: var(--space-2) var(--space-3);
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    
+    .facility-item:has(input:checked) {
+      background: rgba(99, 102, 241, 0.15);
+      border-color: var(--primary-400);
+    }
+    
+    .facility-item input {
+      accent-color: var(--primary-400);
+    }
+    
+    .facility-item i {
+      color: var(--primary-400);
+      width: 20px;
+    }
+    
+    .form-section {
+      margin-bottom: var(--space-6);
+      padding-bottom: var(--space-6);
+      border-bottom: 1px solid var(--border-color);
+    }
+    
+    .form-section-title {
+      font-weight: var(--font-semibold);
+      color: var(--text-primary);
+      margin-bottom: var(--space-4);
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+    }
+    
+    .form-section-title i {
+      color: var(--primary-400);
+    }
+    
+    @media (max-width: 480px) {
+      .facilities-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="auth-page">
+    <div class="auth-container" style="max-width: 600px;">
+      <div class="auth-card">
+        <!-- Back Button -->
+        <a href="./role.html" style="display: inline-flex; align-items: center; gap: var(--space-2); color: var(--text-muted); margin-bottom: var(--space-4); font-size: var(--text-sm);">
+          <i class="fa-solid fa-arrow-left"></i>
+          Back to role selection
+        </a>
+
+        <!-- Logo -->
+        <div class="auth-logo">
+          <img src="./public/logo.png" alt="Fit Track Pro Logo">
+          <h1>Register Your Gym</h1>
+          <p>Create your gym profile and start managing</p>
+        </div>
+
+        <!-- Signup Form -->
+        <form id="signupForm" class="auth-form">
+          <!-- Section 1: Account Details -->
+          <div class="form-section">
+            <div class="form-section-title">
+              <i class="fa-solid fa-user"></i>
+              Account Details
+            </div>
+            
+            <div class="form-group">
+              <label for="ownerName" class="form-label">Your Name *</label>
+              <input 
+                type="text" 
+                id="ownerName" 
+                name="ownerName" 
+                class="form-input" 
+                placeholder="Enter your full name"
+                required
+              >
+            </div>
+
+            <div class="form-group">
+              <label for="phone" class="form-label">Phone Number *</label>
+              <input 
+                type="tel" 
+                id="phone" 
+                name="phone" 
+                class="form-input" 
+                placeholder="Enter 10-digit phone number"
+                pattern="[0-9]{10}"
+                required
+              >
+            </div>
+
+            <div class="form-group">
+              <label for="email" class="form-label">Email Address *</label>
+              <input 
+                type="email" 
+                id="email" 
+                name="email" 
+                class="form-input" 
+                placeholder="Enter your email"
+                required
+                autocomplete="email"
+              >
+            </div>
+
+            <div class="form-group">
+              <label for="password" class="form-label">Password *</label>
+              <div class="password-wrapper">
+                <input 
+                  type="password" 
+                  id="password" 
+                  name="password" 
+                  class="form-input" 
+                  placeholder="Create a strong password"
+                  minlength="6"
+                  required
+                  autocomplete="new-password"
+                >
+                <button type="button" class="password-toggle" id="togglePassword" aria-label="Toggle password visibility">
+                  <i class="fa-solid fa-eye" id="eyeIcon"></i>
+                </button>
+              </div>
+              <small style="color: var(--text-muted); font-size: var(--text-xs);">Minimum 6 characters</small>
+            </div>
+
+            <div class="form-group">
+              <label for="confirmPassword" class="form-label">Confirm Password *</label>
+              <div class="password-wrapper">
+                <input 
+                  type="password" 
+                  id="confirmPassword" 
+                  name="confirmPassword" 
+                  class="form-input" 
+                  placeholder="Confirm your password"
+                  minlength="6"
+                  required
+                  autocomplete="new-password"
+                >
+                <button type="button" class="password-toggle" id="toggleConfirmPassword" aria-label="Toggle password visibility">
+                  <i class="fa-solid fa-eye" id="eyeIconConfirm"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Section 2: Gym Details -->
+          <div class="form-section">
+            <div class="form-section-title">
+              <i class="fa-solid fa-dumbbell"></i>
+              Gym Details
+            </div>
+
+            <div class="form-group">
+              <label for="gymName" class="form-label">Gym Name *</label>
+              <input 
+                type="text" 
+                id="gymName" 
+                name="gymName" 
+                class="form-input" 
+                placeholder="Enter your gym name"
+                required
+              >
+            </div>
+
+            <div class="form-group">
+              <label for="gymDescription" class="form-label">Description</label>
+              <textarea 
+                id="gymDescription" 
+                name="gymDescription" 
+                class="form-input" 
+                placeholder="Describe your gym (facilities, atmosphere, specialties...)"
+                rows="3"
+                style="resize: vertical;"
+              ></textarea>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-4);">
+              <div class="form-group">
+                <label for="gymCity" class="form-label">City *</label>
+                <input 
+                  type="text" 
+                  id="gymCity" 
+                  name="gymCity" 
+                  class="form-input" 
+                  placeholder="City"
+                  required
+                >
+              </div>
+
+              <div class="form-group">
+                <label for="gymPincode" class="form-label">Pincode</label>
+                <input 
+                  type="text" 
+                  id="gymPincode" 
+                  name="gymPincode" 
+                  class="form-input" 
+                  placeholder="Pincode"
+                  pattern="[0-9]{6}"
+                >
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="gymAddress" class="form-label">Full Address</label>
+              <input 
+                type="text" 
+                id="gymAddress" 
+                name="gymAddress" 
+                class="form-input" 
+                placeholder="Street address, landmark..."
+              >
+            </div>
+
+            <div class="form-group">
+              <label for="gymImage" class="form-label">Gym Image URL</label>
+              <input 
+                type="url" 
+                id="gymImage" 
+                name="gymImage" 
+                class="form-input" 
+                placeholder="https://example.com/gym-photo.jpg"
+              >
+              <small style="color: var(--text-muted); font-size: var(--text-xs);">Paste a link to your gym's photo (optional)</small>
+            </div>
+          </div>
+
+          <!-- Section 3: Facilities -->
+          <div class="form-section" style="border-bottom: none;">
+            <div class="form-section-title">
+              <i class="fa-solid fa-list-check"></i>
+              Facilities (Select all that apply)
+            </div>
+
+            <div class="facilities-grid">
+              <label class="facility-item">
+                <input type="checkbox" name="facilities" value="ac">
+                <i class="fa-solid fa-snowflake"></i>
+                <span>Air Conditioning</span>
+              </label>
+              
+              <label class="facility-item">
+                <input type="checkbox" name="facilities" value="parking">
+                <i class="fa-solid fa-square-parking"></i>
+                <span>Parking</span>
+              </label>
+              
+              <label class="facility-item">
+                <input type="checkbox" name="facilities" value="locker">
+                <i class="fa-solid fa-lock"></i>
+                <span>Lockers</span>
+              </label>
+              
+              <label class="facility-item">
+                <input type="checkbox" name="facilities" value="shower">
+                <i class="fa-solid fa-shower"></i>
+                <span>Showers</span>
+              </label>
+              
+              <label class="facility-item">
+                <input type="checkbox" name="facilities" value="cardio">
+                <i class="fa-solid fa-heart-pulse"></i>
+                <span>Cardio Zone</span>
+              </label>
+              
+              <label class="facility-item">
+                <input type="checkbox" name="facilities" value="weights">
+                <i class="fa-solid fa-dumbbell"></i>
+                <span>Free Weights</span>
+              </label>
+              
+              <label class="facility-item">
+                <input type="checkbox" name="facilities" value="crossfit">
+                <i class="fa-solid fa-person-running"></i>
+                <span>CrossFit</span>
+              </label>
+              
+              <label class="facility-item">
+                <input type="checkbox" name="facilities" value="yoga">
+                <i class="fa-solid fa-spa"></i>
+                <span>Yoga/Pilates</span>
+              </label>
+              
+              <label class="facility-item">
+                <input type="checkbox" name="facilities" value="steam">
+                <i class="fa-solid fa-hot-tub-person"></i>
+                <span>Steam/Sauna</span>
+              </label>
+              
+              <label class="facility-item">
+                <input type="checkbox" name="facilities" value="trainer">
+                <i class="fa-solid fa-user-tie"></i>
+                <span>Personal Training</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-check">
+              <input type="checkbox" name="terms" required>
+              <span>I agree to the <a href="#" style="color: var(--primary-400);">Terms of Service</a> and <a href="#" style="color: var(--primary-400);">Privacy Policy</a></span>
+            </label>
+          </div>
+
+          <button type="submit" id="signupBtn" class="btn btn-primary">
+            <span id="btnText">Create Gym Profile</span>
+          </button>
+        </form>
+
+        <!-- Footer -->
+        <div class="auth-footer">
+          <p>Already have an account? <a href="./login.html">Sign in</a></p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script type="module">
+    import { auth, database } from './src/config/firebase.js';
+    import { createUserWithEmailAndPassword, signOut } from 'firebase/auth';
+    import { ref, set } from 'firebase/database';
+    import { showToast, showSuccess, showError, showWarning } from './src/components/toast.js';
+    import { setButtonLoading, isValidEmail, isValidPhone } from './src/js/utils.js';
+
+    // DOM Elements
+    const signupForm = document.getElementById('signupForm');
+    const signupBtn = document.getElementById('signupBtn');
+    const btnText = document.getElementById('btnText');
+    const togglePassword = document.getElementById('togglePassword');
+    const toggleConfirmPassword = document.getElementById('toggleConfirmPassword');
+    const passwordInput = document.getElementById('password');
+    const confirmPasswordInput = document.getElementById('confirmPassword');
+    const eyeIcon = document.getElementById('eyeIcon');
+    const eyeIconConfirm = document.getElementById('eyeIconConfirm');
+
+    // Toggle password visibility
+    function setupPasswordToggle(toggle, input, icon) {
+      toggle.addEventListener('click', () => {
+        const isPassword = input.type === 'password';
+        input.type = isPassword ? 'text' : 'password';
+        icon.classList.toggle('fa-eye', !isPassword);
+        icon.classList.toggle('fa-eye-slash', isPassword);
+      });
+    }
+
+    setupPasswordToggle(togglePassword, passwordInput, eyeIcon);
+    setupPasswordToggle(toggleConfirmPassword, confirmPasswordInput, eyeIconConfirm);
+
+    // Handle signup
+    signupForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      // Account details
+      const ownerName = document.getElementById('ownerName').value.trim();
+      const phone = document.getElementById('phone').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const password = passwordInput.value;
+      const confirmPassword = confirmPasswordInput.value;
+      
+      // Gym details
+      const gymName = document.getElementById('gymName').value.trim();
+      const gymDescription = document.getElementById('gymDescription').value.trim();
+      const gymCity = document.getElementById('gymCity').value.trim();
+      const gymPincode = document.getElementById('gymPincode').value.trim();
+      const gymAddress = document.getElementById('gymAddress').value.trim();
+      const gymImage = document.getElementById('gymImage').value.trim();
+      
+      // Facilities
+      const facilityCheckboxes = document.querySelectorAll('input[name="facilities"]:checked');
+      const facilities = {};
+      facilityCheckboxes.forEach(cb => {
+        facilities[cb.value] = true;
+      });
+
+      // Validation
+      if (!ownerName || !phone || !email || !password || !gymName || !gymCity) {
+        showWarning('Please fill in all required fields');
+        return;
+      }
+
+      if (!isValidEmail(email)) {
+        showError('Please enter a valid email address');
+        return;
+      }
+
+      if (!isValidPhone(phone)) {
+        showError('Please enter a valid 10-digit phone number');
+        return;
+      }
+
+      if (password.length < 6) {
+        showError('Password must be at least 6 characters');
+        return;
+      }
+
+      if (password !== confirmPassword) {
+        showError('Passwords do not match');
+        return;
+      }
+
+      setButtonLoading(signupBtn, true, 'Sending request...');
+      btnText.textContent = 'Sending request...';
+
+      try {
+        // Create user in Firebase Auth
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        const uid = userCredential.user.uid;
+
+        // Save to pending_requests instead of directly creating owner
+        // Superadmin will need to approve this request
+        await set(ref(database, `pending_requests/${uid}`), {
+          userId: uid,
+          type: 'owner',
+          name: ownerName,
+          email: email,
+          phone: phone,
+          status: 'pending',
+          createdAt: new Date().toISOString(),
+          gymData: {
+            gymName: gymName,
+            description: gymDescription || '',
+            city: gymCity,
+            pincode: gymPincode || '',
+            address: gymAddress || '',
+            imageUrl: gymImage || '',
+            facilities: facilities
+          }
+        });
+
+        showSuccess('Request sent! Waiting for Super Admin approval.');
+        
+        // Sign out the user since they're not approved yet
+        await signOut(auth);
+        
+        setTimeout(() => {
+          window.location.href = './login.html?pending=owner';
+        }, 2000);
+
+      } catch (error) {
+        console.error('Signup error:', error);
+        
+        let message = 'Registration failed. Please try again.';
+        if (error.code === 'auth/email-already-in-use') {
+          message = 'This email is already registered. Please sign in.';
+        } else if (error.code === 'auth/weak-password') {
+          message = 'Password is too weak. Please use a stronger password.';
+        } else if (error.code === 'auth/invalid-email') {
+          message = 'Invalid email address format.';
+        }
+        
+        showError(message);
+        setButtonLoading(signupBtn, false);
+        btnText.textContent = 'Create Gym Profile';
+      }
+    });
+  </script>
+</body>
+</html>

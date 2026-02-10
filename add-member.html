@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Add New Member - Fit Track Pro">
+  <title>Add Member - Fit Track Pro</title>
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  
+  <!-- Styles -->
+  <link rel="stylesheet" href="./src/styles/main.css">
+  <link rel="icon" href="./public/logo.png" type="image/png">
+</head>
+<body>
+  <div class="dashboard">
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <img src="./public/logo.png" alt="Fit Track Pro" class="sidebar-logo">
+        <span class="sidebar-brand">Fit Track Pro</span>
+      </div>
+      
+      <nav class="sidebar-nav">
+        <div class="nav-section">
+          <span class="nav-section-title">Main</span>
+          <a href="./owner-dashboard.html" class="nav-link">
+            <i class="fa-solid fa-home"></i>
+            <span>Dashboard</span>
+          </a>
+        </div>
+        
+        <div class="nav-section">
+          <span class="nav-section-title">Members</span>
+          <a href="./add-member.html" class="nav-link active">
+            <i class="fa-solid fa-user-plus"></i>
+            <span>Add Member</span>
+          </a>
+          <a href="./manage-members.html" class="nav-link">
+            <i class="fa-solid fa-users"></i>
+            <span>Manage Members</span>
+          </a>
+        </div>
+      </nav>
+      
+      <div class="sidebar-footer">
+        <div class="user-info">
+          <div class="avatar avatar-placeholder" id="userAvatar">O</div>
+          <div class="user-details">
+            <div class="user-name" id="userName">Loading...</div>
+            <div class="user-role">Gym Owner</div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Mobile Sidebar Toggle -->
+    <button class="sidebar-toggle" id="sidebarToggle">
+      <i class="fa-solid fa-bars"></i>
+    </button>
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <div class="page-header">
+        <a href="./owner-dashboard.html" style="display: inline-flex; align-items: center; gap: var(--space-2); color: var(--text-muted); margin-bottom: var(--space-4); font-size: var(--text-sm);">
+          <i class="fa-solid fa-arrow-left"></i>
+          Back to Dashboard
+        </a>
+        <h1><i class="fa-solid fa-user-plus" style="color: var(--primary-400);"></i> Add New Member</h1>
+        <p>Register a new member to your gym</p>
+      </div>
+
+      <!-- Add Member Form -->
+      <div class="card" style="max-width: 600px;">
+        <form id="addMemberForm" class="auth-form">
+          <div class="form-group">
+            <label for="memberName" class="form-label">Full Name *</label>
+            <input 
+              type="text" 
+              id="memberName" 
+              name="memberName" 
+              class="form-input" 
+              placeholder="Enter member's full name"
+              required
+            >
+          </div>
+
+          <div class="form-group">
+            <label for="email" class="form-label">Email Address *</label>
+            <input 
+              type="email" 
+              id="email" 
+              name="email" 
+              class="form-input" 
+              placeholder="Enter email address"
+              required
+            >
+          </div>
+
+          <div class="form-group">
+            <label for="phone" class="form-label">Phone Number *</label>
+            <input 
+              type="tel" 
+              id="phone" 
+              name="phone" 
+              class="form-input" 
+              placeholder="Enter 10-digit phone number"
+              pattern="[0-9]{10}"
+              required
+            >
+          </div>
+
+          <div class="form-group">
+            <label for="dob" class="form-label">Date of Birth</label>
+            <input 
+              type="date" 
+              id="dob" 
+              name="dob" 
+              class="form-input"
+            >
+          </div>
+
+          <div class="form-group">
+            <label for="gender" class="form-label">Gender</label>
+            <select id="gender" name="gender" class="form-input">
+              <option value="">Select gender</option>
+              <option value="Male">Male</option>
+              <option value="Female">Female</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="address" class="form-label">Address</label>
+            <textarea 
+              id="address" 
+              name="address" 
+              class="form-input" 
+              placeholder="Enter address"
+              rows="2"
+              style="resize: vertical;"
+            ></textarea>
+          </div>
+
+          <div class="form-group">
+            <label for="plan" class="form-label">Membership Plan *</label>
+            <select id="plan" name="plan" class="form-input" required>
+              <option value="">Select plan</option>
+              <option value="Monthly">Monthly - ₹999</option>
+              <option value="Quarterly">Quarterly - ₹2499</option>
+              <option value="Half-Yearly">Half-Yearly - ₹4499</option>
+              <option value="Yearly">Yearly - ₹7999</option>
+            </select>
+          </div>
+
+          <div style="display: flex; gap: var(--space-4); margin-top: var(--space-6);">
+            <button type="submit" id="submitBtn" class="btn btn-primary" style="flex: 1;">
+              <i class="fa-solid fa-plus"></i>
+              <span id="btnText">Add Member</span>
+            </button>
+            <a href="./owner-dashboard.html" class="btn btn-secondary">
+              Cancel
+            </a>
+          </div>
+        </form>
+      </div>
+    </main>
+  </div>
+
+  <!-- Scripts -->
+  <script type="module">
+    import { auth, database } from './src/config/firebase.js';
+    import { onAuthStateChanged } from 'firebase/auth';
+    import { ref, get, push, set } from 'firebase/database';
+    import { showToast, showSuccess, showError, showWarning } from './src/components/toast.js';
+    import { setButtonLoading, isValidEmail, isValidPhone, generateId } from './src/js/utils.js';
+
+    // DOM Elements
+    const sidebar = document.getElementById('sidebar');
+    const sidebarToggle = document.getElementById('sidebarToggle');
+    const sidebarOverlay = document.getElementById('sidebarOverlay');
+    const addMemberForm = document.getElementById('addMemberForm');
+    const submitBtn = document.getElementById('submitBtn');
+    const btnText = document.getElementById('btnText');
+
+    let currentOwnerId = null;
+
+    // Mobile sidebar toggle
+    sidebarToggle.addEventListener('click', () => {
+      sidebar.classList.toggle('open');
+      sidebarOverlay.classList.toggle('active');
+    });
+
+    sidebarOverlay.addEventListener('click', () => {
+      sidebar.classList.remove('open');
+      sidebarOverlay.classList.remove('active');
+    });
+
+    // Auth state
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        showError('Please log in to continue');
+        setTimeout(() => window.location.href = './login.html', 1500);
+        return;
+      }
+
+      currentOwnerId = user.uid;
+
+      try {
+        const ownerSnap = await get(ref(database, `owners/${user.uid}`));
+        if (ownerSnap.exists()) {
+          const owner = ownerSnap.val();
+          document.getElementById('userName').textContent = owner.name || 'Owner';
+          document.getElementById('userAvatar').textContent = (owner.name || 'O').charAt(0).toUpperCase();
+        }
+      } catch (error) {
+        console.error('Error loading owner data:', error);
+      }
+    });
+
+    // Handle form submit
+    addMemberForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      if (!currentOwnerId) {
+        showError('Please log in first');
+        return;
+      }
+
+      const memberName = document.getElementById('memberName').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const phone = document.getElementById('phone').value.trim();
+      const dob = document.getElementById('dob').value;
+      const gender = document.getElementById('gender').value;
+      const address = document.getElementById('address').value.trim();
+      const plan = document.getElementById('plan').value;
+
+      // Validation
+      if (!memberName || !email || !phone || !plan) {
+        showWarning('Please fill in all required fields');
+        return;
+      }
+
+      if (!isValidEmail(email)) {
+        showError('Please enter a valid email address');
+        return;
+      }
+
+      if (!isValidPhone(phone)) {
+        showError('Please enter a valid 10-digit phone number');
+        return;
+      }
+
+      setButtonLoading(submitBtn, true, 'Adding member...');
+      btnText.textContent = 'Adding member...';
+
+      try {
+        const memberId = generateId();
+        
+        await set(ref(database, `owners/${currentOwnerId}/members/${memberId}`), {
+          name: memberName,
+          email: email,
+          phone: phone,
+          dob: dob || null,
+          gender: gender || null,
+          address: address || null,
+          plan: plan,
+          joiningDate: new Date().toISOString().split('T')[0],
+          createdAt: new Date().toISOString(),
+          status: 'Active'
+        });
+
+        showSuccess('Member added successfully!');
+        
+        setTimeout(() => {
+          window.location.href = './manage-members.html';
+        }, 1500);
+
+      } catch (error) {
+        console.error('Error adding member:', error);
+        showError('Failed to add member. Please try again.');
+        setButtonLoading(submitBtn, false);
+        btnText.textContent = 'Add Member';
+      }
+    });
+  </script>
+</body>
+</html>

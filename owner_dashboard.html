@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Owner Dashboard - Fit Track Pro</title>
+  <link rel="stylesheet" href="owner_dashboard.css" />
+  <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+</head>
+<body>
+  <div class="dashboard-container">
+    <header class="dashboard-header">
+      <h1>Owner Dashboard</h1>
+      <p>Manage Your Gym Efficiently</p>
+    </header>
+
+    <div id="reportSection" style="margin-top: 20px; text-align:center;">
+      <h3>📈 Gym Summary</h3>
+      <p id="memberCount">Members: loading...</p>
+      <p id="paidCount">Paid Bills: loading...</p>
+      <p id="unpaidCount">Unpaid Bills: loading...</p>
+    </div>
+
+    <div class="dashboard-grid" style="margin-top: 30px;">
+      <div class="dashboard-item" onclick="addMember()">
+        <i class="fa fa-user-plus"></i>
+        <p>Add Member</p>
+      </div>
+
+      <div class="dashboard-item" onclick="updateDeleteMember()">
+        <i class="fa fa-user-edit"></i>
+        <p>Update/Delete Members</p>
+      </div>
+
+      <div class="dashboard-item" onclick="createBill()">
+        <i class="fa fa-file-invoice-dollar"></i>
+        <p>Create Bill</p>
+      </div>
+
+      <div class="dashboard-item" onclick="assignNotification()">
+        <i class="fa fa-bell"></i>
+        <p>Assign Monthly Notification</p>
+      </div>
+
+      <div class="dashboard-item" onclick="window.location.href='edit_owner_profile.html'">
+        <i class="fa fa-user-cog"></i>
+        <p>Edit Profile</p>
+      </div>
+
+      <div class="dashboard-item" id="logoutBtn">
+        <i class="fa fa-sign-out-alt"></i>
+        <p>Logout</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+
+  <!-- EmailJS SDK -->
+  <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
+  <script>
+    emailjs.init("H94D_5IfN2JtyGYZI"); // ✅ Your public key
+
+    function sendEmailNotification(toEmail, toName, messageText) {
+      emailjs.send("tanmayup123", "template_g4poy2c", {
+        to_email: toEmail,
+        to_name: toName,
+        message: messageText
+      }).then(
+        (response) => {
+          console.log("✅ Email sent to", toEmail);
+        },
+        (error) => {
+          console.error("❌ Email failed:", error);
+        }
+      );
+    }
+  </script>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyC-oca5z39s7l77EDY_Jx1psRroWtfZ2pM",
+      authDomain: "fit-track-be443.firebaseapp.com",
+      databaseURL: "https://fit-track-be443-default-rtdb.firebaseio.com",
+      projectId: "fit-track-be443",
+      storageBucket: "fit-track-be443.appspot.com",
+      messagingSenderId: "485684449281",
+      appId: "1:485684449281:web:88991ce3596959c0433000"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
+    const auth = firebase.auth();
+
+    function addMember() {
+      window.location.href = "add_member.html";
+    }
+
+    function updateDeleteMember() {
+      window.location.href = "manage_members.html";
+    }
+
+    function createBill() {
+      window.location.href = "create_bill.html";
+    }
+
+    function assignNotification() {
+      const message = prompt("Enter monthly message to notify all members:");
+      if (!message) return;
+
+      auth.onAuthStateChanged(user => {
+        if (!user) return alert("Please log in.");
+        const ownerId = user.uid;
+        const membersRef = database.ref(`owners/${ownerId}/members`);
+
+        membersRef.once("value").then(snapshot => {
+          const members = snapshot.val();
+          if (!members) return alert("No members found.");
+
+          const updates = {};
+          Object.keys(members).forEach(memberId => {
+            const notifId = database.ref().push().key;
+            updates[`members/${memberId}/notifications/${notifId}`] = {
+              message,
+              date: new Date().toLocaleString()
+            };
+
+            const member = members[memberId];
+            if (member.email && member.name) {
+              sendEmailNotification(member.email, member.name, message);
+            }
+          });
+
+          return database.ref().update(updates);
+        }).then(() => {
+          alert("✅ Notifications assigned and emails sent!");
+        }).catch(error => {
+          console.error("❌ Notification error:", error);
+          alert("Failed to send notifications.");
+        });
+      });
+    }
+
+    function loadDashboardStats(ownerId) {
+      const memberRef = database.ref(`owners/${ownerId}/members`);
+      const billRef = database.ref("bills");
+
+      memberRef.once("value").then(snapshot => {
+        document.getElementById("memberCount").textContent = `Members: ${snapshot.numChildren()}`;
+      });
+
+      let paid = 0, unpaid = 0;
+      billRef.once("value").then(snapshot => {
+        snapshot.forEach(memberSnap => {
+          memberSnap.child("bill_receipts").forEach(billSnap => {
+            const bill = billSnap.val();
+            if (bill.status === "Paid") paid++;
+            else if (bill.status === "Unpaid") unpaid++;
+          });
+        });
+
+        document.getElementById("paidCount").textContent = `Paid Bills: ${paid}`;
+        document.getElementById("unpaidCount").textContent = `Unpaid Bills: ${unpaid}`;
+      });
+    }
+
+    auth.onAuthStateChanged(user => {
+      if (!user) {
+        alert("Please log in.");
+        window.location.href = "login.html";
+        return;
+      }
+
+      document.getElementById("logoutBtn").addEventListener("click", () => {
+        auth.signOut().then(() => {
+          localStorage.clear();
+          window.location.href = "login.html";
+        }).catch(error => {
+          console.error("Logout failed:", error);
+          alert("Logout failed. Please try again.");
+        });
+      });
+
+      loadDashboardStats(user.uid);
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Super Admin Dashboard - Fit Track Pro">
+  <title>Super Admin Dashboard - Fit Track Pro</title>
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  
+  <!-- Styles -->
+  <link rel="stylesheet" href="./src/styles/main.css">
+  <link rel="stylesheet" href="./src/styles/dashboard.css">
+  <link rel="icon" href="./public/logo.png" type="image/png">
+  
+  <style>
+    .admin-header {
+      background: linear-gradient(135deg, var(--primary-600), var(--accent-600));
+      padding: var(--space-8);
+      border-radius: var(--radius-xl);
+      margin-bottom: var(--space-8);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .admin-header h1 {
+      font-size: var(--text-2xl);
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+    }
+    
+    .admin-header p {
+      color: rgba(255,255,255,0.8);
+      margin-top: var(--space-2);
+    }
+    
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: var(--space-6);
+      margin-bottom: var(--space-8);
+    }
+    
+    .stat-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-xl);
+      padding: var(--space-6);
+      transition: all 0.2s;
+    }
+    
+    .stat-card:hover {
+      border-color: var(--primary-500);
+      transform: translateY(-4px);
+    }
+    
+    .stat-icon {
+      width: 50px;
+      height: 50px;
+      border-radius: var(--radius-lg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.25rem;
+      margin-bottom: var(--space-4);
+    }
+    
+    .stat-icon.purple { background: rgba(139, 92, 246, 0.2); color: #a78bfa; }
+    .stat-icon.blue { background: rgba(59, 130, 246, 0.2); color: #60a5fa; }
+    .stat-icon.green { background: rgba(16, 185, 129, 0.2); color: var(--success-400); }
+    .stat-icon.orange { background: rgba(249, 115, 22, 0.2); color: var(--accent-400); }
+    .stat-icon.pink { background: rgba(236, 72, 153, 0.2); color: #f472b6; }
+    
+    .stat-value {
+      font-size: var(--text-3xl);
+      font-weight: var(--font-bold);
+      margin-bottom: 4px;
+    }
+    
+    .stat-label {
+      color: var(--text-muted);
+      font-size: var(--text-sm);
+    }
+    
+    .section-title {
+      font-size: var(--text-xl);
+      margin-bottom: var(--space-4);
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+    }
+    
+    .section-title i {
+      color: var(--primary-400);
+    }
+    
+    .quick-actions {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: var(--space-4);
+      margin-bottom: var(--space-8);
+    }
+    
+    .action-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: var(--space-5);
+      display: flex;
+      align-items: center;
+      gap: var(--space-4);
+      text-decoration: none;
+      color: var(--text-primary);
+      transition: all 0.2s;
+    }
+    
+    .action-card:hover {
+      border-color: var(--primary-500);
+      transform: translateX(4px);
+    }
+    
+    .action-icon {
+      width: 50px;
+      height: 50px;
+      border-radius: var(--radius-lg);
+      background: rgba(99, 102, 241, 0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--primary-400);
+      font-size: 1.25rem;
+    }
+    
+    .action-info h3 {
+      font-size: var(--text-base);
+      margin-bottom: 2px;
+    }
+    
+    .action-info p {
+      color: var(--text-muted);
+      font-size: var(--text-sm);
+      margin: 0;
+    }
+    
+    .recent-section {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+      gap: var(--space-6);
+    }
+    
+    .recent-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-xl);
+      padding: var(--space-5);
+    }
+    
+    .recent-card h3 {
+      font-size: var(--text-lg);
+      margin-bottom: var(--space-4);
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+    }
+    
+    .recent-card h3 i {
+      color: var(--primary-400);
+    }
+    
+    .recent-item {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      padding: var(--space-3) 0;
+      border-bottom: 1px solid var(--border-color);
+    }
+    
+    .recent-item:last-child {
+      border-bottom: none;
+    }
+    
+    .recent-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--primary-600), var(--accent-600));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: var(--font-bold);
+    }
+    
+    .recent-info {
+      flex: 1;
+    }
+    
+    .recent-info h4 {
+      font-size: var(--text-sm);
+      margin-bottom: 2px;
+    }
+    
+    .recent-info p {
+      color: var(--text-muted);
+      font-size: var(--text-xs);
+      margin: 0;
+    }
+    
+    .recent-badge {
+      padding: 2px 8px;
+      border-radius: var(--radius-full);
+      font-size: var(--text-xs);
+      background: rgba(99, 102, 241, 0.1);
+      color: var(--primary-400);
+    }
+    
+    .recent-badge.pending {
+      background: rgba(245, 158, 11, 0.1);
+      color: #fbbf24;
+    }
+    
+    .empty-list {
+      text-align: center;
+      padding: var(--space-8);
+      color: var(--text-muted);
+    }
+    
+    @media (max-width: 768px) {
+      .recent-section {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Navigation -->
+  <nav class="dashboard-nav">
+    <a href="./superadmin-dashboard.html" class="nav-brand">
+      <img src="./public/logo.png" alt="Fit Track Pro">
+      <span>Super Admin</span>
+    </a>
+    <div class="nav-links">
+      <a href="./superadmin-gyms.html" class="btn btn-ghost">
+        <i class="fa-solid fa-building"></i>
+        Gyms
+      </a>
+      <a href="./superadmin-users.html" class="btn btn-ghost">
+        <i class="fa-solid fa-users"></i>
+        Users
+      </a>
+      <button id="logoutBtn" class="btn btn-ghost" style="color: var(--error-400);">
+        <i class="fa-solid fa-sign-out-alt"></i>
+        Logout
+      </button>
+    </div>
+  </nav>
+
+  <main class="main-content" style="padding-top: 80px;">
+    <div class="dashboard-container">
+      <!-- Admin Header -->
+      <div class="admin-header">
+        <div>
+          <h1>
+            <i class="fa-solid fa-crown"></i>
+            Super Admin Dashboard
+          </h1>
+          <p>Complete control over the Fit Track Pro platform</p>
+        </div>
+        <div id="adminInfo" style="text-align: right;">
+          <!-- Admin name/email will be shown here -->
+        </div>
+      </div>
+      
+      <!-- Stats Grid -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon purple">
+            <i class="fa-solid fa-building"></i>
+          </div>
+          <div class="stat-value" id="totalGyms">0</div>
+          <div class="stat-label">Total Gyms</div>
+        </div>
+        
+        <div class="stat-card">
+          <div class="stat-icon blue">
+            <i class="fa-solid fa-users"></i>
+          </div>
+          <div class="stat-value" id="totalMembers">0</div>
+          <div class="stat-label">Total Members</div>
+        </div>
+        
+        <div class="stat-card">
+          <div class="stat-icon green">
+            <i class="fa-solid fa-user-tie"></i>
+          </div>
+          <div class="stat-value" id="totalTrainers">0</div>
+          <div class="stat-label">Total Trainers</div>
+        </div>
+        
+        <div class="stat-card">
+          <div class="stat-icon orange">
+            <i class="fa-solid fa-clock"></i>
+          </div>
+          <div class="stat-value" id="pendingRequests">0</div>
+          <div class="stat-label">Pending Requests</div>
+        </div>
+        
+        <div class="stat-card">
+          <div class="stat-icon pink">
+            <i class="fa-solid fa-file-invoice-dollar"></i>
+          </div>
+          <div class="stat-value" id="totalBills">0</div>
+          <div class="stat-label">Total Bills</div>
+        </div>
+      </div>
+      
+      <!-- Quick Actions -->
+      <h2 class="section-title">
+        <i class="fa-solid fa-bolt"></i>
+        Quick Actions
+      </h2>
+      <div class="quick-actions">
+        <a href="./superadmin-gyms.html" class="action-card">
+          <div class="action-icon">
+            <i class="fa-solid fa-building"></i>
+          </div>
+          <div class="action-info">
+            <h3>Manage Gyms</h3>
+            <p>View, edit, or delete gym profiles</p>
+          </div>
+        </a>
+        
+        <a href="./superadmin-users.html" class="action-card">
+          <div class="action-icon">
+            <i class="fa-solid fa-users-cog"></i>
+          </div>
+          <div class="action-info">
+            <h3>Manage Users</h3>
+            <p>Owners, trainers, and members</p>
+          </div>
+        </a>
+        
+        <a href="./superadmin-users.html?tab=pending" class="action-card">
+          <div class="action-icon">
+            <i class="fa-solid fa-user-clock"></i>
+          </div>
+          <div class="action-info">
+            <h3>Pending Requests</h3>
+            <p>Approve or reject join requests</p>
+          </div>
+        </a>
+      </div>
+      
+      <!-- Recent Activity -->
+      <h2 class="section-title">
+        <i class="fa-solid fa-history"></i>
+        Recent Activity
+      </h2>
+      <div class="recent-section">
+        <div class="recent-card">
+          <h3>
+            <i class="fa-solid fa-building"></i>
+            Recent Gyms
+          </h3>
+          <div id="recentGyms">
+            <div class="empty-list">Loading...</div>
+          </div>
+        </div>
+        
+        <div class="recent-card">
+          <h3>
+            <i class="fa-solid fa-user-plus"></i>
+            Recent Requests
+          </h3>
+          <div id="recentRequests">
+            <div class="empty-list">Loading...</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Scripts -->
+  <script type="module">
+    import { auth, database } from './src/config/firebase.js';
+    import { onAuthStateChanged, signOut } from 'firebase/auth';
+    import { ref, get } from 'firebase/database';
+    import { showSuccess, showError } from './src/components/toast.js';
+
+    // Check auth
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        window.location.href = './superadmin-login.html';
+        return;
+      }
+
+      // Verify superadmin
+      const superadminSnap = await get(ref(database, `superadmins/${user.uid}`));
+      if (!superadminSnap.exists()) {
+        showError('Access denied. Not a super admin.');
+        window.location.href = './login.html';
+        return;
+      }
+
+      const admin = superadminSnap.val();
+      document.getElementById('adminInfo').innerHTML = `
+        <div style="font-size: var(--text-sm); opacity: 0.8;">Logged in as</div>
+        <div style="font-weight: var(--font-semibold);">${admin.email || user.email}</div>
+      `;
+
+      loadStats();
+      loadRecentActivity();
+    });
+
+    // Logout
+    document.getElementById('logoutBtn').addEventListener('click', async () => {
+      await signOut(auth);
+      window.location.href = './superadmin-login.html';
+    });
+
+    // Load stats
+    async function loadStats() {
+      try {
+        // Gyms
+        const ownersSnap = await get(ref(database, 'owners'));
+        let gymsCount = 0;
+        let membersCount = 0;
+        
+        if (ownersSnap.exists()) {
+          ownersSnap.forEach(owner => {
+            gymsCount++;
+            const members = owner.child('members').val();
+            if (members) {
+              membersCount += Object.keys(members).length;
+            }
+          });
+        }
+        
+        document.getElementById('totalGyms').textContent = gymsCount;
+        document.getElementById('totalMembers').textContent = membersCount;
+
+        // Trainers
+        const trainersSnap = await get(ref(database, 'trainers'));
+        document.getElementById('totalTrainers').textContent = trainersSnap.exists() 
+          ? Object.keys(trainersSnap.val()).length 
+          : 0;
+
+        // Pending requests
+        const requestsSnap = await get(ref(database, 'pending_requests'));
+        let pendingCount = 0;
+        if (requestsSnap.exists()) {
+          requestsSnap.forEach(req => {
+            if (req.val().status === 'pending') pendingCount++;
+          });
+        }
+        document.getElementById('pendingRequests').textContent = pendingCount;
+
+        // Bills
+        const billsCount = await countAllBills();
+        document.getElementById('totalBills').textContent = billsCount;
+
+      } catch (error) {
+        console.error('Error loading stats:', error);
+      }
+    }
+
+    async function countAllBills() {
+      let count = 0;
+      try {
+        const ownersSnap = await get(ref(database, 'owners'));
+        if (ownersSnap.exists()) {
+          ownersSnap.forEach(owner => {
+            const bills = owner.child('bills').val();
+            if (bills) count += Object.keys(bills).length;
+          });
+        }
+      } catch (e) {}
+      return count;
+    }
+
+    // Load recent activity
+    async function loadRecentActivity() {
+      try {
+        // Recent gyms
+        const ownersSnap = await get(ref(database, 'owners'));
+        const gyms = [];
+        if (ownersSnap.exists()) {
+          ownersSnap.forEach(snap => {
+            const gym = snap.val();
+            gym.id = snap.key;
+            gyms.push(gym);
+          });
+        }
+        
+        gyms.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+        const recentGyms = gyms.slice(0, 5);
+        
+        if (recentGyms.length > 0) {
+          document.getElementById('recentGyms').innerHTML = recentGyms.map(gym => `
+            <div class="recent-item">
+              <div class="recent-avatar">${(gym.gymName || 'G').charAt(0)}</div>
+              <div class="recent-info">
+                <h4>${gym.gymName || 'Unnamed Gym'}</h4>
+                <p>${gym.city || 'No location'} • ${gym.name || 'No owner'}</p>
+              </div>
+            </div>
+          `).join('');
+        } else {
+          document.getElementById('recentGyms').innerHTML = '<div class="empty-list">No gyms yet</div>';
+        }
+
+        // Recent requests
+        const requestsSnap = await get(ref(database, 'pending_requests'));
+        const requests = [];
+        if (requestsSnap.exists()) {
+          requestsSnap.forEach(snap => {
+            const req = snap.val();
+            req.id = snap.key;
+            requests.push(req);
+          });
+        }
+        
+        requests.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+        const recentRequests = requests.slice(0, 5);
+        
+        if (recentRequests.length > 0) {
+          document.getElementById('recentRequests').innerHTML = recentRequests.map(req => `
+            <div class="recent-item">
+              <div class="recent-avatar">${req.name.charAt(0)}</div>
+              <div class="recent-info">
+                <h4>${req.name}</h4>
+                <p>${req.type} • ${req.email}</p>
+              </div>
+              <span class="recent-badge ${req.status}">${req.status}</span>
+            </div>
+          `).join('');
+        } else {
+          document.getElementById('recentRequests').innerHTML = '<div class="empty-list">No requests yet</div>';
+        }
+
+      } catch (error) {
+        console.error('Error loading activity:', error);
+      }
+    }
+  </script>
+</body>
+</html>

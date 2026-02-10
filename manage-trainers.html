@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Manage Trainers - Fit Track Pro">
+  <title>Manage Trainers - Fit Track Pro</title>
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  
+  <!-- Styles -->
+  <link rel="stylesheet" href="./src/styles/main.css">
+  <link rel="icon" href="./public/logo.png" type="image/png">
+</head>
+<body>
+  <div class="dashboard">
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <img src="./public/logo.png" alt="Fit Track Pro" class="sidebar-logo">
+        <span class="sidebar-brand">Fit Track Pro</span>
+      </div>
+      
+      <nav class="sidebar-nav">
+        <div class="nav-section">
+          <span class="nav-section-title">Main</span>
+          <a href="./owner-dashboard.html" class="nav-link">
+            <i class="fa-solid fa-home"></i>
+            <span>Dashboard</span>
+          </a>
+        </div>
+        
+        <div class="nav-section">
+          <span class="nav-section-title">Trainers</span>
+          <a href="./manage-trainers.html" class="nav-link active">
+            <i class="fa-solid fa-user-tie"></i>
+            <span>Manage Trainers</span>
+          </a>
+          <a href="./assign-trainer.html" class="nav-link">
+            <i class="fa-solid fa-people-arrows"></i>
+            <span>Assign Trainer</span>
+          </a>
+        </div>
+      </nav>
+      
+      <div class="sidebar-footer">
+        <div class="user-info">
+          <div class="avatar avatar-placeholder" id="userAvatar">O</div>
+          <div class="user-details">
+            <div class="user-name" id="userName">Loading...</div>
+            <div class="user-role">Gym Owner</div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Mobile Sidebar Toggle -->
+    <button class="sidebar-toggle" id="sidebarToggle">
+      <i class="fa-solid fa-bars"></i>
+    </button>
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <div class="page-header">
+        <a href="./owner-dashboard.html" style="display: inline-flex; align-items: center; gap: var(--space-2); color: var(--text-muted); margin-bottom: var(--space-4); font-size: var(--text-sm);">
+          <i class="fa-solid fa-arrow-left"></i>
+          Back to Dashboard
+        </a>
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: var(--space-4);">
+          <div>
+            <h1><i class="fa-solid fa-user-tie" style="color: var(--primary-400);"></i> Manage Trainers</h1>
+            <p>View and manage all gym trainers</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Search -->
+      <div class="card" style="margin-bottom: var(--space-6);">
+        <div style="display: flex; gap: var(--space-4); flex-wrap: wrap;">
+          <div class="form-group" style="flex: 1; min-width: 200px; margin: 0;">
+            <input 
+              type="text" 
+              id="searchInput" 
+              class="form-input" 
+              placeholder="Search by name, email, or phone..."
+            >
+          </div>
+          <select id="filterSpecialization" class="form-input" style="width: auto;">
+            <option value="">All Specializations</option>
+            <option value="Strength Training">Strength Training</option>
+            <option value="Cardio">Cardio</option>
+            <option value="Yoga">Yoga</option>
+            <option value="CrossFit">CrossFit</option>
+            <option value="Nutrition">Nutrition</option>
+            <option value="Personal Training">Personal Training</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Trainers Grid -->
+      <div id="trainersContainer" class="grid" style="grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: var(--space-6);">
+        <div class="card" style="text-align: center; padding: var(--space-8);">
+          <i class="fa-solid fa-spinner fa-spin" style="font-size: 2rem; color: var(--primary-400);"></i>
+          <p style="margin-top: var(--space-2); color: var(--text-muted);">Loading trainers...</p>
+        </div>
+      </div>
+
+      <!-- View Trainer Modal -->
+      <div class="modal-backdrop" id="viewModal">
+        <div class="modal" style="max-width: 500px;">
+          <div class="modal-header">
+            <h3>Trainer Details</h3>
+            <button class="btn btn-ghost btn-icon" id="closeViewModal">&times;</button>
+          </div>
+          <div class="modal-body" id="trainerDetails">
+            <!-- Trainer details will be loaded here -->
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Scripts -->
+  <script type="module">
+    import { auth, database } from './src/config/firebase.js';
+    import { onAuthStateChanged } from 'firebase/auth';
+    import { ref, get, remove } from 'firebase/database';
+    import { showToast, showSuccess, showError, showWarning } from './src/components/toast.js';
+
+    // DOM Elements
+    const sidebar = document.getElementById('sidebar');
+    const sidebarToggle = document.getElementById('sidebarToggle');
+    const sidebarOverlay = document.getElementById('sidebarOverlay');
+    const trainersContainer = document.getElementById('trainersContainer');
+    const searchInput = document.getElementById('searchInput');
+    const filterSpecialization = document.getElementById('filterSpecialization');
+    const viewModal = document.getElementById('viewModal');
+    const closeViewModal = document.getElementById('closeViewModal');
+
+    let currentOwnerId = null;
+    let allTrainers = [];
+
+    // Mobile sidebar toggle
+    sidebarToggle.addEventListener('click', () => {
+      sidebar.classList.toggle('open');
+      sidebarOverlay.classList.toggle('active');
+    });
+
+    sidebarOverlay.addEventListener('click', () => {
+      sidebar.classList.remove('open');
+      sidebarOverlay.classList.remove('active');
+    });
+
+    // Modal handlers
+    function openModal() {
+      viewModal.classList.add('active');
+    }
+
+    function closeModalFunc() {
+      viewModal.classList.remove('active');
+    }
+
+    closeViewModal.addEventListener('click', closeModalFunc);
+
+    // Auth state
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        showError('Please log in to continue');
+        setTimeout(() => window.location.href = './login.html', 1500);
+        return;
+      }
+
+      currentOwnerId = user.uid;
+
+      try {
+        const ownerSnap = await get(ref(database, `owners/${user.uid}`));
+        if (ownerSnap.exists()) {
+          const owner = ownerSnap.val();
+          document.getElementById('userName').textContent = owner.name || 'Owner';
+          document.getElementById('userAvatar').textContent = (owner.name || 'O').charAt(0).toUpperCase();
+        }
+
+        loadTrainers();
+      } catch (error) {
+        console.error('Error loading data:', error);
+      }
+    });
+
+    // Load trainers for this gym
+    async function loadTrainers() {
+      try {
+        const trainersSnap = await get(ref(database, 'trainers'));
+        
+        allTrainers = [];
+        
+        if (trainersSnap.exists()) {
+          trainersSnap.forEach(snap => {
+            const trainer = snap.val();
+            // Only show trainers assigned to this gym
+            if (trainer.gymId === currentOwnerId) {
+              allTrainers.push({ id: snap.key, ...trainer });
+            }
+          });
+        }
+
+        if (allTrainers.length === 0) {
+          trainersContainer.innerHTML = `
+            <div class="card" style="text-align: center; padding: var(--space-8); grid-column: 1 / -1;">
+              <i class="fa-solid fa-user-tie" style="font-size: 3rem; color: var(--text-muted); opacity: 0.3; margin-bottom: var(--space-4);"></i>
+              <p style="color: var(--text-muted); margin-bottom: var(--space-4);">No trainers found for your gym</p>
+              <p style="font-size: var(--text-sm); color: var(--text-muted);">
+                Trainers can sign up and request to join your gym. Approve them from the <a href="./manage-requests.html" style="color: var(--primary-400);">Join Requests</a> page.
+              </p>
+            </div>
+          `;
+          return;
+        }
+
+        renderTrainers(allTrainers);
+      } catch (error) {
+        console.error('Error loading trainers:', error);
+        showError('Failed to load trainers');
+      }
+    }
+
+    // Render trainers grid
+    function renderTrainers(trainers) {
+      if (trainers.length === 0) {
+        trainersContainer.innerHTML = `
+          <div class="card" style="text-align: center; padding: var(--space-8); grid-column: 1 / -1;">
+            <p style="color: var(--text-muted);">No trainers match your search criteria</p>
+          </div>
+        `;
+        return;
+      }
+
+      trainersContainer.innerHTML = trainers.map(trainer => `
+        <div class="card" style="position: relative; overflow: hidden;">
+          <!-- Top gradient accent -->
+          <div style="position: absolute; top: 0; left: 0; right: 0; height: 4px; background: linear-gradient(90deg, var(--primary-500), var(--accent-500));"></div>
+          
+          <div style="display: flex; align-items: center; gap: var(--space-4); margin-bottom: var(--space-4); padding-top: var(--space-2);">
+            <div class="avatar avatar-placeholder" style="width: 60px; height: 60px; font-size: var(--text-xl); background: linear-gradient(135deg, var(--primary-600), var(--accent-600));">
+              ${(trainer.name || 'T').charAt(0).toUpperCase()}
+            </div>
+            <div style="flex: 1;">
+              <h3 style="margin-bottom: var(--space-1);">${trainer.name || 'Unknown'}</h3>
+              <span class="badge badge-primary" style="font-size: var(--text-xs);">
+                <i class="fa-solid fa-dumbbell"></i>
+                ${trainer.specialization || 'General'}
+              </span>
+            </div>
+          </div>
+          
+          <div style="display: grid; gap: var(--space-2); margin-bottom: var(--space-4);">
+            <div style="display: flex; align-items: center; gap: var(--space-2); font-size: var(--text-sm); color: var(--text-muted);">
+              <i class="fa-solid fa-envelope" style="width: 16px;"></i>
+              <span>${trainer.email || 'No email'}</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: var(--space-2); font-size: var(--text-sm); color: var(--text-muted);">
+              <i class="fa-solid fa-phone" style="width: 16px;"></i>
+              <span>${trainer.phone || 'No phone'}</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: var(--space-2); font-size: var(--text-sm); color: var(--text-muted);">
+              <i class="fa-solid fa-clock" style="width: 16px;"></i>
+              <span>${trainer.experience || 0} years experience</span>
+            </div>
+          </div>
+          
+          <div style="display: flex; align-items: center; justify-content: space-between; padding-top: var(--space-4); border-top: 1px solid var(--border-color);">
+            <div style="font-size: var(--text-sm); color: var(--text-muted);">
+              <i class="fa-solid fa-users"></i>
+              ${trainer.assignedMembers ? Object.keys(trainer.assignedMembers).length : 0} members assigned
+            </div>
+            <div style="display: flex; gap: var(--space-2);">
+              <button class="btn btn-ghost btn-icon" onclick="viewTrainer('${trainer.id}')" title="View Details">
+                <i class="fa-solid fa-eye"></i>
+              </button>
+              <button class="btn btn-ghost btn-icon" onclick="deleteTrainer('${trainer.id}')" title="Remove" style="color: var(--error-400);">
+                <i class="fa-solid fa-trash"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // Filter & search
+    function filterTrainers() {
+      const search = searchInput.value.toLowerCase();
+      const specialization = filterSpecialization.value;
+
+      const filtered = allTrainers.filter(t => {
+        const matchSearch = !search || 
+          (t.name && t.name.toLowerCase().includes(search)) ||
+          (t.email && t.email.toLowerCase().includes(search)) ||
+          (t.phone && t.phone.includes(search));
+        const matchSpec = !specialization || t.specialization === specialization;
+        return matchSearch && matchSpec;
+      });
+
+      renderTrainers(filtered);
+    }
+
+    searchInput.addEventListener('input', filterTrainers);
+    filterSpecialization.addEventListener('change', filterTrainers);
+
+    // View trainer details
+    window.viewTrainer = function(id) {
+      const trainer = allTrainers.find(t => t.id === id);
+      if (!trainer) return;
+
+      const assignedCount = trainer.assignedMembers ? Object.keys(trainer.assignedMembers).length : 0;
+
+      document.getElementById('trainerDetails').innerHTML = `
+        <div style="text-align: center; margin-bottom: var(--space-6);">
+          <div class="avatar avatar-placeholder" style="width: 80px; height: 80px; font-size: var(--text-2xl); margin: 0 auto var(--space-4); background: linear-gradient(135deg, var(--primary-600), var(--accent-600));">
+            ${(trainer.name || 'T').charAt(0).toUpperCase()}
+          </div>
+          <h2 style="margin-bottom: var(--space-2);">${trainer.name || 'Unknown'}</h2>
+          <span class="badge badge-primary">${trainer.specialization || 'General Fitness'}</span>
+        </div>
+        
+        <div style="display: grid; gap: var(--space-4);">
+          <div style="display: flex; justify-content: space-between; padding: var(--space-3); background: rgba(255,255,255,0.03); border-radius: var(--radius-md);">
+            <span style="color: var(--text-muted);"><i class="fa-solid fa-envelope"></i> Email</span>
+            <span>${trainer.email || 'N/A'}</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; padding: var(--space-3); background: rgba(255,255,255,0.03); border-radius: var(--radius-md);">
+            <span style="color: var(--text-muted);"><i class="fa-solid fa-phone"></i> Phone</span>
+            <span>${trainer.phone || 'N/A'}</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; padding: var(--space-3); background: rgba(255,255,255,0.03); border-radius: var(--radius-md);">
+            <span style="color: var(--text-muted);"><i class="fa-solid fa-clock"></i> Experience</span>
+            <span>${trainer.experience || 0} years</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; padding: var(--space-3); background: rgba(255,255,255,0.03); border-radius: var(--radius-md);">
+            <span style="color: var(--text-muted);"><i class="fa-solid fa-users"></i> Assigned Members</span>
+            <span>${assignedCount}</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; padding: var(--space-3); background: rgba(255,255,255,0.03); border-radius: var(--radius-md);">
+            <span style="color: var(--text-muted);"><i class="fa-solid fa-calendar"></i> Joined</span>
+            <span>${trainer.createdAt ? new Date(trainer.createdAt).toLocaleDateString() : 'N/A'}</span>
+          </div>
+        </div>
+        
+        <div style="margin-top: var(--space-6); display: flex; gap: var(--space-4);">
+          <a href="./assign-trainer.html" class="btn btn-primary" style="flex: 1; justify-content: center;">
+            <i class="fa-solid fa-people-arrows"></i>
+            Assign Members
+          </a>
+        </div>
+      `;
+
+      openModal();
+    };
+
+    // Delete trainer
+    window.deleteTrainer = async function(id) {
+      if (!confirm('Are you sure you want to remove this trainer from your gym? This action cannot be undone.')) {
+        return;
+      }
+
+      try {
+        await remove(ref(database, `trainers/${id}`));
+        showSuccess('Trainer removed successfully');
+        loadTrainers();
+      } catch (error) {
+        console.error('Error deleting trainer:', error);
+        showError('Failed to remove trainer');
+      }
+    };
+  </script>
+</body>
+</html>

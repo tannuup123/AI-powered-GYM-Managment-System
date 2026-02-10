@@ -1,0 +1,10 @@
+/* ============================================
+   FIT TRACK PRO - Main Style Entry Point
+   Import all style modules
+   ============================================ */
+
+@import './variables.css';
+@import './base.css';
+@import './components.css';
+@import './dashboard.css';
+@import './auth.css';

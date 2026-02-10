@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Trainer Schedule - Fit Track Pro">
+  <title>My Schedule - Fit Track Pro</title>
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  
+  <!-- Styles -->
+  <link rel="stylesheet" href="./src/styles/main.css">
+  <link rel="icon" href="./public/logo.png" type="image/png">
+</head>
+<body>
+  <div class="dashboard">
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <img src="./public/logo.png" alt="Fit Track Pro" class="sidebar-logo">
+        <span class="sidebar-brand">Fit Track Pro</span>
+      </div>
+      
+      <nav class="sidebar-nav">
+        <div class="nav-section">
+          <span class="nav-section-title">Main</span>
+          <a href="./trainer-dashboard.html" class="nav-link">
+            <i class="fa-solid fa-home"></i>
+            <span>Dashboard</span>
+          </a>
+        </div>
+        
+        <div class="nav-section">
+          <span class="nav-section-title">Schedule</span>
+          <a href="./trainer-schedule.html" class="nav-link active">
+            <i class="fa-solid fa-calendar-alt"></i>
+            <span>My Schedule</span>
+          </a>
+        </div>
+        
+        <div class="nav-section">
+          <span class="nav-section-title">Settings</span>
+          <a href="./edit-profile.html" class="nav-link">
+            <i class="fa-solid fa-user-cog"></i>
+            <span>Edit Profile</span>
+          </a>
+        </div>
+      </nav>
+      
+      <div class="sidebar-footer">
+        <div class="user-info">
+          <div class="avatar avatar-placeholder" id="userAvatar">T</div>
+          <div class="user-details">
+            <div class="user-name" id="userName">Loading...</div>
+            <div class="user-role">Trainer</div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Mobile Sidebar Toggle -->
+    <button class="sidebar-toggle" id="sidebarToggle">
+      <i class="fa-solid fa-bars"></i>
+    </button>
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <div class="page-header">
+        <a href="./trainer-dashboard.html" style="display: inline-flex; align-items: center; gap: var(--space-2); color: var(--text-muted); margin-bottom: var(--space-4); font-size: var(--text-sm);">
+          <i class="fa-solid fa-arrow-left"></i>
+          Back to Dashboard
+        </a>
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: var(--space-4);">
+          <div>
+            <h1><i class="fa-solid fa-calendar-alt" style="color: var(--primary-400);"></i> My Schedule</h1>
+            <p>Manage your training sessions</p>
+          </div>
+          <button id="addSessionBtn" class="btn btn-primary">
+            <i class="fa-solid fa-plus"></i>
+            Add Session
+          </button>
+        </div>
+      </div>
+
+      <!-- Week Navigation -->
+      <div class="card" style="margin-bottom: var(--space-6);">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <button id="prevWeek" class="btn btn-ghost btn-icon">
+            <i class="fa-solid fa-chevron-left"></i>
+          </button>
+          <h3 id="weekDisplay" style="margin: 0;">This Week</h3>
+          <button id="nextWeek" class="btn btn-ghost btn-icon">
+            <i class="fa-solid fa-chevron-right"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Schedule Grid -->
+      <div class="card">
+        <div id="scheduleGrid" style="display: grid; grid-template-columns: repeat(7, 1fr); gap: var(--space-4);">
+          <!-- Days will be populated by JS -->
+        </div>
+      </div>
+
+      <!-- Assigned Members -->
+      <h2 style="margin: var(--space-6) 0 var(--space-4);">Assigned Members</h2>
+      <div class="card">
+        <div id="membersList" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: var(--space-4);">
+          <!-- Members will be populated by JS -->
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Add Session Modal -->
+  <div class="modal-backdrop" id="sessionModal">
+    <div class="modal" style="max-width: 400px;">
+      <div class="modal-header">
+        <h3>Add Training Session</h3>
+        <button class="btn btn-ghost btn-icon" id="closeSessionModal">&times;</button>
+      </div>
+      <form id="sessionForm" class="modal-body">
+        <div class="form-group">
+          <label for="sessionDate" class="form-label">Date *</label>
+          <input type="date" id="sessionDate" class="form-input" required>
+        </div>
+        
+        <div class="form-group">
+          <label for="sessionTime" class="form-label">Time *</label>
+          <input type="time" id="sessionTime" class="form-input" required>
+        </div>
+        
+        <div class="form-group">
+          <label for="sessionMember" class="form-label">Member</label>
+          <select id="sessionMember" class="form-input">
+            <option value="">Select member (optional)</option>
+          </select>
+        </div>
+        
+        <div class="form-group">
+          <label for="sessionType" class="form-label">Session Type *</label>
+          <select id="sessionType" class="form-input" required>
+            <option value="Personal Training">Personal Training</option>
+            <option value="Group Session">Group Session</option>
+            <option value="Assessment">Assessment</option>
+            <option value="Consultation">Consultation</option>
+          </select>
+        </div>
+        
+        <div class="form-group">
+          <label for="sessionNotes" class="form-label">Notes</label>
+          <textarea id="sessionNotes" class="form-input" rows="2" placeholder="Session notes..."></textarea>
+        </div>
+        
+        <div style="display: flex; gap: var(--space-4); justify-content: flex-end;">
+          <button type="button" class="btn btn-secondary" id="cancelSession">Cancel</button>
+          <button type="submit" class="btn btn-primary">Add Session</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script type="module">
+    import { auth, database } from './src/config/firebase.js';
+    import { onAuthStateChanged } from 'firebase/auth';
+    import { ref, get, push, set, remove } from 'firebase/database';
+    import { showToast, showSuccess, showError, showWarning } from './src/components/toast.js';
+
+    // DOM Elements
+    const sidebar = document.getElementById('sidebar');
+    const sidebarToggle = document.getElementById('sidebarToggle');
+    const sidebarOverlay = document.getElementById('sidebarOverlay');
+    const scheduleGrid = document.getElementById('scheduleGrid');
+    const membersList = document.getElementById('membersList');
+    const addSessionBtn = document.getElementById('addSessionBtn');
+    const sessionModal = document.getElementById('sessionModal');
+    const closeSessionModal = document.getElementById('closeSessionModal');
+    const cancelSession = document.getElementById('cancelSession');
+    const sessionForm = document.getElementById('sessionForm');
+    const weekDisplay = document.getElementById('weekDisplay');
+    const prevWeek = document.getElementById('prevWeek');
+    const nextWeek = document.getElementById('nextWeek');
+
+    let currentTrainerId = null;
+    let assignedMembers = {};
+    let sessions = [];
+    let currentWeekStart = getWeekStart(new Date());
+
+    // Get Monday of the week
+    function getWeekStart(date) {
+      const d = new Date(date);
+      const day = d.getDay();
+      const diff = d.getDate() - day + (day === 0 ? -6 : 1);
+      return new Date(d.setDate(diff));
+    }
+
+    // Format date for display
+    function formatDate(date) {
+      return date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+    }
+
+    // Mobile sidebar toggle
+    sidebarToggle.addEventListener('click', () => {
+      sidebar.classList.toggle('open');
+      sidebarOverlay.classList.toggle('active');
+    });
+
+    sidebarOverlay.addEventListener('click', () => {
+      sidebar.classList.remove('open');
+      sidebarOverlay.classList.remove('active');
+    });
+
+    // Modal handlers
+    function openModal() {
+      sessionModal.classList.add('active');
+      document.getElementById('sessionDate').valueAsDate = new Date();
+    }
+
+    function closeModalFunc() {
+      sessionModal.classList.remove('active');
+      sessionForm.reset();
+    }
+
+    addSessionBtn.addEventListener('click', openModal);
+    closeSessionModal.addEventListener('click', closeModalFunc);
+    cancelSession.addEventListener('click', closeModalFunc);
+
+    // Week navigation
+    prevWeek.addEventListener('click', () => {
+      currentWeekStart.setDate(currentWeekStart.getDate() - 7);
+      updateWeekDisplay();
+      renderSchedule();
+    });
+
+    nextWeek.addEventListener('click', () => {
+      currentWeekStart.setDate(currentWeekStart.getDate() + 7);
+      updateWeekDisplay();
+      renderSchedule();
+    });
+
+    function updateWeekDisplay() {
+      const weekEnd = new Date(currentWeekStart);
+      weekEnd.setDate(weekEnd.getDate() + 6);
+      weekDisplay.textContent = `${formatDate(currentWeekStart)} - ${formatDate(weekEnd)}`;
+    }
+
+    // Auth state
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        showError('Please log in to continue');
+        setTimeout(() => window.location.href = './login.html', 1500);
+        return;
+      }
+
+      currentTrainerId = user.uid;
+
+      try {
+        const trainerSnap = await get(ref(database, `trainers/${user.uid}`));
+        if (trainerSnap.exists()) {
+          const trainer = trainerSnap.val();
+          document.getElementById('userName').textContent = trainer.name || 'Trainer';
+          document.getElementById('userAvatar').textContent = (trainer.name || 'T').charAt(0).toUpperCase();
+          
+          // Load assigned members
+          assignedMembers = trainer.assignedMembers || {};
+          renderMembers();
+          populateMemberDropdown();
+        }
+
+        await loadSessions();
+        updateWeekDisplay();
+        renderSchedule();
+      } catch (error) {
+        console.error('Error loading data:', error);
+      }
+    });
+
+    // Load sessions
+    async function loadSessions() {
+      try {
+        const sessionsSnap = await get(ref(database, `trainers/${currentTrainerId}/sessions`));
+        
+        sessions = [];
+        if (sessionsSnap.exists()) {
+          sessionsSnap.forEach(snap => {
+            sessions.push({ id: snap.key, ...snap.val() });
+          });
+        }
+      } catch (error) {
+        console.error('Error loading sessions:', error);
+      }
+    }
+
+    // Render schedule grid
+    function renderSchedule() {
+      let html = '';
+      
+      for (let i = 0; i < 7; i++) {
+        const date = new Date(currentWeekStart);
+        date.setDate(date.getDate() + i);
+        const dateStr = date.toISOString().split('T')[0];
+        const isToday = dateStr === new Date().toISOString().split('T')[0];
+        
+        const daySessions = sessions.filter(s => s.date === dateStr);
+        
+        html += `
+          <div class="day-column" style="min-height: 200px; padding: var(--space-3); background: ${isToday ? 'var(--surface-glass)' : 'transparent'}; border-radius: var(--radius-lg); border: 1px solid ${isToday ? 'var(--primary-400)' : 'var(--border-color)'};">
+            <div style="text-align: center; margin-bottom: var(--space-3); padding-bottom: var(--space-2); border-bottom: 1px solid var(--border-color);">
+              <div style="font-weight: var(--font-semibold); color: ${isToday ? 'var(--primary-400)' : 'var(--text-primary)'};">
+                ${date.toLocaleDateString('en-US', { weekday: 'short' })}
+              </div>
+              <div style="font-size: var(--text-sm); color: var(--text-muted);">
+                ${date.getDate()}
+              </div>
+            </div>
+            ${daySessions.length > 0 ? daySessions.map(s => `
+              <div style="background: var(--primary-500); color: white; padding: var(--space-2); border-radius: var(--radius-md); margin-bottom: var(--space-2); font-size: var(--text-xs);">
+                <div style="font-weight: var(--font-medium);">${s.time}</div>
+                <div>${s.type}</div>
+                ${s.memberName ? `<div style="opacity: 0.8;">${s.memberName}</div>` : ''}
+                <button onclick="deleteSession('${s.id}')" style="background: none; border: none; color: white; cursor: pointer; padding: 0; margin-top: var(--space-1);">
+                  <i class="fa-solid fa-trash" style="font-size: 10px;"></i>
+                </button>
+              </div>
+            `).join('') : `
+              <div style="text-align: center; color: var(--text-muted); font-size: var(--text-xs); padding: var(--space-4);">
+                No sessions
+              </div>
+            `}
+          </div>
+        `;
+      }
+      
+      scheduleGrid.innerHTML = html;
+    }
+
+    // Render assigned members
+    function renderMembers() {
+      if (Object.keys(assignedMembers).length === 0) {
+        membersList.innerHTML = `
+          <div style="grid-column: 1 / -1; text-align: center; color: var(--text-muted); padding: var(--space-6);">
+            <i class="fa-solid fa-users" style="font-size: 2rem; margin-bottom: var(--space-2);"></i>
+            <p>No members assigned yet</p>
+          </div>
+        `;
+        return;
+      }
+
+      membersList.innerHTML = Object.entries(assignedMembers).map(([id, member]) => `
+        <div style="display: flex; align-items: center; gap: var(--space-3); padding: var(--space-3); background: var(--surface-glass); border-radius: var(--radius-lg);">
+          <div class="avatar avatar-placeholder" style="width: 40px; height: 40px;">
+            ${(member.name || 'M').charAt(0).toUpperCase()}
+          </div>
+          <div>
+            <div style="font-weight: var(--font-medium);">${member.name || 'Unknown'}</div>
+            <div style="font-size: var(--text-xs); color: var(--text-muted);">
+              Since ${member.assignedDate ? new Date(member.assignedDate).toLocaleDateString() : 'N/A'}
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // Populate member dropdown
+    function populateMemberDropdown() {
+      const select = document.getElementById('sessionMember');
+      const options = ['<option value="">Select member (optional)</option>'];
+      
+      Object.entries(assignedMembers).forEach(([id, member]) => {
+        options.push(`<option value="${id}" data-name="${member.name}">${member.name}</option>`);
+      });
+      
+      select.innerHTML = options.join('');
+    }
+
+    // Add session
+    sessionForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const date = document.getElementById('sessionDate').value;
+      const time = document.getElementById('sessionTime').value;
+      const memberSelect = document.getElementById('sessionMember');
+      const memberId = memberSelect.value;
+      const memberName = memberSelect.options[memberSelect.selectedIndex]?.dataset?.name || '';
+      const type = document.getElementById('sessionType').value;
+      const notes = document.getElementById('sessionNotes').value.trim();
+
+      try {
+        await push(ref(database, `trainers/${currentTrainerId}/sessions`), {
+          date,
+          time,
+          memberId: memberId || null,
+          memberName: memberName || null,
+          type,
+          notes: notes || null,
+          createdAt: new Date().toISOString()
+        });
+
+        showSuccess('Session added successfully!');
+        closeModalFunc();
+        await loadSessions();
+        renderSchedule();
+      } catch (error) {
+        console.error('Error adding session:', error);
+        showError('Failed to add session');
+      }
+    });
+
+    // Delete session
+    window.deleteSession = async function(sessionId) {
+      if (!confirm('Delete this session?')) return;
+
+      try {
+        await remove(ref(database, `trainers/${currentTrainerId}/sessions/${sessionId}`));
+        showSuccess('Session deleted');
+        await loadSessions();
+        renderSchedule();
+      } catch (error) {
+        console.error('Error deleting session:', error);
+        showError('Failed to delete session');
+      }
+    };
+  </script>
+</body>
+</html>

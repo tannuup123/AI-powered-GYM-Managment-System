@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Manage Gyms - Super Admin">
+  <title>Manage Gyms - Super Admin</title>
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  
+  <!-- Styles -->
+  <link rel="stylesheet" href="./src/styles/main.css">
+  <link rel="stylesheet" href="./src/styles/dashboard.css">
+  <link rel="icon" href="./public/logo.png" type="image/png">
+  
+  <style>
+    .page-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: var(--space-6);
+    }
+    
+    .page-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: var(--space-6);
+    }
+    
+    .page-header h1 {
+      font-size: var(--text-2xl);
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+    }
+    
+    .page-header h1 i {
+      color: var(--primary-400);
+    }
+    
+    .gyms-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+      gap: var(--space-6);
+    }
+    
+    .gym-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-xl);
+      overflow: hidden;
+      transition: all 0.2s;
+    }
+    
+    .gym-card:hover {
+      border-color: var(--primary-500);
+      transform: translateY(-4px);
+    }
+    
+    .gym-image {
+      width: 100%;
+      height: 150px;
+      background: linear-gradient(135deg, var(--primary-600), var(--accent-600));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .gym-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    
+    .gym-image i {
+      font-size: 3rem;
+      color: rgba(255,255,255,0.3);
+    }
+    
+    .gym-body {
+      padding: var(--space-5);
+    }
+    
+    .gym-body h3 {
+      font-size: var(--text-lg);
+      margin-bottom: var(--space-2);
+    }
+    
+    .gym-owner {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+      color: var(--text-muted);
+      font-size: var(--text-sm);
+      margin-bottom: var(--space-4);
+    }
+    
+    .gym-stats {
+      display: flex;
+      gap: var(--space-4);
+      margin-bottom: var(--space-4);
+      padding: var(--space-3);
+      background: rgba(255,255,255,0.02);
+      border-radius: var(--radius-md);
+    }
+    
+    .gym-stat {
+      text-align: center;
+      flex: 1;
+    }
+    
+    .gym-stat-value {
+      font-weight: var(--font-bold);
+      font-size: var(--text-lg);
+      color: var(--primary-400);
+    }
+    
+    .gym-stat-label {
+      font-size: var(--text-xs);
+      color: var(--text-muted);
+    }
+    
+    .gym-location {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+      color: var(--text-muted);
+      font-size: var(--text-sm);
+      margin-bottom: var(--space-4);
+    }
+    
+    .gym-actions {
+      display: flex;
+      gap: var(--space-2);
+      padding-top: var(--space-4);
+      border-top: 1px solid var(--border-color);
+    }
+    
+    .gym-actions .btn {
+      flex: 1;
+    }
+    
+    .empty-state {
+      grid-column: 1 / -1;
+      text-align: center;
+      padding: var(--space-16);
+      color: var(--text-muted);
+    }
+    
+    .empty-state i {
+      font-size: 3rem;
+      opacity: 0.3;
+      margin-bottom: var(--space-4);
+    }
+    
+    .search-box {
+      display: flex;
+      gap: var(--space-3);
+      margin-bottom: var(--space-6);
+    }
+    
+    .search-box input {
+      flex: 1;
+      padding: var(--space-3) var(--space-4);
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      color: var(--text-primary);
+      font-size: var(--text-base);
+    }
+    
+    .search-box input:focus {
+      outline: none;
+      border-color: var(--primary-500);
+    }
+  </style>
+</head>
+<body>
+  <!-- Navigation -->
+  <nav class="dashboard-nav">
+    <a href="./superadmin-dashboard.html" class="nav-brand">
+      <img src="./public/logo.png" alt="Fit Track Pro">
+      <span>Super Admin</span>
+    </a>
+    <div class="nav-links">
+      <a href="./superadmin-dashboard.html" class="btn btn-ghost">
+        <i class="fa-solid fa-home"></i>
+        Dashboard
+      </a>
+      <a href="./superadmin-users.html" class="btn btn-ghost">
+        <i class="fa-solid fa-users"></i>
+        Users
+      </a>
+      <button id="logoutBtn" class="btn btn-ghost" style="color: var(--error-400);">
+        <i class="fa-solid fa-sign-out-alt"></i>
+        Logout
+      </button>
+    </div>
+  </nav>
+
+  <main class="main-content" style="padding-top: 80px;">
+    <div class="page-container">
+      <div class="page-header">
+        <h1>
+          <i class="fa-solid fa-building"></i>
+          Manage Gyms
+        </h1>
+        <span id="gymCount" style="color: var(--text-muted);"></span>
+      </div>
+      
+      <!-- Search -->
+      <div class="search-box">
+        <input type="text" id="searchInput" placeholder="Search gyms by name, city, or owner...">
+      </div>
+      
+      <!-- Gyms Grid -->
+      <div class="gyms-grid" id="gymsGrid">
+        <div class="empty-state">
+          <i class="fa-solid fa-spinner fa-spin"></i>
+          <p>Loading gyms...</p>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Scripts -->
+  <script type="module">
+    import { auth, database } from './src/config/firebase.js';
+    import { onAuthStateChanged, signOut } from 'firebase/auth';
+    import { ref, get, remove } from 'firebase/database';
+    import { showSuccess, showError } from './src/components/toast.js';
+
+    let allGyms = [];
+
+    // DOM
+    const gymsGrid = document.getElementById('gymsGrid');
+    const searchInput = document.getElementById('searchInput');
+    const gymCount = document.getElementById('gymCount');
+
+    // Check auth
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        window.location.href = './superadmin-login.html';
+        return;
+      }
+
+      const superadminSnap = await get(ref(database, `superadmins/${user.uid}`));
+      if (!superadminSnap.exists()) {
+        window.location.href = './login.html';
+        return;
+      }
+
+      loadGyms();
+    });
+
+    // Logout
+    document.getElementById('logoutBtn').addEventListener('click', async () => {
+      await signOut(auth);
+      window.location.href = './superadmin-login.html';
+    });
+
+    // Search
+    searchInput.addEventListener('input', renderGyms);
+
+    // Load gyms
+    async function loadGyms() {
+      try {
+        allGyms = [];
+        const ownersSnap = await get(ref(database, 'owners'));
+        
+        if (ownersSnap.exists()) {
+          ownersSnap.forEach(snap => {
+            const gym = snap.val();
+            gym.id = snap.key;
+            gym.memberCount = gym.members ? Object.keys(gym.members).length : 0;
+            allGyms.push(gym);
+          });
+        }
+
+        // Count trainers per gym
+        const trainersSnap = await get(ref(database, 'trainers'));
+        if (trainersSnap.exists()) {
+          trainersSnap.forEach(snap => {
+            const trainer = snap.val();
+            const gym = allGyms.find(g => g.id === trainer.gymId);
+            if (gym) {
+              gym.trainerCount = (gym.trainerCount || 0) + 1;
+            }
+          });
+        }
+
+        gymCount.textContent = `${allGyms.length} gyms`;
+        renderGyms();
+      } catch (error) {
+        console.error('Error loading gyms:', error);
+        gymsGrid.innerHTML = `
+          <div class="empty-state">
+            <i class="fa-solid fa-exclamation-triangle"></i>
+            <p>Failed to load gyms</p>
+          </div>
+        `;
+      }
+    }
+
+    // Render gyms
+    function renderGyms() {
+      const query = searchInput.value.toLowerCase();
+      let filtered = allGyms;
+
+      if (query) {
+        filtered = allGyms.filter(gym => 
+          (gym.gymName || '').toLowerCase().includes(query) ||
+          (gym.city || '').toLowerCase().includes(query) ||
+          (gym.name || '').toLowerCase().includes(query)
+        );
+      }
+
+      if (filtered.length === 0) {
+        gymsGrid.innerHTML = `
+          <div class="empty-state">
+            <i class="fa-solid fa-building"></i>
+            <p>${query ? 'No gyms match your search' : 'No gyms registered yet'}</p>
+          </div>
+        `;
+        return;
+      }
+
+      gymsGrid.innerHTML = filtered.map(gym => `
+        <div class="gym-card">
+          <div class="gym-image">
+            ${gym.imageUrl 
+              ? `<img src="${gym.imageUrl}" alt="${gym.gymName}" onerror="this.parentElement.innerHTML='<i class=\\'fa-solid fa-dumbbell\\'></i>'">`
+              : '<i class="fa-solid fa-dumbbell"></i>'
+            }
+          </div>
+          <div class="gym-body">
+            <h3>${gym.gymName || 'Unnamed Gym'}</h3>
+            <div class="gym-owner">
+              <i class="fa-solid fa-user"></i>
+              ${gym.name || 'Unknown Owner'}
+            </div>
+            <div class="gym-location">
+              <i class="fa-solid fa-location-dot"></i>
+              ${gym.city || 'No location'}${gym.address ? ' - ' + gym.address : ''}
+            </div>
+            <div class="gym-stats">
+              <div class="gym-stat">
+                <div class="gym-stat-value">${gym.memberCount || 0}</div>
+                <div class="gym-stat-label">Members</div>
+              </div>
+              <div class="gym-stat">
+                <div class="gym-stat-value">${gym.trainerCount || 0}</div>
+                <div class="gym-stat-label">Trainers</div>
+              </div>
+            </div>
+            <div class="gym-actions">
+              <a href="mailto:${gym.email}" class="btn btn-ghost btn-sm">
+                <i class="fa-solid fa-envelope"></i>
+                Contact
+              </a>
+              <button class="btn btn-ghost btn-sm" style="color: var(--error-400);" onclick="deleteGym('${gym.id}', '${gym.gymName}')">
+                <i class="fa-solid fa-trash"></i>
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // Delete gym
+    window.deleteGym = async function(gymId, gymName) {
+      if (!confirm(`Delete "${gymName}"? This will remove all members and data. This cannot be undone.`)) return;
+
+      try {
+        // Delete associated trainers
+        const trainersSnap = await get(ref(database, 'trainers'));
+        if (trainersSnap.exists()) {
+          const deletePromises = [];
+          trainersSnap.forEach(snap => {
+            if (snap.val().gymId === gymId) {
+              deletePromises.push(remove(ref(database, `trainers/${snap.key}`)));
+            }
+          });
+          await Promise.all(deletePromises);
+        }
+
+        // Delete gym (includes members)
+        await remove(ref(database, `owners/${gymId}`));
+        
+        showSuccess(`${gymName} deleted`);
+        loadGyms();
+      } catch (error) {
+        console.error('Error deleting gym:', error);
+        showError('Failed to delete gym');
+      }
+    };
+  </script>
+</body>
+</html>

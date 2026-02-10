@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Create Bill - Fit Track Pro">
+  <title>Create Bill - Fit Track Pro</title>
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  
+  <!-- Styles -->
+  <link rel="stylesheet" href="./src/styles/main.css">
+  <link rel="icon" href="./public/logo.png" type="image/png">
+</head>
+<body>
+  <div class="dashboard">
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <img src="./public/logo.png" alt="Fit Track Pro" class="sidebar-logo">
+        <span class="sidebar-brand">Fit Track Pro</span>
+      </div>
+      
+      <nav class="sidebar-nav">
+        <div class="nav-section">
+          <span class="nav-section-title">Main</span>
+          <a href="./owner-dashboard.html" class="nav-link">
+            <i class="fa-solid fa-home"></i>
+            <span>Dashboard</span>
+          </a>
+        </div>
+        
+        <div class="nav-section">
+          <span class="nav-section-title">Billing</span>
+          <a href="./create-bill.html" class="nav-link active">
+            <i class="fa-solid fa-file-invoice-dollar"></i>
+            <span>Create Bill</span>
+          </a>
+          <a href="./view-receipts.html" class="nav-link">
+            <i class="fa-solid fa-receipt"></i>
+            <span>View Receipts</span>
+          </a>
+        </div>
+      </nav>
+      
+      <div class="sidebar-footer">
+        <div class="user-info">
+          <div class="avatar avatar-placeholder" id="userAvatar">O</div>
+          <div class="user-details">
+            <div class="user-name" id="userName">Loading...</div>
+            <div class="user-role">Gym Owner</div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Mobile Sidebar Toggle -->
+    <button class="sidebar-toggle" id="sidebarToggle">
+      <i class="fa-solid fa-bars"></i>
+    </button>
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <div class="page-header">
+        <a href="./owner-dashboard.html" style="display: inline-flex; align-items: center; gap: var(--space-2); color: var(--text-muted); margin-bottom: var(--space-4); font-size: var(--text-sm);">
+          <i class="fa-solid fa-arrow-left"></i>
+          Back to Dashboard
+        </a>
+        <h1><i class="fa-solid fa-file-invoice-dollar" style="color: var(--primary-400);"></i> Create Bill</h1>
+        <p>Generate a new bill for a member</p>
+      </div>
+
+      <!-- Create Bill Form -->
+      <div class="card" style="max-width: 600px;">
+        <form id="createBillForm" class="auth-form">
+          <div class="form-group">
+            <label for="memberSelect" class="form-label">Select Member *</label>
+            <select id="memberSelect" name="memberSelect" class="form-input" required>
+              <option value="">Loading members...</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="plan" class="form-label">Membership Plan *</label>
+            <select id="plan" name="plan" class="form-input" required>
+              <option value="">Select plan</option>
+              <option value="Monthly" data-price="999">Monthly - ₹999</option>
+              <option value="Quarterly" data-price="2499">Quarterly - ₹2499</option>
+              <option value="Half-Yearly" data-price="4499">Half-Yearly - ₹4499</option>
+              <option value="Yearly" data-price="7999">Yearly - ₹7999</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="amount" class="form-label">Amount (₹) *</label>
+            <input 
+              type="number" 
+              id="amount" 
+              name="amount" 
+              class="form-input" 
+              placeholder="Enter amount"
+              min="1"
+              required
+            >
+          </div>
+
+          <div class="form-group">
+            <label for="billDate" class="form-label">Bill Date *</label>
+            <input 
+              type="date" 
+              id="billDate" 
+              name="billDate" 
+              class="form-input" 
+              required
+            >
+          </div>
+
+          <div class="form-group">
+            <label for="dueDate" class="form-label">Due Date *</label>
+            <input 
+              type="date" 
+              id="dueDate" 
+              name="dueDate" 
+              class="form-input" 
+              required
+            >
+          </div>
+
+          <div class="form-group">
+            <label for="status" class="form-label">Payment Status *</label>
+            <select id="status" name="status" class="form-input" required>
+              <option value="Unpaid">Unpaid</option>
+              <option value="Paid">Paid</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="notes" class="form-label">Notes</label>
+            <textarea 
+              id="notes" 
+              name="notes" 
+              class="form-input" 
+              placeholder="Any additional notes..."
+              rows="2"
+              style="resize: vertical;"
+            ></textarea>
+          </div>
+
+          <div style="display: flex; gap: var(--space-4); margin-top: var(--space-6);">
+            <button type="submit" id="submitBtn" class="btn btn-primary" style="flex: 1;">
+              <i class="fa-solid fa-check"></i>
+              <span id="btnText">Create Bill</span>
+            </button>
+            <a href="./owner-dashboard.html" class="btn btn-secondary">
+              Cancel
+            </a>
+          </div>
+        </form>
+      </div>
+    </main>
+  </div>
+
+  <!-- Scripts -->
+  <script type="module">
+    import { auth, database } from './src/config/firebase.js';
+    import { onAuthStateChanged } from 'firebase/auth';
+    import { ref, get, push, set } from 'firebase/database';
+    import { showToast, showSuccess, showError, showWarning } from './src/components/toast.js';
+    import { setButtonLoading } from './src/js/utils.js';
+
+    // DOM Elements
+    const sidebar = document.getElementById('sidebar');
+    const sidebarToggle = document.getElementById('sidebarToggle');
+    const sidebarOverlay = document.getElementById('sidebarOverlay');
+    const createBillForm = document.getElementById('createBillForm');
+    const submitBtn = document.getElementById('submitBtn');
+    const btnText = document.getElementById('btnText');
+    const memberSelect = document.getElementById('memberSelect');
+    const planSelect = document.getElementById('plan');
+    const amountInput = document.getElementById('amount');
+    const billDateInput = document.getElementById('billDate');
+    const dueDateInput = document.getElementById('dueDate');
+
+    let currentOwnerId = null;
+
+    // Set default dates
+    const today = new Date().toISOString().split('T')[0];
+    billDateInput.value = today;
+    
+    const dueDate = new Date();
+    dueDate.setDate(dueDate.getDate() + 30);
+    dueDateInput.value = dueDate.toISOString().split('T')[0];
+
+    // Mobile sidebar toggle
+    sidebarToggle.addEventListener('click', () => {
+      sidebar.classList.toggle('open');
+      sidebarOverlay.classList.toggle('active');
+    });
+
+    sidebarOverlay.addEventListener('click', () => {
+      sidebar.classList.remove('open');
+      sidebarOverlay.classList.remove('active');
+    });
+
+    // Auto-fill amount when plan changes
+    planSelect.addEventListener('change', () => {
+      const selected = planSelect.options[planSelect.selectedIndex];
+      const price = selected.dataset.price;
+      if (price) {
+        amountInput.value = price;
+      }
+    });
+
+    // Auth state
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        showError('Please log in to continue');
+        setTimeout(() => window.location.href = './login.html', 1500);
+        return;
+      }
+
+      currentOwnerId = user.uid;
+
+      try {
+        // Load owner data
+        const ownerSnap = await get(ref(database, `owners/${user.uid}`));
+        if (ownerSnap.exists()) {
+          const owner = ownerSnap.val();
+          document.getElementById('userName').textContent = owner.name || 'Owner';
+          document.getElementById('userAvatar').textContent = (owner.name || 'O').charAt(0).toUpperCase();
+        }
+
+        // Load members for dropdown
+        loadMembers();
+      } catch (error) {
+        console.error('Error loading data:', error);
+      }
+    });
+
+    // Load members for dropdown
+    async function loadMembers() {
+      try {
+        const membersSnap = await get(ref(database, `owners/${currentOwnerId}/members`));
+        
+        if (!membersSnap.exists()) {
+          memberSelect.innerHTML = '<option value="">No members found</option>';
+          return;
+        }
+
+        const options = ['<option value="">Select a member</option>'];
+        membersSnap.forEach(snap => {
+          const member = snap.val();
+          options.push(`<option value="${snap.key}">${member.name} (${member.email || member.phone})</option>`);
+        });
+        
+        memberSelect.innerHTML = options.join('');
+      } catch (error) {
+        console.error('Error loading members:', error);
+        memberSelect.innerHTML = '<option value="">Error loading members</option>';
+      }
+    }
+
+    // Handle form submit
+    createBillForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      if (!currentOwnerId) {
+        showError('Please log in first');
+        return;
+      }
+
+      const memberId = memberSelect.value;
+      const plan = planSelect.value;
+      const amount = amountInput.value;
+      const billDate = billDateInput.value;
+      const dueDate = dueDateInput.value;
+      const status = document.getElementById('status').value;
+      const notes = document.getElementById('notes').value.trim();
+
+      if (!memberId || !plan || !amount || !billDate || !dueDate) {
+        showWarning('Please fill in all required fields');
+        return;
+      }
+
+      setButtonLoading(submitBtn, true, 'Creating bill...');
+      btnText.textContent = 'Creating bill...';
+
+      try {
+        // Get member name for bill record
+        const memberSnap = await get(ref(database, `owners/${currentOwnerId}/members/${memberId}`));
+        const memberName = memberSnap.exists() ? memberSnap.val().name : 'Unknown';
+
+        // Create bill under member
+        const billRef = push(ref(database, `bills/${memberId}/bill_receipts`));
+        
+        await set(billRef, {
+          ownerId: currentOwnerId,
+          memberId: memberId,
+          memberName: memberName,
+          plan: plan,
+          amount: parseFloat(amount),
+          billDate: billDate,
+          dueDate: dueDate,
+          status: status,
+          notes: notes || '',
+          createdAt: new Date().toISOString()
+        });
+
+        showSuccess('Bill created successfully!');
+        
+        setTimeout(() => {
+          window.location.href = './view-receipts.html';
+        }, 1500);
+
+      } catch (error) {
+        console.error('Error creating bill:', error);
+        showError('Failed to create bill. Please try again.');
+        setButtonLoading(submitBtn, false);
+        btnText.textContent = 'Create Bill';
+      }
+    });
+  </script>
+</body>
+</html>

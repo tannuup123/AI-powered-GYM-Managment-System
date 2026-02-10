@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Trainer Schedule</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link rel="stylesheet" href="owner_dashboard.css" />
+  <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+  <style>
+    .schedule-form {
+      max-width: 500px;
+      margin: 30px auto;
+      padding: 20px;
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.05);
+    }
+
+    .schedule-form h2 {
+      text-align: center;
+      margin-bottom: 20px;
+      color: #4CAF50;
+    }
+
+    .schedule-form label {
+      display: block;
+      margin-top: 10px;
+      font-weight: bold;
+    }
+
+    .schedule-form input, .schedule-form textarea, .schedule-form select {
+      width: 100%;
+      padding: 10px;
+      margin-top: 6px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+    }
+
+    .schedule-form button {
+      width: 100%;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      padding: 12px;
+      border-radius: 6px;
+      margin-top: 20px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    .schedule-list {
+      max-width: 600px;
+      margin: 30px auto;
+    }
+
+    .schedule-item {
+      background: white;
+      padding: 15px;
+      margin-bottom: 10px;
+      border-left: 5px solid #4CAF50;
+      border-radius: 8px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    }
+  </style>
+</head>
+<body>
+  <div class="dashboard-container">
+    <header class="dashboard-header">
+      <h1>Trainer Schedule</h1>
+      <p>Manage your training sessions below</p>
+    </header>
+
+    <div class="schedule-form">
+      <h2>Add Training Schedule</h2>
+      <label>Date:</label>
+      <input type="date" id="date" required>
+
+      <label>Time:</label>
+      <input type="time" id="time" required>
+
+      <label>Workout Plan / Activity:</label>
+      <textarea id="activity" rows="3" required></textarea>
+
+      <label>Select Assigned Member:</label>
+      <select id="memberId" required>
+        <option value="">-- Select Member --</option>
+      </select>
+
+      <button onclick="addSchedule()">Add Schedule</button>
+    </div>
+
+    <div class="schedule-list" id="scheduleList">
+      <!-- List will load here -->
+    </div>
+  </div>
+
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+  <!-- Add inside <head> or before </body> -->
+<script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
+<script>
+  emailjs.init("H94D_5IfN2JtyGYZI"); // ✅ Your public key
+
+  function sendEmailNotification(toEmail, toName, messageText) {
+    emailjs.send("tanmayup123", "contact_us", {
+      to_email: toEmail,
+      to_name: toName,
+      message: messageText
+    }).then(
+      (response) => {
+        console.log("✅ Email sent!", response.status, response.text);
+      },
+      (error) => {
+        console.error("❌ Email failed:", error);
+      }
+    );
+  }
+</script>
+
+  <script>
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyC-oca5z39s7l77EDY_Jx1psRroWtfZ2pM",
+      authDomain: "fit-track-be443.firebaseapp.com",
+      databaseURL: "https://fit-track-be443-default-rtdb.firebaseio.com",
+      projectId: "fit-track-be443",
+      storageBucket: "fit-track-be443.appspot.com",
+      messagingSenderId: "485684449281",
+      appId: "1:485684449281:web:88991ce3596959c0433000"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.database();
+
+    let currentTrainerId = null;
+
+    auth.onAuthStateChanged(user => {
+      if (!user) {
+        alert("Not logged in.");
+        location.href = "index.html";
+        return;
+      }
+
+      currentTrainerId = user.uid;
+      loadAssignedMembers(currentTrainerId);
+      loadSchedule();
+    });
+
+    function loadAssignedMembers(trainerId) {
+      const dropdown = document.getElementById("memberId");
+      db.ref("trainers/" + trainerId + "/assignedMembers").once("value").then(snapshot => {
+        const assigned = snapshot.val();
+        if (!assigned) return;
+
+        db.ref("owners").once("value").then(owners => {
+          owners.forEach(owner => {
+            const members = owner.child("members").val();
+            if (!members) return;
+
+            Object.keys(assigned).forEach(mid => {
+              if (members[mid]) {
+                const opt = document.createElement("option");
+                opt.value = mid;
+                opt.textContent = `${members[mid].name} (${mid})`;
+                dropdown.appendChild(opt);
+              }
+            });
+          });
+        });
+      });
+    }
+
+   function addSchedule() {
+  const date = document.getElementById("date").value;
+  const time = document.getElementById("time").value;
+  const activity = document.getElementById("activity").value;
+  const memberId = document.getElementById("memberId").value;
+
+  if (!date || !time || !activity || !memberId) {
+    alert("Please fill all fields.");
+    return;
+  }
+
+  const scheduleRef = db.ref(`trainer_schedules/${currentTrainerId}`).push();
+  const newSchedule = {
+    date,
+    time,
+    activity,
+    memberId,
+    createdAt: new Date().toLocaleString()
+  };
+
+  scheduleRef.set(newSchedule).then(() => {
+    alert("Schedule added.");
+    loadSchedule();
+    document.getElementById("date").value = "";
+    document.getElementById("time").value = "";
+    document.getElementById("activity").value = "";
+    document.getElementById("memberId").value = "";
+
+    // 🔔 Send email notification to the trainer
+    db.ref(`trainers/${currentTrainerId}`).once("value").then(snapshot => {
+      const trainer = snapshot.val();
+      if (trainer && trainer.email && trainer.name) {
+        sendEmailNotification(
+          trainer.email,
+          trainer.name,
+          `A new session has been added:\n\n📅 ${date} 🕒 ${time}\n🏋️ Workout: ${activity}\n👤 Member UID: ${memberId}`
+        );
+      }
+    });
+
+  }).catch(err => {
+    alert("❌ Failed to add schedule: " + err.message);
+  });
+}
+
+
+    function loadSchedule() {
+      const list = document.getElementById("scheduleList");
+      list.innerHTML = "<p>Loading...</p>";
+
+      db.ref(`trainer_schedules/${currentTrainerId}`).once("value").then(snapshot => {
+        list.innerHTML = "";
+        if (!snapshot.exists()) {
+          list.innerHTML = "<p>No schedules found.</p>";
+          return;
+        }
+
+        snapshot.forEach(child => {
+          const s = child.val();
+          const item = document.createElement("div");
+          item.className = "schedule-item";
+          item.innerHTML = `
+            <strong>Date:</strong> ${s.date}<br>
+            <strong>Time:</strong> ${s.time}<br>
+            <strong>Workout:</strong> ${s.activity}<br>
+            <strong>Member UID:</strong> ${s.memberId}<br>
+            <small style="color:gray;">Created: ${s.createdAt}</small>
+          `;
+          list.appendChild(item);
+        });
+      });
+    }
+  </script>
+</body>
+</html>

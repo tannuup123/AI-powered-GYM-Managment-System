@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Register as a trainer with Fit Track Pro">
+  <title>Trainer Signup - Fit Track Pro</title>
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  
+  <!-- Styles -->
+  <link rel="stylesheet" href="./src/styles/main.css">
+  <link rel="icon" href="./public/logo.png" type="image/png">
+</head>
+<body>
+  <div class="auth-page">
+    <div class="auth-container" style="max-width: 500px;">
+      <div class="auth-card">
+        <!-- Back Button -->
+        <a href="./role.html" style="display: inline-flex; align-items: center; gap: var(--space-2); color: var(--text-muted); margin-bottom: var(--space-4); font-size: var(--text-sm);">
+          <i class="fa-solid fa-arrow-left"></i>
+          Back to role selection
+        </a>
+
+        <!-- Logo -->
+        <div class="auth-logo">
+          <img src="./public/logo.png" alt="Fit Track Pro Logo">
+          <h1>Become a Trainer</h1>
+          <p>Join our network of fitness professionals</p>
+        </div>
+
+        <!-- Signup Form -->
+        <form id="signupForm" class="auth-form">
+          <div class="form-group">
+            <label for="trainerName" class="form-label">Full Name *</label>
+            <input 
+              type="text" 
+              id="trainerName" 
+              name="trainerName" 
+              class="form-input" 
+              placeholder="Enter your full name"
+              required
+            >
+          </div>
+
+          <div class="form-group">
+            <label for="gym" class="form-label">Select Gym *</label>
+            <select id="gym" name="gym" class="form-input" required>
+              <option value="">Loading gyms...</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="specialization" class="form-label">Specialization *</label>
+            <select id="specialization" name="specialization" class="form-input" required>
+              <option value="">Select your specialization</option>
+              <option value="Weight Training">Weight Training</option>
+              <option value="Cardio & HIIT">Cardio & HIIT</option>
+              <option value="Yoga & Flexibility">Yoga & Flexibility</option>
+              <option value="CrossFit">CrossFit</option>
+              <option value="Martial Arts">Martial Arts</option>
+              <option value="Nutrition & Diet">Nutrition & Diet</option>
+              <option value="Sports Training">Sports Training</option>
+              <option value="General Fitness">General Fitness</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="experience" class="form-label">Years of Experience *</label>
+            <input 
+              type="number" 
+              id="experience" 
+              name="experience" 
+              class="form-input" 
+              placeholder="e.g., 5"
+              min="0"
+              max="50"
+              required
+            >
+          </div>
+
+          <div class="form-group">
+            <label for="phone" class="form-label">Phone Number *</label>
+            <input 
+              type="tel" 
+              id="phone" 
+              name="phone" 
+              class="form-input" 
+              placeholder="Enter 10-digit phone number"
+              pattern="[0-9]{10}"
+              required
+            >
+          </div>
+
+          <div class="form-group">
+            <label for="email" class="form-label">Email Address *</label>
+            <input 
+              type="email" 
+              id="email" 
+              name="email" 
+              class="form-input" 
+              placeholder="Enter your email"
+              required
+              autocomplete="email"
+            >
+          </div>
+
+          <div class="form-group">
+            <label for="password" class="form-label">Password *</label>
+            <div class="password-wrapper">
+              <input 
+                type="password" 
+                id="password" 
+                name="password" 
+                class="form-input" 
+                placeholder="Create a strong password"
+                minlength="6"
+                required
+                autocomplete="new-password"
+              >
+              <button type="button" class="password-toggle" id="togglePassword" aria-label="Toggle password visibility">
+                <i class="fa-solid fa-eye" id="eyeIcon"></i>
+              </button>
+            </div>
+            <small style="color: var(--text-muted); font-size: var(--text-xs);">Minimum 6 characters</small>
+          </div>
+
+          <div class="form-group">
+            <label for="confirmPassword" class="form-label">Confirm Password *</label>
+            <div class="password-wrapper">
+              <input 
+                type="password" 
+                id="confirmPassword" 
+                name="confirmPassword" 
+                class="form-input" 
+                placeholder="Confirm your password"
+                minlength="6"
+                required
+                autocomplete="new-password"
+              >
+              <button type="button" class="password-toggle" id="toggleConfirmPassword" aria-label="Toggle password visibility">
+                <i class="fa-solid fa-eye" id="eyeIconConfirm"></i>
+              </button>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-check">
+              <input type="checkbox" name="terms" required>
+              <span>I agree to the <a href="#" style="color: var(--primary-400);">Terms of Service</a> and <a href="#" style="color: var(--primary-400);">Privacy Policy</a></span>
+            </label>
+          </div>
+
+          <button type="submit" id="signupBtn" class="btn btn-primary">
+            <span id="btnText">Create Account</span>
+          </button>
+        </form>
+
+        <!-- Footer -->
+        <div class="auth-footer">
+          <p>Already have an account? <a href="./login.html">Sign in</a></p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script type="module">
+    import { auth, database } from './src/config/firebase.js';
+    import { createUserWithEmailAndPassword, signOut } from 'firebase/auth';
+    import { ref, set, get } from 'firebase/database';
+    import { showToast, showSuccess, showError, showWarning } from './src/components/toast.js';
+    import { setButtonLoading, isValidEmail, isValidPhone } from './src/js/utils.js';
+
+    // Load available gyms
+    const gymSelect = document.getElementById('gym');
+    
+    // Get gymId from URL if present
+    const urlParams = new URLSearchParams(window.location.search);
+    const preselectedGymId = urlParams.get('gymId');
+    
+    async function loadGyms() {
+      try {
+        const ownersSnap = await get(ref(database, 'owners'));
+        
+        if (!ownersSnap.exists()) {
+          gymSelect.innerHTML = '<option value="">No gyms available</option>';
+          return;
+        }
+        
+        const options = ['<option value="">Select your gym</option>'];
+        ownersSnap.forEach(owner => {
+          const data = owner.val();
+          const selected = owner.key === preselectedGymId ? 'selected' : '';
+          options.push(`<option value="${owner.key}" ${selected}>${data.gymName}${data.city ? ' - ' + data.city : ''}</option>`);
+        });
+        
+        gymSelect.innerHTML = options.join('');
+      } catch (error) {
+        console.error('Error loading gyms:', error);
+        gymSelect.innerHTML = '<option value="">Error loading gyms</option>';
+      }
+    }
+    
+    loadGyms();
+
+    // DOM Elements
+    const signupForm = document.getElementById('signupForm');
+    const signupBtn = document.getElementById('signupBtn');
+    const btnText = document.getElementById('btnText');
+    const togglePassword = document.getElementById('togglePassword');
+    const toggleConfirmPassword = document.getElementById('toggleConfirmPassword');
+    const passwordInput = document.getElementById('password');
+    const confirmPasswordInput = document.getElementById('confirmPassword');
+    const eyeIcon = document.getElementById('eyeIcon');
+    const eyeIconConfirm = document.getElementById('eyeIconConfirm');
+
+    // Toggle password visibility
+    function setupPasswordToggle(toggle, input, icon) {
+      toggle.addEventListener('click', () => {
+        const isPassword = input.type === 'password';
+        input.type = isPassword ? 'text' : 'password';
+        icon.classList.toggle('fa-eye', !isPassword);
+        icon.classList.toggle('fa-eye-slash', isPassword);
+      });
+    }
+
+    setupPasswordToggle(togglePassword, passwordInput, eyeIcon);
+    setupPasswordToggle(toggleConfirmPassword, confirmPasswordInput, eyeIconConfirm);
+
+    // Handle signup
+    signupForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const trainerName = document.getElementById('trainerName').value.trim();
+      const selectedGym = document.getElementById('gym').value;
+      const specialization = document.getElementById('specialization').value;
+      const experience = document.getElementById('experience').value;
+      const phone = document.getElementById('phone').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const password = passwordInput.value;
+      const confirmPassword = confirmPasswordInput.value;
+
+      // Validation
+      if (!trainerName || !selectedGym || !specialization || !experience || !phone || !email || !password) {
+        showWarning('Please fill in all required fields');
+        return;
+      }
+
+      if (!isValidEmail(email)) {
+        showError('Please enter a valid email address');
+        return;
+      }
+
+      if (!isValidPhone(phone)) {
+        showError('Please enter a valid 10-digit phone number');
+        return;
+      }
+
+      if (password.length < 6) {
+        showError('Password must be at least 6 characters');
+        return;
+      }
+
+      if (password !== confirmPassword) {
+        showError('Passwords do not match');
+        return;
+      }
+
+      setButtonLoading(signupBtn, true, 'Sending request...');
+      btnText.textContent = 'Sending request...';
+
+      try {
+        // Create user in Firebase Auth
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        const uid = userCredential.user.uid;
+
+        // Save to pending_requests instead of directly to trainers
+        await set(ref(database, `pending_requests/${uid}`), {
+          userId: uid,
+          gymId: selectedGym,
+          type: 'trainer',
+          name: trainerName,
+          email: email,
+          phone: phone,
+          status: 'pending',
+          createdAt: new Date().toISOString(),
+          profileData: {
+            specialization: specialization,
+            experience: parseInt(experience)
+          }
+        });
+
+        showSuccess('Request sent! Waiting for gym owner approval.');
+        
+        // Sign out the user since they're not approved yet
+        await signOut(auth);
+        
+        setTimeout(() => {
+          window.location.href = './login.html?pending=true';
+        }, 2000);
+
+      } catch (error) {
+        console.error('Signup error:', error);
+        
+        let message = 'Registration failed. Please try again.';
+        if (error.code === 'auth/email-already-in-use') {
+          message = 'This email is already registered. Please sign in.';
+        } else if (error.code === 'auth/weak-password') {
+          message = 'Password is too weak. Please use a stronger password.';
+        } else if (error.code === 'auth/invalid-email') {
+          message = 'Invalid email address format.';
+        }
+        
+        showError(message);
+        setButtonLoading(signupBtn, false);
+        btnText.textContent = 'Create Account';
+      }
+    });
+  </script>
+</body>
+</html>

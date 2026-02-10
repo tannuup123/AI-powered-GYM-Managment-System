@@ -1,0 +1,88 @@
+
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Owner Signup - Fit Track Pro</title>
+  <link rel="stylesheet" href="signup.css">
+</head>
+<body>
+  <form id="ownerSignupForm">
+    <div class="form-container">
+    <h2>Gym Owner Registration</h2>
+    <input type="text" name="owner_name" placeholder="Owner Name" required>
+    <input type="email" name="email" placeholder="Email" required>
+    <input type="text" name="gym_name" placeholder="Gym Name" required>
+    <input type="text" name="location" placeholder="Gym Location" required>
+    <input type="tel" name="contact" placeholder="Contact Number" required>
+    <input type="password" name="password" placeholder="Password" required>
+    <button type="submit">Register Your Gym</button>
+    </div>
+  </form>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+
+  <script>
+    // ✅ Firebase Config
+    const firebaseConfig = {
+      apiKey: "AIzaSyC-oca5z39s7l77EDY_Jx1psRroWtfZ2pM",
+      authDomain: "fit-track-be443.firebaseapp.com",
+      projectId: "fit-track-be443",
+      storageBucket: "fit-track-be443.firebasestorage.app",
+      messagingSenderId: "485684449281",
+      appId: "1:485684449281:web:88991ce3596959c0433000",
+      measurementId: "G-ZD4NTCKQH7"
+    };
+
+    // 🔥 Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const database = firebase.database();
+
+    // 🎯 Handle Owner Signup
+    const form = document.getElementById("ownerSignupForm");
+
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+
+      const ownerName = form.owner_name.value.trim();
+      const email = form.email.value.trim();
+      const gymName = form.gym_name.value.trim();
+      const location = form.location.value.trim();
+      const contact = form.contact.value.trim();
+      const password = form.password.value.trim();
+
+      // ✅ Validate email format
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        alert("Please enter a valid email address.");
+        return;
+      }
+
+      // ✅ Create user with Firebase Authentication
+      auth.createUserWithEmailAndPassword(email, password)
+        .then((userCredential) => {
+          const user = userCredential.user;
+
+          // ✅ Save additional owner info to Realtime Database
+          return database.ref("owners/" + user.uid).set({
+            ownerName,
+            email,
+            gymName,
+            location,
+            contact
+          });
+        })
+        .then(() => {
+          alert("Gym owner registered successfully!");
+          window.location.href = "index.html"; // Redirect to login/home
+        })
+        .catch((error) => {
+          alert("Signup failed: " + error.message);
+        });
+    });
+  </script>
+  
+</body>
+</html>

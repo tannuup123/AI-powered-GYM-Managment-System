@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Member Dashboard - Track your fitness journey with Fit Track Pro">
+  <title>Member Dashboard - Fit Track Pro</title>
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  
+  <!-- Styles -->
+  <link rel="stylesheet" href="./src/styles/main.css">
+  <link rel="icon" href="./public/logo.png" type="image/png">
+</head>
+<body>
+  <div class="dashboard">
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <img src="./public/logo.png" alt="Fit Track Pro" class="sidebar-logo">
+        <span class="sidebar-brand">Fit Track Pro</span>
+      </div>
+      
+      <nav class="sidebar-nav">
+        <div class="nav-section">
+          <span class="nav-section-title">Main</span>
+          <a href="#" class="nav-link active">
+            <i class="fa-solid fa-home"></i>
+            <span>Dashboard</span>
+          </a>
+        </div>
+        
+        <div class="nav-section">
+          <span class="nav-section-title">Membership</span>
+          <a href="#" class="nav-link" id="viewBillsLink">
+            <i class="fa-solid fa-file-invoice-dollar"></i>
+            <span>My Bills</span>
+          </a>
+          <a href="#" class="nav-link" id="viewNotificationsLink">
+            <i class="fa-solid fa-bell"></i>
+            <span>Notifications</span>
+            <span class="badge badge-warning" id="notifBadge" style="display: none; margin-left: auto;">0</span>
+          </a>
+        </div>
+        
+        <div class="nav-section">
+          <span class="nav-section-title">Training</span>
+          <a href="#" class="nav-link" id="viewScheduleLink">
+            <i class="fa-solid fa-calendar-alt"></i>
+            <span>My Sessions</span>
+          </a>
+          <a href="#" class="nav-link" id="viewWorkoutLink">
+            <i class="fa-solid fa-dumbbell"></i>
+            <span>Workout Progress</span>
+          </a>
+        </div>
+        
+        <div class="nav-section">
+          <span class="nav-section-title">AI Coach</span>
+          <a href="./member-ai.html" class="nav-link">
+            <i class="fa-solid fa-robot"></i>
+            <span>AI Fitness Coach</span>
+            <span class="badge badge-primary" style="margin-left: auto; font-size: 9px; padding: 2px 6px;">AI</span>
+          </a>
+        </div>
+        
+        <div class="nav-section">
+          <span class="nav-section-title">Account</span>
+          <a href="./edit-profile.html" class="nav-link">
+            <i class="fa-solid fa-user-edit"></i>
+            <span>Edit Profile</span>
+          </a>
+        </div>
+      </nav>
+      
+      <div class="sidebar-footer">
+        <div class="user-info">
+          <div class="avatar avatar-placeholder" id="userAvatar">M</div>
+          <div class="user-details">
+            <div class="user-name" id="userName">Loading...</div>
+            <div class="user-role">Member</div>
+          </div>
+          <button class="btn btn-ghost btn-icon" id="logoutBtn" title="Logout">
+            <i class="fa-solid fa-sign-out-alt"></i>
+          </button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Mobile Sidebar Toggle -->
+    <button class="sidebar-toggle" id="sidebarToggle">
+      <i class="fa-solid fa-bars"></i>
+    </button>
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <div class="page-header">
+        <h1>Welcome, <span id="memberName">Member</span> 👋</h1>
+        <p id="userEmail">member@example.com</p>
+      </div>
+
+      <!-- Membership Card -->
+      <div class="card" style="background: linear-gradient(135deg, var(--primary-600), var(--accent-600)); margin-bottom: var(--space-6); position: relative; overflow: hidden;">
+        <div style="position: absolute; top: -50%; right: -20%; width: 200px; height: 200px; background: rgba(255,255,255,0.1); border-radius: 50%;"></div>
+        <div style="position: absolute; bottom: -30%; left: -10%; width: 150px; height: 150px; background: rgba(255,255,255,0.05); border-radius: 50%;"></div>
+        <div style="position: relative; z-index: 1;">
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: var(--space-4);">
+            <div>
+              <p style="color: rgba(255,255,255,0.8); font-size: var(--text-sm); margin-bottom: var(--space-1);">MEMBERSHIP PLAN</p>
+              <h2 id="memberPlan" style="color: white; font-size: var(--text-2xl); margin-bottom: var(--space-2);">Loading...</h2>
+              <p id="membershipValidity" style="color: rgba(255,255,255,0.9); font-size: var(--text-sm);">
+                <i class="fa-solid fa-calendar"></i> <span id="validityText">-</span>
+              </p>
+            </div>
+            <div style="text-align: right;">
+              <div id="membershipStatus" class="badge badge-success" style="font-size: var(--text-sm);">Active</div>
+              <p style="color: rgba(255,255,255,0.8); font-size: var(--text-xs); margin-top: var(--space-2);">
+                Member since: <span id="joinDate">-</span>
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Stats Grid -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon primary">
+            <i class="fa-solid fa-calendar-check"></i>
+          </div>
+          <div class="stat-content">
+            <h3 id="upcomingSessionsCount">0</h3>
+            <p>Upcoming Sessions</p>
+          </div>
+        </div>
+        
+        <div class="stat-card">
+          <div class="stat-icon success">
+            <i class="fa-solid fa-check-circle"></i>
+          </div>
+          <div class="stat-content">
+            <h3 id="paidBillsCount">0</h3>
+            <p>Paid Bills</p>
+          </div>
+        </div>
+        
+        <div class="stat-card">
+          <div class="stat-icon warning">
+            <i class="fa-solid fa-clock"></i>
+          </div>
+          <div class="stat-content">
+            <h3 id="pendingBillsCount">0</h3>
+            <p>Pending Bills</p>
+          </div>
+        </div>
+        
+        <div class="stat-card">
+          <div class="stat-icon accent">
+            <i class="fa-solid fa-bell"></i>
+          </div>
+          <div class="stat-content">
+            <h3 id="notificationCount">0</h3>
+            <p>Notifications</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Two Column Layout -->
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: var(--space-6); margin-top: var(--space-6);">
+        
+        <!-- Left Column: Trainer Info & Sessions -->
+        <div>
+          <!-- Assigned Trainer Card -->
+          <div class="card" style="margin-bottom: var(--space-6);">
+            <h3 style="margin-bottom: var(--space-4);"><i class="fa-solid fa-user-tie" style="color: var(--primary-400);"></i> My Trainer</h3>
+            <div id="trainerInfo">
+              <p style="color: var(--text-muted);">Loading trainer info...</p>
+            </div>
+          </div>
+
+          <!-- Upcoming Sessions -->
+          <div class="card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-4);">
+              <h3><i class="fa-solid fa-calendar" style="color: var(--success-400);"></i> Upcoming Sessions</h3>
+              <button class="btn btn-ghost btn-sm" id="viewAllSessionsBtn">View All</button>
+            </div>
+            <div id="upcomingSessionsList">
+              <p style="color: var(--text-muted);">Loading sessions...</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Column: Bills & Notifications -->
+        <div>
+          <!-- Recent Bills -->
+          <div class="card" style="margin-bottom: var(--space-6);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-4);">
+              <h3><i class="fa-solid fa-file-invoice-dollar" style="color: var(--warning-400);"></i> Recent Bills</h3>
+              <button class="btn btn-ghost btn-sm" id="viewAllBillsBtn">View All</button>
+            </div>
+            <div id="recentBillsList">
+              <p style="color: var(--text-muted);">Loading bills...</p>
+            </div>
+          </div>
+
+          <!-- Recent Notifications -->
+          <div class="card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-4);">
+              <h3><i class="fa-solid fa-bell" style="color: var(--accent-400);"></i> Recent Notifications</h3>
+              <button class="btn btn-ghost btn-sm" id="viewAllNotifsBtn">View All</button>
+            </div>
+            <div id="recentNotificationsList">
+              <p style="color: var(--text-muted);">Loading notifications...</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Actions -->
+      <h2 style="margin: var(--space-6) 0 var(--space-4);">Quick Actions</h2>
+      <div class="actions-grid">
+        <button class="action-card" id="viewBillsBtn">
+          <i class="fa-solid fa-file-invoice-dollar"></i>
+          <p>View All Bills</p>
+        </button>
+        
+        <button class="action-card" id="viewNotificationsBtn">
+          <i class="fa-solid fa-bell"></i>
+          <p>Notifications</p>
+        </button>
+        
+        <button class="action-card" id="viewScheduleBtn">
+          <i class="fa-solid fa-calendar-alt"></i>
+          <p>Training Schedule</p>
+        </button>
+        
+        <a href="./edit-profile.html" class="action-card">
+          <i class="fa-solid fa-user-edit"></i>
+          <p>Edit Profile</p>
+        </a>
+      </div>
+    </main>
+  </div>
+
+  <!-- Bills Modal -->
+  <div class="modal-backdrop" id="billsModal">
+    <div class="modal" style="max-width: 700px;">
+      <div class="modal-header">
+        <h3>💳 My Bills</h3>
+        <button class="btn btn-ghost btn-icon" id="closeBillsModal">&times;</button>
+      </div>
+      <div class="modal-body" id="billsList">
+        <p style="color: var(--text-muted);">Loading bills...</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Notifications Modal -->
+  <div class="modal-backdrop" id="notificationsModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3>📬 Notifications</h3>
+        <button class="btn btn-ghost btn-icon" id="closeNotificationsModal">&times;</button>
+      </div>
+      <div class="modal-body" id="notificationsList">
+        <p style="color: var(--text-muted);">Loading notifications...</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Schedule Modal -->
+  <div class="modal-backdrop" id="scheduleModal">
+    <div class="modal" style="max-width: 600px;">
+      <div class="modal-header">
+        <h3>📅 Training Schedule</h3>
+        <button class="btn btn-ghost btn-icon" id="closeScheduleModal">&times;</button>
+      </div>
+      <div class="modal-body" id="scheduleList">
+        <p style="color: var(--text-muted);">Loading schedule...</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Workout Progress Modal -->
+  <div class="modal-backdrop" id="workoutModal">
+    <div class="modal" style="max-width: 600px;">
+      <div class="modal-header">
+        <h3>💪 Workout Progress</h3>
+        <button class="btn btn-ghost btn-icon" id="closeWorkoutModal">&times;</button>
+      </div>
+      <div class="modal-body" id="workoutContent">
+        <div style="text-align: center; padding: var(--space-4);">
+          <i class="fa-solid fa-dumbbell" style="font-size: 3rem; color: var(--primary-400); margin-bottom: var(--space-4);"></i>
+          <h4>Track Your Progress</h4>
+          <p style="color: var(--text-muted);">Your workout statistics will appear here as you complete training sessions.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script type="module">
+    import { auth, database } from './src/config/firebase.js';
+    import { onAuthStateChanged, signOut } from 'firebase/auth';
+    import { ref, get } from 'firebase/database';
+    import { showToast, showSuccess, showError } from './src/components/toast.js';
+
+    // DOM Elements
+    const sidebar = document.getElementById('sidebar');
+    const sidebarToggle = document.getElementById('sidebarToggle');
+    const sidebarOverlay = document.getElementById('sidebarOverlay');
+    const logoutBtn = document.getElementById('logoutBtn');
+
+    // Modals
+    const billsModal = document.getElementById('billsModal');
+    const notificationsModal = document.getElementById('notificationsModal');
+    const scheduleModal = document.getElementById('scheduleModal');
+    const workoutModal = document.getElementById('workoutModal');
+
+    let currentMemberId = null;
+    let memberData = null;
+    let assignedTrainerId = null;
+
+    // Mobile sidebar toggle
+    sidebarToggle.addEventListener('click', () => {
+      sidebar.classList.toggle('open');
+      sidebarOverlay.classList.toggle('active');
+    });
+
+    sidebarOverlay.addEventListener('click', () => {
+      sidebar.classList.remove('open');
+      sidebarOverlay.classList.remove('active');
+    });
+
+    // Modal handlers
+    function openModal(modal) { modal.classList.add('active'); }
+    function closeModal(modal) { modal.classList.remove('active'); }
+
+    document.getElementById('closeBillsModal').addEventListener('click', () => closeModal(billsModal));
+    document.getElementById('closeNotificationsModal').addEventListener('click', () => closeModal(notificationsModal));
+    document.getElementById('closeScheduleModal').addEventListener('click', () => closeModal(scheduleModal));
+    document.getElementById('closeWorkoutModal').addEventListener('click', () => closeModal(workoutModal));
+
+    // Auth state listener
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        showError('Please log in to continue');
+        setTimeout(() => window.location.href = './login.html', 1500);
+        return;
+      }
+
+      currentMemberId = user.uid;
+      localStorage.setItem('memberUID', user.uid);
+      document.getElementById('userEmail').textContent = user.email;
+
+      try {
+        // Find member data across all owners
+        const ownersSnap = await get(ref(database, 'owners'));
+
+        if (ownersSnap.exists()) {
+          ownersSnap.forEach(ownerSnap => {
+            const members = ownerSnap.child('members').val();
+            if (members && members[user.uid]) {
+              memberData = members[user.uid];
+            }
+          });
+        }
+
+        if (memberData) {
+          updateMemberUI(memberData);
+        }
+
+        // Load stats first to get assignedTrainerId
+        await loadMemberStats();
+        
+        // Then load trainer-dependent data
+        await Promise.all([
+          loadTrainerInfo(),
+          loadUpcomingSessions(),
+          loadRecentBills(),
+          loadRecentNotifications()
+        ]);
+
+      } catch (error) {
+        console.error('Error loading member data:', error);
+        showError('Failed to load profile');
+      }
+    });
+
+    // Update member UI
+    function updateMemberUI(data) {
+      document.getElementById('memberName').textContent = data.name || 'Member';
+      document.getElementById('userName').textContent = data.name || 'Member';
+      document.getElementById('userAvatar').textContent = (data.name || 'M').charAt(0).toUpperCase();
+      document.getElementById('joinDate').textContent = data.joiningDate || 'N/A';
+      document.getElementById('memberPlan').textContent = data.plan || 'Basic Plan';
+      
+      // Calculate validity
+      if (data.joiningDate) {
+        const joinDate = new Date(data.joiningDate);
+        let validUntil = new Date(joinDate);
+        switch (data.plan) {
+          case 'Monthly': validUntil.setMonth(validUntil.getMonth() + 1); break;
+          case 'Quarterly': validUntil.setMonth(validUntil.getMonth() + 3); break;
+          case 'Half-Yearly': validUntil.setMonth(validUntil.getMonth() + 6); break;
+          case 'Yearly': validUntil.setFullYear(validUntil.getFullYear() + 1); break;
+          default: validUntil.setMonth(validUntil.getMonth() + 1);
+        }
+        document.getElementById('validityText').textContent = `Valid until: ${validUntil.toLocaleDateString()}`;
+        
+        const isActive = validUntil >= new Date();
+        document.getElementById('membershipStatus').textContent = isActive ? 'Active' : 'Expired';
+        document.getElementById('membershipStatus').className = `badge ${isActive ? 'badge-success' : 'badge-error'}`;
+      }
+    }
+
+    // Load member statistics
+    async function loadMemberStats() {
+      try {
+        // Notifications count
+        const notifSnap = await get(ref(database, `members/${currentMemberId}/notifications`));
+        const notifCount = notifSnap.exists() ? Object.keys(notifSnap.val()).length : 0;
+        document.getElementById('notificationCount').textContent = notifCount;
+        
+        // Update badge in sidebar
+        const notifBadge = document.getElementById('notifBadge');
+        if (notifCount > 0) {
+          notifBadge.textContent = notifCount;
+          notifBadge.style.display = 'inline';
+        }
+
+        // Bills count
+        const billSnap = await get(ref(database, `bills/${currentMemberId}/bill_receipts`));
+        let paidCount = 0, pendingCount = 0;
+        if (billSnap.exists()) {
+          Object.values(billSnap.val()).forEach(bill => {
+            if (bill.status === 'Paid') paidCount++;
+            else pendingCount++;
+          });
+        }
+        document.getElementById('paidBillsCount').textContent = paidCount;
+        document.getElementById('pendingBillsCount').textContent = pendingCount;
+
+        // Find assigned trainer
+        const trainersSnap = await get(ref(database, 'trainers'));
+        if (trainersSnap.exists()) {
+          trainersSnap.forEach(trainer => {
+            const assigned = trainer.child('assignedMembers').val();
+            if (assigned && assigned[currentMemberId]) {
+              assignedTrainerId = trainer.key;
+            }
+          });
+        }
+
+        // Upcoming sessions count
+        if (assignedTrainerId) {
+          const sessionsSnap = await get(ref(database, `trainers/${assignedTrainerId}/sessions`));
+          let sessionCount = 0;
+          const today = new Date().toISOString().split('T')[0];
+          if (sessionsSnap.exists()) {
+            Object.values(sessionsSnap.val()).forEach(s => {
+              if (s.memberId === currentMemberId && s.date >= today) sessionCount++;
+            });
+          }
+          document.getElementById('upcomingSessionsCount').textContent = sessionCount;
+        }
+      } catch (error) {
+        console.error('Error loading stats:', error);
+      }
+    }
+
+    // Load trainer info
+    async function loadTrainerInfo() {
+      const container = document.getElementById('trainerInfo');
+      
+      if (!assignedTrainerId) {
+        container.innerHTML = `
+          <div style="text-align: center; padding: var(--space-4); color: var(--text-muted);">
+            <i class="fa-solid fa-user-slash" style="font-size: 2rem; margin-bottom: var(--space-2);"></i>
+            <p>No trainer assigned yet</p>
+          </div>
+        `;
+        return;
+      }
+
+      try {
+        const trainerSnap = await get(ref(database, `trainers/${assignedTrainerId}`));
+        if (trainerSnap.exists()) {
+          const t = trainerSnap.val();
+          container.innerHTML = `
+            <div style="display: flex; align-items: center; gap: var(--space-4);">
+              <div class="avatar avatar-placeholder" style="width: 60px; height: 60px; font-size: var(--text-xl); background: var(--accent-500);">
+                ${(t.name || 'T').charAt(0).toUpperCase()}
+              </div>
+              <div>
+                <h4 style="margin-bottom: var(--space-1);">${t.name || 'Trainer'}</h4>
+                <p style="color: var(--text-muted); font-size: var(--text-sm); margin-bottom: var(--space-1);">
+                  <i class="fa-solid fa-dumbbell"></i> ${t.specialization || 'General Fitness'}
+                </p>
+                <p style="color: var(--text-muted); font-size: var(--text-sm);">
+                  <i class="fa-solid fa-phone"></i> ${t.phone || 'N/A'}
+                </p>
+              </div>
+            </div>
+          `;
+        }
+      } catch (error) {
+        console.error('Error loading trainer:', error);
+      }
+    }
+
+    // Load upcoming sessions
+    async function loadUpcomingSessions() {
+      const container = document.getElementById('upcomingSessionsList');
+      
+      if (!assignedTrainerId) {
+        container.innerHTML = '<p style="color: var(--text-muted); text-align: center;">No trainer assigned</p>';
+        return;
+      }
+
+      try {
+        const sessionsSnap = await get(ref(database, `trainers/${assignedTrainerId}/sessions`));
+        const today = new Date().toISOString().split('T')[0];
+        const sessions = [];
+
+        if (sessionsSnap.exists()) {
+          Object.values(sessionsSnap.val()).forEach(s => {
+            if (s.memberId === currentMemberId && s.date >= today) {
+              sessions.push(s);
+            }
+          });
+        }
+
+        if (sessions.length === 0) {
+          container.innerHTML = '<p style="color: var(--text-muted); text-align: center;">No upcoming sessions</p>';
+          return;
+        }
+
+        // Sort by date and take first 3
+        sessions.sort((a, b) => new Date(a.date) - new Date(b.date));
+        const upcoming = sessions.slice(0, 3);
+
+        container.innerHTML = upcoming.map(s => `
+          <div style="display: flex; align-items: center; gap: var(--space-3); padding: var(--space-3); background: var(--surface-glass); border-radius: var(--radius-md); margin-bottom: var(--space-2);">
+            <div class="stat-icon primary" style="width: 40px; height: 40px;">
+              <i class="fa-solid fa-calendar"></i>
+            </div>
+            <div>
+              <div style="font-weight: var(--font-medium);">${s.type || 'Training Session'}</div>
+              <div style="font-size: var(--text-xs); color: var(--text-muted);">${s.date} at ${s.time}</div>
+            </div>
+          </div>
+        `).join('');
+      } catch (error) {
+        console.error('Error loading sessions:', error);
+      }
+    }
+
+    // Load recent bills
+    async function loadRecentBills() {
+      const container = document.getElementById('recentBillsList');
+
+      try {
+        const billSnap = await get(ref(database, `bills/${currentMemberId}/bill_receipts`));
+        
+        if (!billSnap.exists()) {
+          container.innerHTML = '<p style="color: var(--text-muted); text-align: center;">No bills found</p>';
+          return;
+        }
+
+        const bills = Object.values(billSnap.val())
+          .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+          .slice(0, 3);
+
+        container.innerHTML = bills.map(b => `
+          <div style="display: flex; justify-content: space-between; align-items: center; padding: var(--space-3); background: var(--surface-glass); border-radius: var(--radius-md); margin-bottom: var(--space-2);">
+            <div>
+              <div style="font-weight: var(--font-medium);">${b.plan || 'Bill'}</div>
+              <div style="font-size: var(--text-xs); color: var(--text-muted);">${b.billDate}</div>
+            </div>
+            <div style="text-align: right;">
+              <div style="font-weight: var(--font-semibold);">₹${b.amount || 0}</div>
+              <span class="badge ${b.status === 'Paid' ? 'badge-success' : 'badge-warning'}" style="font-size: var(--text-xs);">${b.status}</span>
+            </div>
+          </div>
+        `).join('');
+      } catch (error) {
+        console.error('Error loading bills:', error);
+      }
+    }
+
+    // Load recent notifications
+    async function loadRecentNotifications() {
+      const container = document.getElementById('recentNotificationsList');
+
+      try {
+        const notifSnap = await get(ref(database, `members/${currentMemberId}/notifications`));
+        
+        if (!notifSnap.exists()) {
+          container.innerHTML = '<p style="color: var(--text-muted); text-align: center;">No notifications</p>';
+          return;
+        }
+
+        const notifications = Object.values(notifSnap.val())
+          .sort((a, b) => new Date(b.date || 0) - new Date(a.date || 0))
+          .slice(0, 3);
+
+        container.innerHTML = notifications.map(n => `
+          <div style="padding: var(--space-3); background: var(--surface-glass); border-radius: var(--radius-md); margin-bottom: var(--space-2);">
+            <p style="margin: 0; font-size: var(--text-sm);">${n.message}</p>
+            <small style="color: var(--text-muted);">${n.date || ''}</small>
+          </div>
+        `).join('');
+      } catch (error) {
+        console.error('Error loading notifications:', error);
+      }
+    }
+
+    // Show all bills modal
+    async function showAllBills() {
+      openModal(billsModal);
+      const container = document.getElementById('billsList');
+      container.innerHTML = '<p style="color: var(--text-muted);">Loading...</p>';
+
+      try {
+        const billSnap = await get(ref(database, `bills/${currentMemberId}/bill_receipts`));
+        
+        if (!billSnap.exists()) {
+          container.innerHTML = '<p style="color: var(--text-muted); text-align: center;">No bills found</p>';
+          return;
+        }
+
+        const bills = Object.values(billSnap.val())
+          .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+        container.innerHTML = `
+          <div class="table-responsive">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Plan</th>
+                  <th>Amount</th>
+                  <th>Bill Date</th>
+                  <th>Due Date</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${bills.map(b => `
+                  <tr>
+                    <td>${b.plan || 'N/A'}</td>
+                    <td>₹${b.amount || 0}</td>
+                    <td>${b.billDate || 'N/A'}</td>
+                    <td>${b.dueDate || 'N/A'}</td>
+                    <td><span class="badge ${b.status === 'Paid' ? 'badge-success' : 'badge-warning'}">${b.status}</span></td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+        `;
+      } catch (error) {
+        container.innerHTML = '<p style="color: var(--error-400);">Failed to load bills</p>';
+      }
+    }
+
+    // Show all notifications modal
+    async function showAllNotifications() {
+      openModal(notificationsModal);
+      const container = document.getElementById('notificationsList');
+      container.innerHTML = '<p style="color: var(--text-muted);">Loading...</p>';
+
+      try {
+        const notifSnap = await get(ref(database, `members/${currentMemberId}/notifications`));
+        
+        if (!notifSnap.exists()) {
+          container.innerHTML = '<p style="color: var(--text-muted); text-align: center;">No notifications yet</p>';
+          return;
+        }
+
+        const notifications = Object.values(notifSnap.val())
+          .sort((a, b) => new Date(b.date || 0) - new Date(a.date || 0));
+
+        container.innerHTML = notifications.map(n => `
+          <div class="card" style="margin-bottom: var(--space-3); padding: var(--space-4);">
+            <p style="margin: 0;">${n.message}</p>
+            <small style="color: var(--text-muted);">${n.date || ''}</small>
+          </div>
+        `).join('');
+      } catch (error) {
+        container.innerHTML = '<p style="color: var(--error-400);">Failed to load notifications</p>';
+      }
+    }
+
+    // Show schedule modal
+    async function showSchedule() {
+      openModal(scheduleModal);
+      const container = document.getElementById('scheduleList');
+      container.innerHTML = '<p style="color: var(--text-muted);">Loading...</p>';
+
+      if (!assignedTrainerId) {
+        container.innerHTML = '<p style="color: var(--text-muted); text-align: center;">No trainer assigned yet</p>';
+        return;
+      }
+
+      try {
+        const sessionsSnap = await get(ref(database, `trainers/${assignedTrainerId}/sessions`));
+        const sessions = [];
+
+        if (sessionsSnap.exists()) {
+          Object.values(sessionsSnap.val()).forEach(s => {
+            if (s.memberId === currentMemberId) {
+              sessions.push(s);
+            }
+          });
+        }
+
+        if (sessions.length === 0) {
+          container.innerHTML = '<p style="color: var(--text-muted); text-align: center;">No scheduled sessions</p>';
+          return;
+        }
+
+        sessions.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+        container.innerHTML = sessions.map(s => `
+          <div class="card" style="margin-bottom: var(--space-3); padding: var(--space-4);">
+            <div style="display: flex; align-items: center; gap: var(--space-3);">
+              <div class="stat-icon primary" style="width: 48px; height: 48px;">
+                <i class="fa-solid fa-calendar"></i>
+              </div>
+              <div>
+                <h4 style="margin-bottom: var(--space-1);">${s.type || 'Training Session'}</h4>
+                <p style="margin: 0; color: var(--text-muted);">📅 ${s.date} @ ${s.time}</p>
+                ${s.notes ? `<p style="margin: var(--space-1) 0 0; font-size: var(--text-sm); color: var(--text-muted);">${s.notes}</p>` : ''}
+              </div>
+            </div>
+          </div>
+        `).join('');
+      } catch (error) {
+        container.innerHTML = '<p style="color: var(--error-400);">Failed to load schedule</p>';
+      }
+    }
+
+    // Event listeners
+    document.getElementById('viewBillsBtn').addEventListener('click', showAllBills);
+    document.getElementById('viewBillsLink').addEventListener('click', (e) => { e.preventDefault(); showAllBills(); });
+    document.getElementById('viewAllBillsBtn').addEventListener('click', showAllBills);
+    
+    document.getElementById('viewNotificationsBtn').addEventListener('click', showAllNotifications);
+    document.getElementById('viewNotificationsLink').addEventListener('click', (e) => { e.preventDefault(); showAllNotifications(); });
+    document.getElementById('viewAllNotifsBtn').addEventListener('click', showAllNotifications);
+    
+    document.getElementById('viewScheduleBtn').addEventListener('click', showSchedule);
+    document.getElementById('viewScheduleLink').addEventListener('click', (e) => { e.preventDefault(); showSchedule(); });
+    document.getElementById('viewAllSessionsBtn').addEventListener('click', showSchedule);
+    
+    document.getElementById('viewWorkoutLink').addEventListener('click', (e) => { e.preventDefault(); openModal(workoutModal); });
+
+    // Logout
+    logoutBtn.addEventListener('click', async () => {
+      try {
+        await signOut(auth);
+        localStorage.clear();
+        showSuccess('Logged out successfully');
+        setTimeout(() => window.location.href = './login.html', 1000);
+      } catch (error) {
+        console.error('Logout error:', error);
+        showError('Logout failed');
+      }
+    });
+  </script>
+</body>
+</html>

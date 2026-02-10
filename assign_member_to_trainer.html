@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Assign Members to Trainers</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link rel="stylesheet" href="owner_dashboard.css" />
+  <style>
+    .container {
+      max-width: 600px;
+      margin: 30px auto;
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+    }
+    select, button {
+      padding: 10px;
+      margin-top: 10px;
+      width: 100%;
+    }
+    h2 {
+      color: #4CAF50;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="dashboard-container">
+    <header class="dashboard-header">
+      <h1>Assign Member to Trainer</h1>
+      <p>Select a member and assign them to a trainer</p>
+    </header>
+
+    <div class="container">
+      <h2>Assign Now</h2>
+
+      <label>Member:</label>
+      <select id="memberSelect"><option>Loading...</option></select>
+
+      <label>Trainer:</label>
+      <select id="trainerSelect"><option>Loading...</option></select>
+
+      <button onclick="assign()">Assign Member</button>
+    </div>
+  </div>
+
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyC-oca5z39s7l77EDY_Jx1psRroWtfZ2pM",
+      authDomain: "fit-track-be443.firebaseapp.com",
+      databaseURL: "https://fit-track-be443-default-rtdb.firebaseio.com",
+      projectId: "fit-track-be443",
+      storageBucket: "fit-track-be443.appspot.com",
+      messagingSenderId: "485684449281",
+      appId: "1:485684449281:web:88991ce3596959c0433000"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.database();
+
+    const memberSelect = document.getElementById("memberSelect");
+    const trainerSelect = document.getElementById("trainerSelect");
+
+    auth.onAuthStateChanged(user => {
+      if (!user) {
+        alert("Please log in");
+        location.href = "login.html";
+        return;
+      }
+
+      loadMembers(user.uid);
+      loadTrainers();
+    });
+
+    function loadMembers(ownerId) {
+      db.ref("owners/" + ownerId + "/members").once("value").then(snap => {
+        memberSelect.innerHTML = "";
+        snap.forEach(child => {
+          const m = child.val();
+          const option = document.createElement("option");
+          option.value = child.key;
+          option.textContent = `${m.name} (${child.key})`;
+          memberSelect.appendChild(option);
+        });
+      });
+    }
+
+    function loadTrainers() {
+      db.ref("trainers").once("value").then(snap => {
+        trainerSelect.innerHTML = "";
+        snap.forEach(child => {
+          const t = child.val();
+          const option = document.createElement("option");
+          option.value = child.key;
+          option.textContent = `${t.name} (${child.key})`;
+          trainerSelect.appendChild(option);
+        });
+      });
+    }
+
+    function assign() {
+      const memberId = memberSelect.value;
+      const trainerId = trainerSelect.value;
+
+      if (!memberId || !trainerId) {
+        alert("Please select both member and trainer.");
+        return;
+      }
+
+      db.ref(`trainers/${trainerId}/assignedMembers/${memberId}`).set(true)
+        .then(() => {
+          alert("Member assigned to trainer successfully.");
+        })
+        .catch(err => {
+          console.error(err);
+          alert("Assignment failed.");
+        });
+    }
+  </script>
+</body>
+</html>

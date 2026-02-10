@@ -1,0 +1,49 @@
+{
+  "rules": {
+    "owners": {
+      ".read": true,
+      ".write": "auth != null && root.child('superadmins').child(auth.uid).exists()",
+      "$ownerId": {
+        ".write": "auth != null && (auth.uid == $ownerId || root.child('superadmins').child(auth.uid).exists())",
+        "members": {
+          ".read": "auth != null",
+          ".write": "auth != null"
+        },
+        "bills": {
+          ".read": "auth != null",
+          ".write": "auth != null"
+        }
+      }
+    },
+    "trainers": {
+      ".read": "auth != null",
+      ".write": "auth != null"
+    },
+    "trainer_schedules": {
+      ".read": "auth != null",
+      ".write": "auth != null"
+    },
+    "members": {
+      ".read": "auth != null",
+      ".write": "auth != null"
+    },
+    "bills": {
+      ".read": "auth != null",
+      ".write": "auth != null"
+    },
+    "pending_requests": {
+      ".read": "auth != null",
+      ".write": "auth != null"
+    },
+    "fitness_profiles": {
+      ".read": "auth != null",
+      "$userId": {
+        ".write": "auth != null && auth.uid == $userId"
+      }
+    },
+    "superadmins": {
+      ".read": "auth != null",
+      ".write": false
+    }
+  }
+}

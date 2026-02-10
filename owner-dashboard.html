@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Owner Dashboard - Manage your gym with Fit Track Pro">
+  <title>Owner Dashboard - Fit Track Pro</title>
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  
+  <!-- Styles -->
+  <link rel="stylesheet" href="./src/styles/main.css">
+  <link rel="icon" href="./public/logo.png" type="image/png">
+</head>
+<body>
+  <div class="dashboard">
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <img src="./public/logo.png" alt="Fit Track Pro" class="sidebar-logo">
+        <span class="sidebar-brand">Fit Track Pro</span>
+      </div>
+      
+      <nav class="sidebar-nav">
+        <div class="nav-section">
+          <span class="nav-section-title">Main</span>
+          <a href="#" class="nav-link active">
+            <i class="fa-solid fa-home"></i>
+            <span>Dashboard</span>
+          </a>
+        </div>
+        
+        <div class="nav-section">
+          <span class="nav-section-title">Members</span>
+          <a href="./add-member.html" class="nav-link">
+            <i class="fa-solid fa-user-plus"></i>
+            <span>Add Member</span>
+          </a>
+          <a href="./manage-members.html" class="nav-link">
+            <i class="fa-solid fa-users"></i>
+            <span>Manage Members</span>
+          </a>
+        </div>
+        
+        <div class="nav-section">
+          <span class="nav-section-title">Trainers</span>
+          <a href="./manage-trainers.html" class="nav-link">
+            <i class="fa-solid fa-user-tie"></i>
+            <span>Manage Trainers</span>
+          </a>
+          <a href="./assign-trainer.html" class="nav-link">
+            <i class="fa-solid fa-people-arrows"></i>
+            <span>Assign Trainer</span>
+          </a>
+        </div>
+        
+        <div class="nav-section">
+          <span class="nav-section-title">Requests</span>
+          <a href="./manage-requests.html" class="nav-link" id="requestsLink">
+            <i class="fa-solid fa-user-clock"></i>
+            <span>Join Requests</span>
+            <span class="nav-badge" id="requestsBadge" style="display: none;">0</span>
+          </a>
+        </div>
+        
+        <div class="nav-section">
+          <span class="nav-section-title">Billing</span>
+          <a href="./create-bill.html" class="nav-link">
+            <i class="fa-solid fa-file-invoice-dollar"></i>
+            <span>Create Bill</span>
+          </a>
+          <a href="./view-receipts.html" class="nav-link">
+            <i class="fa-solid fa-receipt"></i>
+            <span>View Receipts</span>
+          </a>
+        </div>
+        
+        <div class="nav-section">
+          <span class="nav-section-title">AI Insights</span>
+          <a href="./owner-ai.html" class="nav-link">
+            <i class="fa-solid fa-robot"></i>
+            <span>AI Business Assistant</span>
+            <span class="badge badge-primary" style="margin-left: auto; font-size: 9px; padding: 2px 6px;">AI</span>
+          </a>
+        </div>
+        
+        <div class="nav-section">
+          <span class="nav-section-title">Settings</span>
+          <a href="./edit-profile.html" class="nav-link">
+            <i class="fa-solid fa-user-cog"></i>
+            <span>Edit Profile</span>
+          </a>
+        </div>
+      </nav>
+      
+      <div class="sidebar-footer">
+        <div class="user-info">
+          <div class="avatar avatar-placeholder" id="userAvatar">O</div>
+          <div class="user-details">
+            <div class="user-name" id="userName">Loading...</div>
+            <div class="user-role">Gym Owner</div>
+          </div>
+          <button class="btn btn-ghost btn-icon" id="logoutBtn" title="Logout">
+            <i class="fa-solid fa-sign-out-alt"></i>
+          </button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Mobile Sidebar Toggle -->
+    <button class="sidebar-toggle" id="sidebarToggle">
+      <i class="fa-solid fa-bars"></i>
+    </button>
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <div class="page-header">
+        <h1>Welcome back, <span id="ownerName">Owner</span> 👋</h1>
+        <p>Here's your gym overview for today</p>
+      </div>
+
+      <!-- Stats Grid -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon primary">
+            <i class="fa-solid fa-users"></i>
+          </div>
+          <div class="stat-content">
+            <h3 id="memberCount">0</h3>
+            <p>Total Members</p>
+          </div>
+        </div>
+        
+        <div class="stat-card">
+          <div class="stat-icon success">
+            <i class="fa-solid fa-check-circle"></i>
+          </div>
+          <div class="stat-content">
+            <h3 id="paidCount">0</h3>
+            <p>Paid Bills</p>
+          </div>
+        </div>
+        
+        <div class="stat-card">
+          <div class="stat-icon warning">
+            <i class="fa-solid fa-clock"></i>
+          </div>
+          <div class="stat-content">
+            <h3 id="unpaidCount">0</h3>
+            <p>Pending Bills</p>
+          </div>
+        </div>
+        
+        <div class="stat-card">
+          <div class="stat-icon accent">
+            <i class="fa-solid fa-dumbbell"></i>
+          </div>
+          <div class="stat-content">
+            <h3 id="trainerCount">0</h3>
+            <p>Trainers</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Actions -->
+      <h2 style="margin-bottom: var(--space-6);">Quick Actions</h2>
+      <div class="actions-grid">
+        <a href="./add-member.html" class="action-card">
+          <i class="fa-solid fa-user-plus"></i>
+          <p>Add Member</p>
+        </a>
+        
+        <a href="./manage-members.html" class="action-card">
+          <i class="fa-solid fa-user-edit"></i>
+          <p>Manage Members</p>
+        </a>
+        
+        <a href="./create-bill.html" class="action-card">
+          <i class="fa-solid fa-file-invoice-dollar"></i>
+          <p>Create Bill</p>
+        </a>
+        
+        <button class="action-card" id="sendNotificationBtn">
+          <i class="fa-solid fa-bell"></i>
+          <p>Send Notification</p>
+        </button>
+        
+        <a href="./edit-profile.html" class="action-card">
+          <i class="fa-solid fa-user-cog"></i>
+          <p>Edit Profile</p>
+        </a>
+        
+        <a href="./view-receipts.html" class="action-card">
+          <i class="fa-solid fa-receipt"></i>
+          <p>View Receipts</p>
+        </a>
+      </div>
+    </main>
+  </div>
+
+  <!-- Scripts -->
+  <script type="module">
+    import { auth, database } from './src/config/firebase.js';
+    import { onAuthStateChanged, signOut } from 'firebase/auth';
+    import { ref, get, update, push } from 'firebase/database';
+    import { showToast, showSuccess, showError } from './src/components/toast.js';
+
+    // DOM Elements
+    const sidebar = document.getElementById('sidebar');
+    const sidebarToggle = document.getElementById('sidebarToggle');
+    const sidebarOverlay = document.getElementById('sidebarOverlay');
+    const logoutBtn = document.getElementById('logoutBtn');
+    const sendNotificationBtn = document.getElementById('sendNotificationBtn');
+
+    // Mobile sidebar toggle
+    sidebarToggle.addEventListener('click', () => {
+      sidebar.classList.toggle('open');
+      sidebarOverlay.classList.toggle('active');
+    });
+
+    sidebarOverlay.addEventListener('click', () => {
+      sidebar.classList.remove('open');
+      sidebarOverlay.classList.remove('active');
+    });
+
+    // Auth state listener
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        showError('Please log in to continue');
+        setTimeout(() => window.location.href = './login.html', 1500);
+        return;
+      }
+
+      const uid = user.uid;
+      localStorage.setItem('ownerId', uid);
+
+      try {
+        // Load owner data
+        const ownerSnap = await get(ref(database, `owners/${uid}`));
+        if (ownerSnap.exists()) {
+          const owner = ownerSnap.val();
+          document.getElementById('ownerName').textContent = owner.name || 'Owner';
+          document.getElementById('userName').textContent = owner.name || 'Owner';
+          document.getElementById('userAvatar').textContent = (owner.name || 'O').charAt(0).toUpperCase();
+        }
+
+        // Load stats
+        loadDashboardStats(uid);
+      } catch (error) {
+        console.error('Error loading dashboard:', error);
+        showError('Failed to load dashboard data');
+      }
+    });
+
+    // Load dashboard statistics
+    async function loadDashboardStats(ownerId) {
+      try {
+        // Member count
+        const memberSnap = await get(ref(database, `owners/${ownerId}/members`));
+        const memberCount = memberSnap.exists() ? Object.keys(memberSnap.val()).length : 0;
+        document.getElementById('memberCount').textContent = memberCount;
+
+        // Trainer count - only trainers for this gym
+        const trainerSnap = await get(ref(database, 'trainers'));
+        let trainerCount = 0;
+        if (trainerSnap.exists()) {
+          trainerSnap.forEach(snap => {
+            const trainer = snap.val();
+            if (trainer.gymId === ownerId) {
+              trainerCount++;
+            }
+          });
+        }
+        document.getElementById('trainerCount').textContent = trainerCount;
+
+        // Bill counts - only for this gym's members
+        const billSnap = await get(ref(database, 'bills'));
+        let paid = 0, unpaid = 0;
+        
+        if (billSnap.exists()) {
+          billSnap.forEach(memberSnap => {
+            const receipts = memberSnap.child('bill_receipts').val();
+            if (receipts) {
+              Object.values(receipts).forEach(bill => {
+                // Only count bills for this gym
+                if (bill.gymId === ownerId || bill.ownerId === ownerId) {
+                  if (bill.status === 'Paid') paid++;
+                  else if (bill.status === 'Unpaid') unpaid++;
+                }
+              });
+            }
+          });
+        }
+        
+        document.getElementById('paidCount').textContent = paid;
+        document.getElementById('unpaidCount').textContent = unpaid;
+
+        // Load pending requests
+        loadPendingRequests(ownerId);
+      } catch (error) {
+        console.error('Error loading stats:', error);
+      }
+    }
+
+    // Load pending join requests count
+    async function loadPendingRequests(ownerId) {
+      try {
+        const requestsSnap = await get(ref(database, 'pending_requests'));
+        let pendingCount = 0;
+        
+        if (requestsSnap.exists()) {
+          requestsSnap.forEach(snap => {
+            const req = snap.val();
+            if (req.gymId === ownerId && req.status === 'pending') {
+              pendingCount++;
+            }
+          });
+        }
+        
+        const badge = document.getElementById('requestsBadge');
+        if (pendingCount > 0) {
+          badge.textContent = pendingCount;
+          badge.style.display = 'inline-flex';
+        } else {
+          badge.style.display = 'none';
+        }
+      } catch (error) {
+        console.error('Error loading pending requests:', error);
+      }
+    }
+
+    // Send notification
+    sendNotificationBtn.addEventListener('click', async () => {
+      const message = prompt('Enter notification message to send to all members:');
+      if (!message || !message.trim()) return;
+
+      try {
+        const user = auth.currentUser;
+        if (!user) return showError('Please log in first');
+
+        const ownerId = user.uid;
+        const membersSnap = await get(ref(database, `owners/${ownerId}/members`));
+        
+        if (!membersSnap.exists()) {
+          return showToast('No members found', 'warning');
+        }
+
+        const members = membersSnap.val();
+        const updates = {};
+        const date = new Date().toISOString();
+
+        Object.keys(members).forEach(memberId => {
+          const notifKey = push(ref(database)).key;
+          updates[`members/${memberId}/notifications/${notifKey}`] = {
+            message: message.trim(),
+            date,
+            read: false
+          };
+        });
+
+        await update(ref(database), updates);
+        showSuccess('Notifications sent to all members!');
+      } catch (error) {
+        console.error('Notification error:', error);
+        showError('Failed to send notifications');
+      }
+    });
+
+    // Logout
+    logoutBtn.addEventListener('click', async () => {
+      try {
+        await signOut(auth);
+        localStorage.clear();
+        showSuccess('Logged out successfully');
+        setTimeout(() => window.location.href = './login.html', 1000);
+      } catch (error) {
+        console.error('Logout error:', error);
+        showError('Logout failed');
+      }
+    });
+  </script>
+</body>
+</html>

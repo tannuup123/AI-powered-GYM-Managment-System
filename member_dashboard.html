@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Member Dashboard</title>
+  <link rel="stylesheet" href="member_dashboard.css" />
+  <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+</head>
+<body>
+  <div class="dashboard-container">
+    <header class="dashboard-header">
+      <h1 id="dashboardHeading">Member Dashboard</h1>
+      <p id="userWelcome" style="margin: 5px 0; font-weight: normal;"></p>
+      <p id="userEmail" style="margin: 2px 0;"></p>
+      <p id="userJoinDate" style="margin: 2px 0;"></p>
+    </header>
+
+    <div class="dashboard-grid" style="margin-top: 20px;">
+      <a href="#" class="dashboard-item" id="viewReceiptsBtn">
+        <i class="fa fa-file-invoice-dollar"></i>
+        <p>View Bill Receipts</p>
+      </a>
+
+      <a href="#" class="dashboard-item" id="viewNotificationsBtn">
+        <i class="fa fa-bell"></i>
+        <p>View Notifications</p>
+      </a>
+
+      <a href="#" class="dashboard-item" id="editProfileBtn">
+        <i class="fa fa-user-edit"></i>
+        <p>Edit Profile</p>
+      </a>
+      <a href="#" class="dashboard-item" id="viewScheduleBtn">
+    <i class="fa fa-calendar-alt"></i>
+    <p>View Trainer Schedule</p>
+  
+</a>
+
+      <a href="#" class="dashboard-item" id="logoutBtn">
+        <i class="fa fa-sign-out-alt"></i>
+        <p>Logout</p>
+      </a>
+    </div>
+  </div>
+
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyC-oca5z39s7l77EDY_Jx1psRroWtfZ2pM",
+      authDomain: "fit-track-be443.firebaseapp.com",
+      databaseURL: "https://fit-track-be443-default-rtdb.firebaseio.com",
+      projectId: "fit-track-be443",
+      storageBucket: "fit-track-be443.appspot.com",
+      messagingSenderId: "485684449281",
+      appId: "1:485684449281:web:88991ce3596959c0433000"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const database = firebase.database();
+
+    document.addEventListener("DOMContentLoaded", () => {
+      auth.onAuthStateChanged(user => {
+        if (!user) {
+          alert("Not logged in");
+          window.location.href = "login.html";
+          return;
+        }
+
+        const uid = user.uid;
+        localStorage.setItem("memberUID", uid);
+
+        // ✅ Show email
+        document.getElementById("userEmail").textContent = `Email: ${user.email}`;
+
+        // ✅ Fetch member info (name + joiningDate)
+        const ownerRef = database.ref("owners");
+        ownerRef.once("value").then(snapshot => {
+          let member = null;
+
+          snapshot.forEach(ownerSnap => {
+            const members = ownerSnap.child("members").val();
+            if (members && members[uid]) {
+              member = members[uid];
+            }
+          });
+
+          if (member) {
+            document.getElementById("userWelcome").textContent = `Welcome, ${member.name}`;
+            document.getElementById("userJoinDate").textContent = `Joined: ${member.joiningDate || "N/A"}`;
+          } else {
+            document.getElementById("userWelcome").textContent = `Welcome, Member`;
+            document.getElementById("userJoinDate").textContent = `Joined: Unknown`;
+          }
+        });
+
+        // ✅ View Bill Receipts
+        document.getElementById("viewReceiptsBtn").addEventListener("click", (e) => {
+          e.preventDefault();
+          window.location.href = "view_receipts.html";
+        });
+
+        // ✅ View Notifications
+        document.getElementById("viewNotificationsBtn").addEventListener("click", (e) => {
+          e.preventDefault();
+          const ref = database.ref(`members/${uid}/notifications`);
+          ref.once("value").then(snapshot => {
+            const data = snapshot.val();
+            const notes = data ? Object.values(data).map(n => n.message || n) : [];
+            const message = notes.length ? notes.map(n => `• ${n}`).join('\n') : "No notifications found.";
+            alert("Your Notifications:\n\n" + message);
+          });
+        });
+        document.getElementById("viewScheduleBtn").addEventListener("click", async () => {
+  const memberId = auth.currentUser.uid;
+
+  try {
+    // 1. Find assigned trainer
+    const trainerSnap = await database.ref("trainers").once("value");
+    let trainerId = null;
+
+    trainerSnap.forEach(trainer => {
+      const assigned = trainer.child("assignedMembers").val();
+      if (assigned && assigned[memberId]) {
+        trainerId = trainer.key;
+      }
+    });
+
+    if (!trainerId) {
+      alert("No trainer assigned.");
+      return;
+    }
+
+    // 2. Load schedules
+    const schedulesSnap = await database.ref(`trainer_schedules/${trainerId}`).once("value");
+    const schedules = [];
+
+    schedulesSnap.forEach(snap => {
+      const s = snap.val();
+      if (s.memberId === memberId) schedules.push(s);
+    });
+
+    if (schedules.length === 0) {
+      alert("No schedules found.");
+    } else {
+      const message = schedules.map(s =>
+        `📅 ${s.date} @ ${s.time}\n🏋️ ${s.activity}`
+      ).join("\n\n");
+      alert("Your Trainer's Schedule:\n\n" + message);
+    }
+  } catch (err) {
+    console.error(err);
+    alert("Error loading schedule.");
+  }
+});
+
+        // ✅ Edit Profile (future feature)
+        document.getElementById("editProfileBtn").addEventListener("click", (e) => {
+          e.preventDefault();
+          window.location.href = "edit_profile.html";
+        });
+
+        // ✅ Logout
+        document.getElementById("logoutBtn").addEventListener("click", () => {
+          auth.signOut()
+            .then(() => {
+              localStorage.clear();
+              window.location.href = "index.html";
+            })
+            .catch((error) => {
+              console.error("Logout failed:", error);
+              alert("Logout failed. Please try again.");
+            });
+        });
+      });
+    });
+  </script>
+</body>
+</html>

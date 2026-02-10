@@ -1,0 +1,911 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="AI Fitness Coach - Fit Track Pro">
+  <title>AI Fitness Coach - Fit Track Pro</title>
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  
+  <!-- Styles -->
+  <link rel="stylesheet" href="./src/styles/main.css">
+  <link rel="icon" href="./public/logo.png" type="image/png">
+  
+  <style>
+    /* AI Page Styles */
+    .ai-tabs {
+      display: flex;
+      gap: var(--space-2);
+      margin-bottom: var(--space-6);
+      overflow-x: auto;
+      padding-bottom: var(--space-2);
+    }
+    
+    .ai-tab {
+      padding: var(--space-3) var(--space-5);
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.3s;
+      white-space: nowrap;
+      font-size: var(--text-sm);
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+    }
+    
+    .ai-tab:hover { border-color: var(--primary-400); color: var(--text-primary); }
+    .ai-tab.active { 
+      background: linear-gradient(135deg, var(--primary-600), var(--accent-600)); 
+      border-color: transparent; 
+      color: white;
+      box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+    }
+    
+    .ai-section { display: none; animation: fadeIn 0.3s ease; }
+    .ai-section.active { display: block; }
+    
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    
+    /* Chat Styles */
+    .chat-container {
+      height: 500px;
+      display: flex;
+      flex-direction: column;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+    }
+    
+    .chat-messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: var(--space-4);
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-3);
+    }
+    
+    .chat-msg {
+      max-width: 80%;
+      padding: var(--space-3) var(--space-4);
+      border-radius: var(--radius-lg);
+      font-size: var(--text-sm);
+      line-height: 1.5;
+      animation: fadeIn 0.3s ease;
+    }
+    
+    .chat-msg.user {
+      align-self: flex-end;
+      background: linear-gradient(135deg, var(--primary-600), var(--accent-600));
+      color: white;
+      border-bottom-right-radius: 4px;
+    }
+    
+    .chat-msg.bot {
+      align-self: flex-start;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--border-color);
+      border-bottom-left-radius: 4px;
+    }
+    
+    .chat-msg.bot .msg-label {
+      font-size: var(--text-xs);
+      color: var(--primary-400);
+      font-weight: var(--font-semibold);
+      margin-bottom: var(--space-1);
+    }
+    
+    .chat-input-area {
+      display: flex;
+      gap: var(--space-2);
+      padding: var(--space-3);
+      border-top: 1px solid var(--border-color);
+      background: rgba(0,0,0,0.2);
+    }
+    
+    .chat-input-area input {
+      flex: 1;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: var(--space-3) var(--space-4);
+      color: var(--text-primary);
+      font-size: var(--text-sm);
+    }
+    
+    .chat-input-area input:focus { outline: none; border-color: var(--primary-400); }
+    
+    .chat-input-area button {
+      background: linear-gradient(135deg, var(--primary-600), var(--accent-600));
+      border: none;
+      border-radius: var(--radius-md);
+      padding: var(--space-3) var(--space-4);
+      color: white;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .chat-input-area button:hover { transform: scale(1.05); }
+    
+    /* Quick Actions */
+    .quick-actions {
+      display: flex;
+      gap: var(--space-2);
+      padding: var(--space-2) var(--space-3);
+      overflow-x: auto;
+      border-top: 1px solid var(--border-color);
+    }
+    
+    .quick-action {
+      padding: var(--space-1) var(--space-3);
+      background: rgba(99, 102, 241, 0.1);
+      border: 1px solid rgba(99, 102, 241, 0.2);
+      border-radius: var(--radius-full);
+      color: var(--primary-400);
+      font-size: var(--text-xs);
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.2s;
+    }
+    
+    .quick-action:hover { background: rgba(99, 102, 241, 0.2); }
+    
+    /* Stats Display */
+    .ai-stat-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: var(--space-4);
+      margin-bottom: var(--space-6);
+    }
+    
+    .ai-stat {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: var(--space-4);
+      text-align: center;
+      transition: all 0.3s;
+    }
+    
+    .ai-stat:hover { border-color: var(--primary-400); transform: translateY(-2px); }
+    .ai-stat .stat-value { font-size: var(--text-2xl); font-weight: var(--font-bold); color: var(--primary-400); }
+    .ai-stat .stat-label { font-size: var(--text-xs); color: var(--text-muted); margin-top: var(--space-1); }
+    
+    /* Workout Plan Cards */
+    .workout-day-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: var(--space-5);
+      margin-bottom: var(--space-4);
+      transition: all 0.3s;
+    }
+    
+    .workout-day-card:hover { border-color: var(--primary-400); }
+    
+    .workout-day-card h4 {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+      margin-bottom: var(--space-3);
+      color: var(--primary-400);
+    }
+    
+    .exercise-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: var(--space-2) 0;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      font-size: var(--text-sm);
+    }
+    
+    .exercise-row:last-child { border-bottom: none; }
+    
+    /* Loading Spinner */
+    .ai-loading {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: var(--space-4);
+      padding: var(--space-8);
+      color: var(--text-muted);
+    }
+    
+    .ai-loading .spinner {
+      width: 40px;
+      height: 40px;
+      border: 3px solid var(--border-color);
+      border-top: 3px solid var(--primary-400);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    
+    @keyframes spin { to { transform: rotate(360deg); } }
+    
+    /* Meal Card */
+    .meal-card {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: var(--space-4);
+      margin-bottom: var(--space-3);
+    }
+    
+    .meal-card h4 {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: var(--space-2);
+    }
+    
+    /* Profile Form */
+    .profile-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: var(--space-4);
+    }
+    
+    /* Typing indicator */
+    .typing-indicator {
+      display: flex;
+      gap: 4px;
+      padding: var(--space-2);
+    }
+    
+    .typing-indicator span {
+      width: 8px;
+      height: 8px;
+      background: var(--primary-400);
+      border-radius: 50%;
+      animation: bounce 1.4s infinite ease-in-out;
+    }
+    
+    .typing-indicator span:nth-child(1) { animation-delay: -0.32s; }
+    .typing-indicator span:nth-child(2) { animation-delay: -0.16s; }
+    
+    @keyframes bounce {
+      0%, 80%, 100% { transform: scale(0); }
+      40% { transform: scale(1); }
+    }
+  </style>
+</head>
+<body>
+  <div class="dashboard">
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <img src="./public/logo.png" alt="Fit Track Pro" class="sidebar-logo">
+        <span class="sidebar-brand">Fit Track Pro</span>
+      </div>
+      
+      <nav class="sidebar-nav">
+        <div class="nav-section">
+          <span class="nav-section-title">Main</span>
+          <a href="./member-dashboard.html" class="nav-link">
+            <i class="fa-solid fa-home"></i>
+            <span>Dashboard</span>
+          </a>
+        </div>
+        
+        <div class="nav-section">
+          <span class="nav-section-title">AI Coach</span>
+          <a href="./member-ai.html" class="nav-link active">
+            <i class="fa-solid fa-robot"></i>
+            <span>AI Fitness Coach</span>
+          </a>
+        </div>
+        
+        <div class="nav-section">
+          <span class="nav-section-title">Account</span>
+          <a href="./edit-profile.html" class="nav-link">
+            <i class="fa-solid fa-user-edit"></i>
+            <span>Edit Profile</span>
+          </a>
+        </div>
+      </nav>
+      
+      <div class="sidebar-footer">
+        <div class="user-info">
+          <div class="avatar avatar-placeholder" id="userAvatar">M</div>
+          <div class="user-details">
+            <div class="user-name" id="userName">Loading...</div>
+            <div class="user-role">Member</div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Mobile Sidebar Toggle -->
+    <button class="sidebar-toggle" id="sidebarToggle">
+      <i class="fa-solid fa-bars"></i>
+    </button>
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <div class="page-header">
+        <a href="./member-dashboard.html" style="display: inline-flex; align-items: center; gap: var(--space-2); color: var(--text-muted); margin-bottom: var(--space-4); font-size: var(--text-sm);">
+          <i class="fa-solid fa-arrow-left"></i>
+          Back to Dashboard
+        </a>
+        <h1><i class="fa-solid fa-robot" style="color: var(--primary-400);"></i> AI Fitness Coach</h1>
+        <p>Your personal AI-powered fitness assistant</p>
+      </div>
+
+      <!-- AI Tabs -->
+      <div class="ai-tabs">
+        <button class="ai-tab active" data-tab="profile">
+          <i class="fa-solid fa-user-circle"></i> My Profile
+        </button>
+        <button class="ai-tab" data-tab="workout">
+          <i class="fa-solid fa-dumbbell"></i> Workout Plan
+        </button>
+        <button class="ai-tab" data-tab="diet">
+          <i class="fa-solid fa-utensils"></i> Diet Plan
+        </button>
+        <button class="ai-tab" data-tab="chat">
+          <i class="fa-solid fa-comments"></i> AI Chat
+        </button>
+      </div>
+
+      <!-- ==================== FITNESS PROFILE ==================== -->
+      <div class="ai-section active" id="section-profile">
+        <div class="card">
+          <h3 style="margin-bottom: var(--space-2);"><i class="fa-solid fa-heartbeat" style="color: var(--primary-400);"></i> Fitness Profile</h3>
+          <p style="color: var(--text-muted); margin-bottom: var(--space-6); font-size: var(--text-sm);">Set up your profile for personalized AI recommendations</p>
+          
+          <form id="profileForm">
+            <div class="profile-grid">
+              <div class="form-group">
+                <label class="form-label">Age *</label>
+                <input type="number" id="profileAge" class="form-input" placeholder="e.g. 25" min="10" max="80" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Weight (kg) *</label>
+                <input type="number" id="profileWeight" class="form-input" placeholder="e.g. 70" min="30" max="200" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Height (cm) *</label>
+                <input type="number" id="profileHeight" class="form-input" placeholder="e.g. 175" min="100" max="250" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Gender</label>
+                <select id="profileGender" class="form-input">
+                  <option value="male">Male</option>
+                  <option value="female">Female</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Fitness Goal *</label>
+                <select id="profileGoal" class="form-input" required>
+                  <option value="">Select Goal</option>
+                  <option value="fat_loss">🔥 Fat Loss</option>
+                  <option value="muscle_gain">💪 Muscle Gain</option>
+                  <option value="maintenance">⚖️ Maintenance</option>
+                  <option value="general_fitness">🏃 General Fitness</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Experience</label>
+                <select id="profileExperience" class="form-input">
+                  <option value="beginner">🌱 Beginner (0-6 months)</option>
+                  <option value="intermediate">💪 Intermediate (6m-2y)</option>
+                  <option value="advanced">🏆 Advanced (2+ years)</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Activity Level</label>
+                <select id="profileActivity" class="form-input">
+                  <option value="sedentary">Sedentary (Office Job)</option>
+                  <option value="light">Light (1-2 days/week)</option>
+                  <option value="moderate" selected>Moderate (3-5 days/week)</option>
+                  <option value="active">Active (6-7 days/week)</option>
+                  <option value="veryActive">Very Active (Athlete)</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Workout Days/Week</label>
+                <select id="profileDays" class="form-input">
+                  <option value="3">3 Days</option>
+                  <option value="4">4 Days</option>
+                  <option value="5" selected>5 Days</option>
+                  <option value="6">6 Days</option>
+                </select>
+              </div>
+            </div>
+            
+            <button type="submit" class="btn btn-primary" style="margin-top: var(--space-6);">
+              <i class="fa-solid fa-save"></i> Save Profile & Calculate
+            </button>
+          </form>
+        </div>
+
+        <!-- Calculated Stats -->
+        <div id="statsDisplay" style="display: none; margin-top: var(--space-6);">
+          <h3 style="margin-bottom: var(--space-4);"><i class="fa-solid fa-chart-bar" style="color: var(--accent-400);"></i> Your Fitness Stats</h3>
+          <div class="ai-stat-grid">
+            <div class="ai-stat">
+              <div class="stat-value" id="statCalories">-</div>
+              <div class="stat-label">Daily Calories</div>
+            </div>
+            <div class="ai-stat">
+              <div class="stat-value" id="statProtein">-</div>
+              <div class="stat-label">Protein (g)</div>
+            </div>
+            <div class="ai-stat">
+              <div class="stat-value" id="statCarbs">-</div>
+              <div class="stat-label">Carbs (g)</div>
+            </div>
+            <div class="ai-stat">
+              <div class="stat-value" id="statFat">-</div>
+              <div class="stat-label">Fat (g)</div>
+            </div>
+            <div class="ai-stat">
+              <div class="stat-value" id="statBMI">-</div>
+              <div class="stat-label">BMI</div>
+            </div>
+            <div class="ai-stat">
+              <div class="stat-value" id="statWater">-</div>
+              <div class="stat-label">Water (L)</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== WORKOUT PLAN ==================== -->
+      <div class="ai-section" id="section-workout">
+        <div class="card" style="margin-bottom: var(--space-6);">
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: var(--space-4);">
+            <div>
+              <h3><i class="fa-solid fa-dumbbell" style="color: var(--primary-400);"></i> AI Workout Plan</h3>
+              <p style="color: var(--text-muted); font-size: var(--text-sm);">AI-generated personalized workout plan</p>
+            </div>
+            <button class="btn btn-primary" id="generateWorkoutBtn">
+              <i class="fa-solid fa-wand-magic-sparkles"></i> Generate Plan
+            </button>
+          </div>
+        </div>
+        
+        <div id="workoutResult">
+          <div class="card" style="text-align: center; padding: var(--space-8);">
+            <i class="fa-solid fa-dumbbell" style="font-size: 3rem; color: var(--text-muted); opacity: 0.3; margin-bottom: var(--space-4);"></i>
+            <p style="color: var(--text-muted);">Set up your fitness profile first, then click "Generate Plan"</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== DIET PLAN ==================== -->
+      <div class="ai-section" id="section-diet">
+        <div class="card" style="margin-bottom: var(--space-6);">
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: var(--space-4);">
+            <div>
+              <h3><i class="fa-solid fa-utensils" style="color: var(--success-400);"></i> AI Diet Plan</h3>
+              <p style="color: var(--text-muted); font-size: var(--text-sm);">Personalized meal plan based on your goals</p>
+            </div>
+          </div>
+          
+          <div style="display: flex; gap: var(--space-4); flex-wrap: wrap; margin-top: var(--space-4);">
+            <div class="form-group" style="flex: 1; min-width: 150px; margin: 0;">
+              <label class="form-label">Diet Type</label>
+              <select id="dietType" class="form-input">
+                <option value="vegetarian">🥗 Vegetarian</option>
+                <option value="non-vegetarian">🍗 Non-Vegetarian</option>
+                <option value="vegan">🌱 Vegan</option>
+                <option value="eggetarian">🥚 Eggetarian</option>
+              </select>
+            </div>
+            <div class="form-group" style="flex: 1; min-width: 150px; margin: 0;">
+              <label class="form-label">Budget</label>
+              <select id="dietBudget" class="form-input">
+                <option value="low">💰 Budget Friendly</option>
+                <option value="medium" selected>💰💰 Medium</option>
+                <option value="high">💰💰💰 Premium</option>
+              </select>
+            </div>
+            <div style="display: flex; align-items: flex-end;">
+              <button class="btn btn-primary" id="generateDietBtn">
+                <i class="fa-solid fa-wand-magic-sparkles"></i> Generate Diet
+              </button>
+            </div>
+          </div>
+        </div>
+        
+        <div id="dietResult">
+          <div class="card" style="text-align: center; padding: var(--space-8);">
+            <i class="fa-solid fa-utensils" style="font-size: 3rem; color: var(--text-muted); opacity: 0.3; margin-bottom: var(--space-4);"></i>
+            <p style="color: var(--text-muted);">Set up your fitness profile first, then click "Generate Diet"</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== AI CHAT ==================== -->
+      <div class="ai-section" id="section-chat">
+        <div class="chat-container">
+          <div class="chat-messages" id="chatMessages">
+            <div class="chat-msg bot">
+              <div class="msg-label">🤖 FitBot</div>
+              Hey! I'm your AI fitness coach. Ask me anything about workouts, diet, or fitness! 💪
+            </div>
+          </div>
+          <div class="quick-actions" id="quickActions">
+            <button class="quick-action" onclick="sendQuickMessage('What workout should I do today?')">Today's workout?</button>
+            <button class="quick-action" onclick="sendQuickMessage('How many calories should I eat?')">Calorie intake?</button>
+            <button class="quick-action" onclick="sendQuickMessage('Give me a protein-rich meal idea')">Meal idea?</button>
+            <button class="quick-action" onclick="sendQuickMessage('How to do proper squats?')">Squat form?</button>
+            <button class="quick-action" onclick="sendQuickMessage('Tips for fat loss')">Fat loss tips?</button>
+          </div>
+          <div class="chat-input-area">
+            <input type="text" id="chatInput" placeholder="Ask me anything about fitness..." autocomplete="off">
+            <button id="chatSendBtn"><i class="fa-solid fa-paper-plane"></i></button>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- Scripts -->
+  <script type="module">
+    import { auth, database } from './src/config/firebase.js';
+    import { onAuthStateChanged } from 'firebase/auth';
+    import { ref, get, set } from 'firebase/database';
+    import { showSuccess, showError, showWarning } from './src/components/toast.js';
+    import { generateFitnessSummary } from './src/services/fitness-engine.js';
+    import { generateWorkoutPlan, generateDietPlan, chatWithCoach } from './src/services/gemini-service.js';
+
+    // DOM Elements
+    const sidebar = document.getElementById('sidebar');
+    const sidebarToggle = document.getElementById('sidebarToggle');
+    const sidebarOverlay = document.getElementById('sidebarOverlay');
+
+    let currentMemberId = null;
+    let currentOwnerId = null;
+    let memberData = null;
+    let fitnessProfile = null;
+
+    // Mobile sidebar
+    sidebarToggle.addEventListener('click', () => {
+      sidebar.classList.toggle('open');
+      sidebarOverlay.classList.toggle('active');
+    });
+    sidebarOverlay.addEventListener('click', () => {
+      sidebar.classList.remove('open');
+      sidebarOverlay.classList.remove('active');
+    });
+
+    // Tab switching
+    document.querySelectorAll('.ai-tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('.ai-tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.ai-section').forEach(s => s.classList.remove('active'));
+        tab.classList.add('active');
+        document.getElementById(`section-${tab.dataset.tab}`).classList.add('active');
+      });
+    });
+
+    // Auth state
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        window.location.href = './login.html';
+        return;
+      }
+
+      currentMemberId = user.uid;
+
+      try {
+        // Find member data
+        const ownersSnap = await get(ref(database, 'owners'));
+        if (ownersSnap.exists()) {
+          ownersSnap.forEach(ownerSnap => {
+            const members = ownerSnap.child('members').val();
+            if (members && members[user.uid]) {
+              currentOwnerId = ownerSnap.key;
+              memberData = members[user.uid];
+            }
+          });
+        }
+
+        if (memberData) {
+          document.getElementById('userName').textContent = memberData.name || 'Member';
+          document.getElementById('userAvatar').textContent = (memberData.name || 'M').charAt(0).toUpperCase();
+        }
+
+        // Load saved fitness profile
+        const profileSnap = await get(ref(database, `fitness_profiles/${user.uid}`));
+        if (profileSnap.exists()) {
+          fitnessProfile = profileSnap.val();
+          populateProfileForm(fitnessProfile);
+          showCalculatedStats(fitnessProfile);
+        }
+      } catch (error) {
+        console.error('Error loading member data:', error);
+      }
+    });
+
+    // Populate form from saved profile
+    function populateProfileForm(profile) {
+      document.getElementById('profileAge').value = profile.age || '';
+      document.getElementById('profileWeight').value = profile.weight || '';
+      document.getElementById('profileHeight').value = profile.height || '';
+      document.getElementById('profileGender').value = profile.gender || 'male';
+      document.getElementById('profileGoal').value = profile.goal || '';
+      document.getElementById('profileExperience').value = profile.experience || 'beginner';
+      document.getElementById('profileActivity').value = profile.activityLevel || 'moderate';
+      document.getElementById('profileDays').value = profile.daysPerWeek || '5';
+    }
+
+    // Show calculated stats
+    function showCalculatedStats(profile) {
+      const stats = generateFitnessSummary(profile);
+      
+      document.getElementById('statCalories').textContent = stats.calorieTarget;
+      document.getElementById('statProtein').textContent = stats.macros.protein + 'g';
+      document.getElementById('statCarbs').textContent = stats.macros.carbs + 'g';
+      document.getElementById('statFat').textContent = stats.macros.fat + 'g';
+      document.getElementById('statBMI').textContent = stats.bmi.value + ' (' + stats.bmi.category + ')';
+      document.getElementById('statWater').textContent = stats.water + 'L';
+      document.getElementById('statsDisplay').style.display = 'block';
+    }
+
+    // Save fitness profile
+    document.getElementById('profileForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      fitnessProfile = {
+        age: parseInt(document.getElementById('profileAge').value),
+        weight: parseInt(document.getElementById('profileWeight').value),
+        height: parseInt(document.getElementById('profileHeight').value),
+        gender: document.getElementById('profileGender').value,
+        goal: document.getElementById('profileGoal').value,
+        experience: document.getElementById('profileExperience').value,
+        activityLevel: document.getElementById('profileActivity').value,
+        daysPerWeek: parseInt(document.getElementById('profileDays').value),
+        updatedAt: new Date().toISOString()
+      };
+
+      try {
+        await set(ref(database, `fitness_profiles/${currentMemberId}`), fitnessProfile);
+        showSuccess('Fitness profile saved! 🎯');
+        showCalculatedStats(fitnessProfile);
+      } catch (error) {
+        console.error('Error saving profile:', error);
+        showError('Failed to save profile');
+      }
+    });
+
+    // ==================== WORKOUT PLAN ====================
+    document.getElementById('generateWorkoutBtn').addEventListener('click', async () => {
+      if (!fitnessProfile) {
+        showWarning('Please set up your fitness profile first!');
+        return;
+      }
+
+      const resultDiv = document.getElementById('workoutResult');
+      resultDiv.innerHTML = `
+        <div class="ai-loading">
+          <div class="spinner"></div>
+          <p>🤖 AI is generating your personalized workout plan...</p>
+        </div>
+      `;
+
+      try {
+        const plan = await generateWorkoutPlan(fitnessProfile);
+        
+        let html = '';
+        
+        if (plan.summary) {
+          html += `<div class="card" style="margin-bottom: var(--space-4); background: linear-gradient(135deg, rgba(99,102,241,0.1), rgba(168,85,247,0.1));">
+            <h3>${plan.planName || 'Your AI Workout Plan'}</h3>
+            <p style="color: var(--text-muted); font-size: var(--text-sm); margin-top: var(--space-2);">${plan.summary}</p>
+          </div>`;
+        }
+
+        if (plan.weeklyPlan) {
+          plan.weeklyPlan.forEach(day => {
+            html += `
+              <div class="workout-day-card">
+                <h4><i class="fa-solid fa-calendar-day"></i> ${day.day} - ${day.focus} <span style="margin-left: auto; font-size: var(--text-xs); color: var(--text-muted);">${day.duration || ''}</span></h4>
+                ${day.exercises ? day.exercises.map(ex => `
+                  <div class="exercise-row">
+                    <span><strong>${ex.name}</strong></span>
+                    <span style="color: var(--text-muted);">${ex.sets} × ${ex.reps} | Rest: ${ex.rest || '60s'}</span>
+                  </div>
+                  ${ex.tip ? `<div style="font-size: var(--text-xs); color: var(--accent-400); padding: 2px 0 var(--space-2);">💡 ${ex.tip}</div>` : ''}
+                `).join('') : '<p style="color: var(--text-muted);">Rest Day</p>'}
+              </div>
+            `;
+          });
+        }
+
+        if (plan.tips && plan.tips.length > 0) {
+          html += `<div class="card" style="margin-top: var(--space-4);">
+            <h4 style="margin-bottom: var(--space-3);"><i class="fa-solid fa-lightbulb" style="color: var(--warning-400);"></i> Pro Tips</h4>
+            ${plan.tips.map(tip => `<p style="font-size: var(--text-sm); color: var(--text-muted); margin-bottom: var(--space-2);">✅ ${tip}</p>`).join('')}
+          </div>`;
+        }
+
+        resultDiv.innerHTML = html || '<div class="card"><p>Could not generate workout plan. Please try again.</p></div>';
+        showSuccess('Workout plan generated! 💪');
+      } catch (error) {
+        console.error('Error generating workout:', error);
+        resultDiv.innerHTML = `<div class="card" style="text-align: center; padding: var(--space-8);">
+          <i class="fa-solid fa-exclamation-triangle" style="font-size: 2rem; color: var(--warning-400); margin-bottom: var(--space-4);"></i>
+          <p>Failed to generate workout plan. Please try again.</p>
+          <p style="font-size: var(--text-xs); color: var(--text-muted); margin-top: var(--space-2);">${error.message}</p>
+        </div>`;
+      }
+    });
+
+    // ==================== DIET PLAN ====================
+    document.getElementById('generateDietBtn').addEventListener('click', async () => {
+      if (!fitnessProfile) {
+        showWarning('Please set up your fitness profile first!');
+        return;
+      }
+
+      const resultDiv = document.getElementById('dietResult');
+      resultDiv.innerHTML = `
+        <div class="ai-loading">
+          <div class="spinner"></div>
+          <p>🤖 AI is creating your personalized meal plan...</p>
+        </div>
+      `;
+
+      try {
+        const dietPrefs = {
+          dietType: document.getElementById('dietType').value,
+          budget: document.getElementById('dietBudget').value,
+          mealsPerDay: 4
+        };
+
+        const plan = await generateDietPlan(fitnessProfile, dietPrefs);
+        
+        let html = '';
+
+        // Summary card
+        html += `<div class="card" style="margin-bottom: var(--space-4); background: linear-gradient(135deg, rgba(16,185,129,0.1), rgba(99,102,241,0.1));">
+          <div style="display: flex; justify-content: space-between; flex-wrap: wrap; gap: var(--space-4);">
+            <div>
+              <h3>🍽️ Your AI Diet Plan</h3>
+              <p style="color: var(--text-muted); font-size: var(--text-sm); margin-top: var(--space-2);">${plan.summary || 'Personalized meal plan'}</p>
+            </div>
+            <div style="text-align: right;">
+              <div style="font-size: var(--text-2xl); font-weight: var(--font-bold); color: var(--success-400);">${plan.dailyCalories || '-'}</div>
+              <div style="font-size: var(--text-xs); color: var(--text-muted);">Daily Calories</div>
+            </div>
+          </div>
+        </div>`;
+
+        // Meals
+        if (plan.meals) {
+          html += '<div class="card">';
+          plan.meals.forEach(meal => {
+            html += `
+              <div class="meal-card">
+                <h4>
+                  <span>${getMealEmoji(meal.meal)} ${meal.meal} <span style="font-size: var(--text-xs); color: var(--text-muted); font-weight: normal;">${meal.time || ''}</span></span>
+                  <span style="font-size: var(--text-sm); color: var(--primary-400);">${meal.calories || ''}cal | ${meal.protein || ''} protein</span>
+                </h4>
+                <div style="font-size: var(--text-sm); color: var(--text-muted);">
+                  ${meal.items ? meal.items.map(item => `<span style="display: inline-block; padding: 2px 8px; margin: 2px; background: rgba(255,255,255,0.05); border-radius: var(--radius-sm);">• ${item}</span>`).join('') : ''}
+                </div>
+              </div>
+            `;
+          });
+          html += '</div>';
+        }
+
+        // Tips
+        if (plan.tips && plan.tips.length > 0) {
+          html += `<div class="card" style="margin-top: var(--space-4);">
+            <h4 style="margin-bottom: var(--space-3);"><i class="fa-solid fa-lightbulb" style="color: var(--warning-400);"></i> Diet Tips</h4>
+            ${plan.tips.map(tip => `<p style="font-size: var(--text-sm); color: var(--text-muted); margin-bottom: var(--space-2);">✅ ${tip}</p>`).join('')}
+          </div>`;
+        }
+
+        resultDiv.innerHTML = html;
+        showSuccess('Diet plan generated! 🥗');
+      } catch (error) {
+        console.error('Error generating diet:', error);
+        resultDiv.innerHTML = `<div class="card" style="text-align: center; padding: var(--space-8);">
+          <i class="fa-solid fa-exclamation-triangle" style="font-size: 2rem; color: var(--warning-400); margin-bottom: var(--space-4);"></i>
+          <p>Failed to generate diet plan. Please try again.</p>
+        </div>`;
+      }
+    });
+
+    function getMealEmoji(meal) {
+      const emojis = { 'Breakfast': '🌅', 'Lunch': '☀️', 'Snack': '🍎', 'Dinner': '🌙', 'Pre-Workout': '⚡', 'Post-Workout': '💪' };
+      return emojis[meal] || '🍽️';
+    }
+
+    // ==================== AI CHAT ====================
+    const chatMessages = document.getElementById('chatMessages');
+    const chatInput = document.getElementById('chatInput');
+    const chatSendBtn = document.getElementById('chatSendBtn');
+
+    async function sendMessage(message) {
+      if (!message.trim()) return;
+
+      // Add user message
+      chatMessages.innerHTML += `<div class="chat-msg user">${escapeHtml(message)}</div>`;
+      chatInput.value = '';
+      scrollToBottom();
+
+      // Show typing indicator
+      const typingId = 'typing-' + Date.now();
+      chatMessages.innerHTML += `<div class="chat-msg bot" id="${typingId}">
+        <div class="msg-label">🤖 FitBot</div>
+        <div class="typing-indicator"><span></span><span></span><span></span></div>
+      </div>`;
+      scrollToBottom();
+
+      try {
+        const userContext = {
+          name: memberData?.name || 'Member',
+          goal: fitnessProfile?.goal || 'General Fitness',
+          weight: fitnessProfile?.weight || 'Not set',
+          plan: memberData?.plan || 'Not set',
+          trainerName: memberData?.trainerName || 'Not assigned'
+        };
+
+        const response = await chatWithCoach(message, userContext);
+        
+        // Remove typing indicator and show response
+        document.getElementById(typingId).remove();
+        chatMessages.innerHTML += `<div class="chat-msg bot">
+          <div class="msg-label">🤖 FitBot</div>
+          ${formatChatResponse(response)}
+        </div>`;
+        scrollToBottom();
+      } catch (error) {
+        document.getElementById(typingId).remove();
+        chatMessages.innerHTML += `<div class="chat-msg bot">
+          <div class="msg-label">🤖 FitBot</div>
+          Sorry, I'm having trouble connecting right now. Please try again! 😅
+        </div>`;
+        scrollToBottom();
+      }
+    }
+
+    function formatChatResponse(text) {
+      return text
+        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+        .replace(/\n/g, '<br>')
+        .replace(/• /g, '&bull; ');
+    }
+
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    function scrollToBottom() {
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    chatSendBtn.addEventListener('click', () => sendMessage(chatInput.value));
+    chatInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') sendMessage(chatInput.value);
+    });
+
+    window.sendQuickMessage = function(msg) {
+      chatInput.value = msg;
+      sendMessage(msg);
+    };
+  </script>
+</body>
+</html>

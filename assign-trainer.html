@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Assign Trainer - Fit Track Pro">
+  <title>Assign Trainer - Fit Track Pro</title>
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  
+  <!-- Styles -->
+  <link rel="stylesheet" href="./src/styles/main.css">
+  <link rel="icon" href="./public/logo.png" type="image/png">
+</head>
+<body>
+  <div class="dashboard">
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <img src="./public/logo.png" alt="Fit Track Pro" class="sidebar-logo">
+        <span class="sidebar-brand">Fit Track Pro</span>
+      </div>
+      
+      <nav class="sidebar-nav">
+        <div class="nav-section">
+          <span class="nav-section-title">Main</span>
+          <a href="./owner-dashboard.html" class="nav-link">
+            <i class="fa-solid fa-home"></i>
+            <span>Dashboard</span>
+          </a>
+        </div>
+        
+        <div class="nav-section">
+          <span class="nav-section-title">Members</span>
+          <a href="./add-member.html" class="nav-link">
+            <i class="fa-solid fa-user-plus"></i>
+            <span>Add Member</span>
+          </a>
+          <a href="./manage-members.html" class="nav-link">
+            <i class="fa-solid fa-users"></i>
+            <span>Manage Members</span>
+          </a>
+          <a href="./assign-trainer.html" class="nav-link active">
+            <i class="fa-solid fa-people-arrows"></i>
+            <span>Assign Trainer</span>
+          </a>
+        </div>
+      </nav>
+      
+      <div class="sidebar-footer">
+        <div class="user-info">
+          <div class="avatar avatar-placeholder" id="userAvatar">O</div>
+          <div class="user-details">
+            <div class="user-name" id="userName">Loading...</div>
+            <div class="user-role">Gym Owner</div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Mobile Sidebar Toggle -->
+    <button class="sidebar-toggle" id="sidebarToggle">
+      <i class="fa-solid fa-bars"></i>
+    </button>
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <div class="page-header">
+        <a href="./owner-dashboard.html" style="display: inline-flex; align-items: center; gap: var(--space-2); color: var(--text-muted); margin-bottom: var(--space-4); font-size: var(--text-sm);">
+          <i class="fa-solid fa-arrow-left"></i>
+          Back to Dashboard
+        </a>
+        <h1><i class="fa-solid fa-people-arrows" style="color: var(--primary-400);"></i> Assign Trainer to Member</h1>
+        <p>Link members with trainers for personalized coaching</p>
+      </div>
+
+      <!-- Assign Form -->
+      <div class="card" style="max-width: 600px; margin-bottom: var(--space-6);">
+        <form id="assignForm" class="auth-form">
+          <div class="form-group">
+            <label for="memberSelect" class="form-label">Select Member *</label>
+            <select id="memberSelect" name="memberSelect" class="form-input" required>
+              <option value="">Loading members...</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="trainerSelect" class="form-label">Select Trainer *</label>
+            <select id="trainerSelect" name="trainerSelect" class="form-input" required>
+              <option value="">Loading trainers...</option>
+            </select>
+          </div>
+
+          <button type="submit" id="submitBtn" class="btn btn-primary" style="width: 100%;">
+            <i class="fa-solid fa-link"></i>
+            <span id="btnText">Assign Trainer</span>
+          </button>
+        </form>
+      </div>
+
+      <!-- Current Assignments -->
+      <h2 style="margin-bottom: var(--space-4);">Current Assignments</h2>
+      <div class="card">
+        <div class="table-responsive">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Member</th>
+                <th>Trainer</th>
+                <th>Assigned Date</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="assignmentsTableBody">
+              <tr>
+                <td colspan="4" style="text-align: center; padding: var(--space-8); color: var(--text-muted);">
+                  <i class="fa-solid fa-spinner fa-spin" style="font-size: 1.5rem;"></i>
+                  <p style="margin-top: var(--space-2);">Loading assignments...</p>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Scripts -->
+  <script type="module">
+    import { auth, database } from './src/config/firebase.js';
+    import { onAuthStateChanged } from 'firebase/auth';
+    import { ref, get, update, remove } from 'firebase/database';
+    import { showToast, showSuccess, showError, showWarning } from './src/components/toast.js';
+    import { setButtonLoading } from './src/js/utils.js';
+
+    // DOM Elements
+    const sidebar = document.getElementById('sidebar');
+    const sidebarToggle = document.getElementById('sidebarToggle');
+    const sidebarOverlay = document.getElementById('sidebarOverlay');
+    const assignForm = document.getElementById('assignForm');
+    const submitBtn = document.getElementById('submitBtn');
+    const btnText = document.getElementById('btnText');
+    const memberSelect = document.getElementById('memberSelect');
+    const trainerSelect = document.getElementById('trainerSelect');
+    const assignmentsTableBody = document.getElementById('assignmentsTableBody');
+
+    let currentOwnerId = null;
+    let membersData = {};
+    let trainersData = {};
+
+    // Mobile sidebar toggle
+    sidebarToggle.addEventListener('click', () => {
+      sidebar.classList.toggle('open');
+      sidebarOverlay.classList.toggle('active');
+    });
+
+    sidebarOverlay.addEventListener('click', () => {
+      sidebar.classList.remove('open');
+      sidebarOverlay.classList.remove('active');
+    });
+
+    // Auth state
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        showError('Please log in to continue');
+        setTimeout(() => window.location.href = './login.html', 1500);
+        return;
+      }
+
+      currentOwnerId = user.uid;
+
+      try {
+        const ownerSnap = await get(ref(database, `owners/${user.uid}`));
+        if (ownerSnap.exists()) {
+          const owner = ownerSnap.val();
+          document.getElementById('userName').textContent = owner.name || 'Owner';
+          document.getElementById('userAvatar').textContent = (owner.name || 'O').charAt(0).toUpperCase();
+        }
+
+        await loadMembers();
+        await loadTrainers();
+        await loadAssignments();
+      } catch (error) {
+        console.error('Error loading data:', error);
+      }
+    });
+
+    // Load members
+    async function loadMembers() {
+      try {
+        const membersSnap = await get(ref(database, `owners/${currentOwnerId}/members`));
+        
+        if (!membersSnap.exists()) {
+          memberSelect.innerHTML = '<option value="">No members found</option>';
+          return;
+        }
+
+        membersData = membersSnap.val();
+        const options = ['<option value="">Select a member</option>'];
+        
+        Object.entries(membersData).forEach(([id, member]) => {
+          options.push(`<option value="${id}">${member.name} (${member.email || member.phone})</option>`);
+        });
+        
+        memberSelect.innerHTML = options.join('');
+      } catch (error) {
+        console.error('Error loading members:', error);
+        memberSelect.innerHTML = '<option value="">Error loading members</option>';
+      }
+    }
+
+    // Load trainers (those associated with this gym)
+    async function loadTrainers() {
+      try {
+        const trainersSnap = await get(ref(database, 'trainers'));
+        
+        if (!trainersSnap.exists()) {
+          trainerSelect.innerHTML = '<option value="">No trainers found</option>';
+          return;
+        }
+
+        const options = ['<option value="">Select a trainer</option>'];
+        
+        trainersSnap.forEach(snap => {
+          const trainer = snap.val();
+          // Only show trainers linked to this gym
+          if (trainer.gymId === currentOwnerId) {
+            trainersData[snap.key] = trainer;
+            options.push(`<option value="${snap.key}">${trainer.name} - ${trainer.specialization || 'General'}</option>`);
+          }
+        });
+        
+        trainerSelect.innerHTML = options.join('');
+      } catch (error) {
+        console.error('Error loading trainers:', error);
+        trainerSelect.innerHTML = '<option value="">Error loading trainers</option>';
+      }
+    }
+
+    // Load current assignments
+    async function loadAssignments() {
+      const assignments = [];
+      
+      // Check members for assigned trainers
+      Object.entries(membersData).forEach(([memberId, member]) => {
+        if (member.trainerId && trainersData[member.trainerId]) {
+          assignments.push({
+            memberId,
+            memberName: member.name,
+            trainerId: member.trainerId,
+            trainerName: trainersData[member.trainerId]?.name || 'Unknown',
+            assignedDate: member.trainerAssignedDate || 'N/A'
+          });
+        }
+      });
+
+      renderAssignments(assignments);
+    }
+
+    // Render assignments table
+    function renderAssignments(assignments) {
+      if (assignments.length === 0) {
+        assignmentsTableBody.innerHTML = `
+          <tr>
+            <td colspan="4" style="text-align: center; padding: var(--space-8); color: var(--text-muted);">
+              <i class="fa-solid fa-people-arrows" style="font-size: 2rem; margin-bottom: var(--space-2);"></i>
+              <p>No trainer assignments yet</p>
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+      assignmentsTableBody.innerHTML = assignments.map(a => `
+        <tr>
+          <td>
+            <div style="display: flex; align-items: center; gap: var(--space-3);">
+              <div class="avatar avatar-placeholder" style="width: 36px; height: 36px; font-size: var(--text-sm);">
+                ${a.memberName.charAt(0).toUpperCase()}
+              </div>
+              <span>${a.memberName}</span>
+            </div>
+          </td>
+          <td>
+            <div style="display: flex; align-items: center; gap: var(--space-3);">
+              <div class="avatar avatar-placeholder" style="width: 36px; height: 36px; font-size: var(--text-sm); background: var(--accent-500);">
+                ${a.trainerName.charAt(0).toUpperCase()}
+              </div>
+              <span>${a.trainerName}</span>
+            </div>
+          </td>
+          <td>${a.assignedDate}</td>
+          <td>
+            <button class="btn btn-ghost btn-icon" onclick="removeAssignment('${a.memberId}')" title="Remove Assignment" style="color: var(--error-400);">
+              <i class="fa-solid fa-unlink"></i>
+            </button>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    // Handle form submit
+    assignForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const memberId = memberSelect.value;
+      const trainerId = trainerSelect.value;
+
+      if (!memberId || !trainerId) {
+        showWarning('Please select both a member and a trainer');
+        return;
+      }
+
+      setButtonLoading(submitBtn, true, 'Assigning...');
+      btnText.textContent = 'Assigning...';
+
+      try {
+        // Update member with trainer assignment
+        await update(ref(database, `owners/${currentOwnerId}/members/${memberId}`), {
+          trainerId: trainerId,
+          trainerAssignedDate: new Date().toISOString().split('T')[0]
+        });
+
+        // Update trainer's assigned members
+        await update(ref(database, `trainers/${trainerId}/assignedMembers/${memberId}`), {
+          name: membersData[memberId]?.name || 'Unknown',
+          assignedDate: new Date().toISOString()
+        });
+
+        showSuccess('Trainer assigned successfully!');
+        
+        // Reload data
+        await loadMembers();
+        await loadAssignments();
+
+        // Reset form
+        memberSelect.value = '';
+        trainerSelect.value = '';
+
+        setButtonLoading(submitBtn, false);
+        btnText.textContent = 'Assign Trainer';
+
+      } catch (error) {
+        console.error('Error assigning trainer:', error);
+        showError('Failed to assign trainer');
+        setButtonLoading(submitBtn, false);
+        btnText.textContent = 'Assign Trainer';
+      }
+    });
+
+    // Remove assignment
+    window.removeAssignment = async function(memberId) {
+      if (!confirm('Are you sure you want to remove this trainer assignment?')) {
+        return;
+      }
+
+      try {
+        const member = membersData[memberId];
+        const trainerId = member?.trainerId;
+
+        // Remove from member
+        await update(ref(database, `owners/${currentOwnerId}/members/${memberId}`), {
+          trainerId: null,
+          trainerAssignedDate: null
+        });
+
+        // Remove from trainer's assigned members
+        if (trainerId) {
+          await remove(ref(database, `trainers/${trainerId}/assignedMembers/${memberId}`));
+        }
+
+        showSuccess('Assignment removed successfully');
+        
+        // Reload
+        await loadMembers();
+        await loadAssignments();
+
+      } catch (error) {
+        console.error('Error removing assignment:', error);
+        showError('Failed to remove assignment');
+      }
+    };
+  </script>
+</body>
+</html>

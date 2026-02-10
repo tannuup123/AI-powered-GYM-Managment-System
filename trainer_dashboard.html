@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Trainer Dashboard - Fit Track Pro</title>
+  <link rel="stylesheet" href="owner_dashboard.css" />
+  <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+</head>
+<body>
+  <div class="dashboard-container">
+    <header class="dashboard-header">
+      <h1>Trainer Dashboard</h1>
+      <p>Welcome, <span id="trainerName">Trainer</span></p>
+    </header>
+
+    <div class="dashboard-grid">
+      <div class="dashboard-item" onclick="viewSchedule()">
+        <i class="fa fa-calendar-alt"></i>
+        <p>View Schedule</p>
+      </div>
+
+      <div class="dashboard-item" onclick="viewAssignedMembers()">
+        <i class="fa fa-users"></i>
+        <p>Assigned Members</p>
+      </div>
+
+      <div class="dashboard-item" onclick="updateProfile()">
+        <i class="fa fa-user-cog"></i>
+        <p>Update Profile</p>
+      </div>
+
+      <div class="dashboard-item" onclick="logout()">
+        <i class="fa fa-sign-out-alt"></i>
+        <p>Logout</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyC-oca5z39s7l77EDY_Jx1psRroWtfZ2pM",
+      authDomain: "fit-track-be443.firebaseapp.com",
+      databaseURL: "https://fit-track-be443-default-rtdb.firebaseio.com",
+      projectId: "fit-track-be443",
+      storageBucket: "fit-track-be443.appspot.com",
+      messagingSenderId: "485684449281",
+      appId: "1:485684449281:web:88991ce3596959c0433000"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.database();
+
+    auth.onAuthStateChanged(user => {
+      if (!user) {
+        alert("Not logged in");
+        window.location.href = "index.html";
+        return;
+      }
+
+      const uid = user.uid;
+
+      // Load trainer name
+      db.ref("trainers/" + uid).once("value").then(snapshot => {
+        const trainer = snapshot.val();
+        if (trainer && trainer.name) {
+          document.getElementById("trainerName").textContent = trainer.name;
+        }
+      });
+    });
+
+    function viewSchedule() {
+      alert("Trainer schedule feature will be available in the next version.");
+    }
+
+    function viewAssignedMembers() {
+      const uid = auth.currentUser.uid;
+
+      db.ref("trainers/" + uid + "/assignedMembers").once("value").then(snapshot => {
+        const assigned = snapshot.val();
+        if (!assigned) {
+          alert("No members assigned.");
+          return;
+        }
+
+        const memberUIDs = Object.keys(assigned);
+        const ownerRef = db.ref("owners");
+
+        ownerRef.once("value").then(ownerSnap => {
+          let memberList = [];
+
+          ownerSnap.forEach(owner => {
+            const members = owner.child("members").val();
+            if (members) {
+              memberUIDs.forEach(mid => {
+                if (members[mid]) {
+                  const m = members[mid];
+                  memberList.push(`• ${m.name} (${m.phone || "No phone"})`);
+                }
+              });
+            }
+          });
+
+          if (memberList.length > 0) {
+            alert("Assigned Members:\n\n" + memberList.join("\n"));
+          } else {
+            alert("No member details found.");
+          }
+        });
+      });
+    }
+
+    function updateProfile() {
+      alert("Redirecting to profile update page.");
+      // Future link:
+      // window.location.href = "update_trainer_profile.html";
+    }
+
+    function logout() {
+      auth.signOut().then(() => {
+        alert("Logged out successfully");
+        window.location.href = "index.html";
+      }).catch((error) => {
+        alert("Logout failed: " + error.message);
+      });
+    }
+  </script>
+</body>
+</html>

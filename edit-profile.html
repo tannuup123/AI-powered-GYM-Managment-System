@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Edit Profile - Fit Track Pro">
+  <title>Edit Profile - Fit Track Pro</title>
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  
+  <!-- Styles -->
+  <link rel="stylesheet" href="./src/styles/main.css">
+  <link rel="icon" href="./public/logo.png" type="image/png">
+</head>
+<body>
+  <div class="dashboard">
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <img src="./public/logo.png" alt="Fit Track Pro" class="sidebar-logo">
+        <span class="sidebar-brand">Fit Track Pro</span>
+      </div>
+      
+      <nav class="sidebar-nav">
+        <div class="nav-section">
+          <span class="nav-section-title">Main</span>
+          <a href="#" class="nav-link" id="dashboardLink">
+            <i class="fa-solid fa-home"></i>
+            <span>Dashboard</span>
+          </a>
+        </div>
+        
+        <div class="nav-section">
+          <span class="nav-section-title">Settings</span>
+          <a href="./edit-profile.html" class="nav-link active">
+            <i class="fa-solid fa-user-cog"></i>
+            <span>Edit Profile</span>
+          </a>
+        </div>
+      </nav>
+      
+      <div class="sidebar-footer">
+        <div class="user-info">
+          <div class="avatar avatar-placeholder" id="userAvatar">U</div>
+          <div class="user-details">
+            <div class="user-name" id="userName">Loading...</div>
+            <div class="user-role" id="userRole">User</div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Mobile Sidebar Toggle -->
+    <button class="sidebar-toggle" id="sidebarToggle">
+      <i class="fa-solid fa-bars"></i>
+    </button>
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <div class="page-header">
+        <a href="#" id="backLink" style="display: inline-flex; align-items: center; gap: var(--space-2); color: var(--text-muted); margin-bottom: var(--space-4); font-size: var(--text-sm);">
+          <i class="fa-solid fa-arrow-left"></i>
+          Back to Dashboard
+        </a>
+        <h1><i class="fa-solid fa-user-cog" style="color: var(--primary-400);"></i> Edit Profile</h1>
+        <p>Update your personal information</p>
+      </div>
+
+      <!-- Profile Form -->
+      <div class="card" style="max-width: 600px;">
+        <div style="display: flex; align-items: center; gap: var(--space-4); margin-bottom: var(--space-6); padding-bottom: var(--space-6); border-bottom: 1px solid var(--border-color);">
+          <div class="avatar avatar-placeholder" id="profileAvatar" style="width: 80px; height: 80px; font-size: var(--text-2xl);">U</div>
+          <div>
+            <h3 id="profileName" style="margin: 0;">Loading...</h3>
+            <p id="profileEmail" style="color: var(--text-muted); margin: 0;">loading@example.com</p>
+          </div>
+        </div>
+
+        <form id="profileForm" class="auth-form">
+          <div class="form-group">
+            <label for="name" class="form-label">Full Name *</label>
+            <input 
+              type="text" 
+              id="name" 
+              name="name" 
+              class="form-input" 
+              placeholder="Enter your full name"
+              required
+            >
+          </div>
+
+          <div class="form-group" id="gymNameGroup" style="display: none;">
+            <label for="gymName" class="form-label">Gym Name *</label>
+            <input 
+              type="text" 
+              id="gymName" 
+              name="gymName" 
+              class="form-input" 
+              placeholder="Enter gym name"
+            >
+          </div>
+
+          <div class="form-group">
+            <label for="phone" class="form-label">Phone Number</label>
+            <input 
+              type="tel" 
+              id="phone" 
+              name="phone" 
+              class="form-input" 
+              placeholder="Enter phone number"
+              pattern="[0-9]{10}"
+            >
+          </div>
+
+          <div class="form-group" id="addressGroup" style="display: none;">
+            <label for="address" class="form-label">Address</label>
+            <textarea 
+              id="address" 
+              name="address" 
+              class="form-input" 
+              placeholder="Enter address"
+              rows="2"
+              style="resize: vertical;"
+            ></textarea>
+          </div>
+
+          <div class="form-group" id="specializationGroup" style="display: none;">
+            <label for="specialization" class="form-label">Specialization</label>
+            <select id="specialization" class="form-input">
+              <option value="">Select specialization</option>
+              <option value="Weight Training">Weight Training</option>
+              <option value="Cardio & HIIT">Cardio & HIIT</option>
+              <option value="Yoga & Flexibility">Yoga & Flexibility</option>
+              <option value="CrossFit">CrossFit</option>
+              <option value="Martial Arts">Martial Arts</option>
+              <option value="General Fitness">General Fitness</option>
+            </select>
+          </div>
+
+          <div style="display: flex; gap: var(--space-4); margin-top: var(--space-6);">
+            <button type="submit" id="submitBtn" class="btn btn-primary" style="flex: 1;">
+              <i class="fa-solid fa-save"></i>
+              <span id="btnText">Save Changes</span>
+            </button>
+            <a href="#" id="cancelBtn" class="btn btn-secondary">
+              Cancel
+            </a>
+          </div>
+        </form>
+      </div>
+    </main>
+  </div>
+
+  <!-- Scripts -->
+  <script type="module">
+    import { auth, database } from './src/config/firebase.js';
+    import { onAuthStateChanged } from 'firebase/auth';
+    import { ref, get, update } from 'firebase/database';
+    import { showToast, showSuccess, showError, showWarning } from './src/components/toast.js';
+    import { setButtonLoading, isValidPhone } from './src/js/utils.js';
+
+    // DOM Elements
+    const sidebar = document.getElementById('sidebar');
+    const sidebarToggle = document.getElementById('sidebarToggle');
+    const sidebarOverlay = document.getElementById('sidebarOverlay');
+    const profileForm = document.getElementById('profileForm');
+    const submitBtn = document.getElementById('submitBtn');
+    const btnText = document.getElementById('btnText');
+
+    let currentUser = null;
+    let userRole = null;
+    let userDataPath = null;
+
+    // Mobile sidebar toggle
+    sidebarToggle.addEventListener('click', () => {
+      sidebar.classList.toggle('open');
+      sidebarOverlay.classList.toggle('active');
+    });
+
+    sidebarOverlay.addEventListener('click', () => {
+      sidebar.classList.remove('open');
+      sidebarOverlay.classList.remove('active');
+    });
+
+    // Detect user role and set appropriate paths
+    async function detectUserRole(uid) {
+      // Check if owner
+      const ownerSnap = await get(ref(database, `owners/${uid}`));
+      if (ownerSnap.exists()) {
+        return { role: 'owner', data: ownerSnap.val(), path: `owners/${uid}` };
+      }
+
+      // Check if trainer
+      const trainerSnap = await get(ref(database, `trainers/${uid}`));
+      if (trainerSnap.exists()) {
+        return { role: 'trainer', data: trainerSnap.val(), path: `trainers/${uid}` };
+      }
+
+      // Check if member (search all owners)
+      const ownersSnap = await get(ref(database, 'owners'));
+      if (ownersSnap.exists()) {
+        for (const ownerKey of Object.keys(ownersSnap.val())) {
+          const memberSnap = await get(ref(database, `owners/${ownerKey}/members/${uid}`));
+          if (memberSnap.exists()) {
+            return { role: 'member', data: memberSnap.val(), path: `owners/${ownerKey}/members/${uid}` };
+          }
+        }
+      }
+
+      return null;
+    }
+
+    // Auth state
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        showError('Please log in to continue');
+        setTimeout(() => window.location.href = './login.html', 1500);
+        return;
+      }
+
+      currentUser = user;
+
+      try {
+        const roleInfo = await detectUserRole(user.uid);
+        
+        if (!roleInfo) {
+          showError('User profile not found');
+          return;
+        }
+
+        userRole = roleInfo.role;
+        userDataPath = roleInfo.path;
+        const userData = roleInfo.data;
+
+        // Update UI based on role
+        const roleLabels = { owner: 'Gym Owner', trainer: 'Trainer', member: 'Member' };
+        document.getElementById('userRole').textContent = roleLabels[userRole] || 'User';
+        
+        // Set dashboard link
+        const dashboards = { 
+          owner: './owner-dashboard.html', 
+          trainer: './trainer-dashboard.html', 
+          member: './member-dashboard.html' 
+        };
+        document.getElementById('dashboardLink').href = dashboards[userRole];
+        document.getElementById('backLink').href = dashboards[userRole];
+        document.getElementById('cancelBtn').href = dashboards[userRole];
+
+        // Show/hide role-specific fields
+        if (userRole === 'owner') {
+          document.getElementById('gymNameGroup').style.display = 'block';
+          document.getElementById('gymName').value = userData.gymName || '';
+        }
+        if (userRole === 'trainer') {
+          document.getElementById('specializationGroup').style.display = 'block';
+          document.getElementById('specialization').value = userData.specialization || '';
+        }
+        if (userRole === 'member') {
+          document.getElementById('addressGroup').style.display = 'block';
+          document.getElementById('address').value = userData.address || '';
+        }
+
+        // Fill form
+        document.getElementById('name').value = userData.name || '';
+        document.getElementById('phone').value = userData.phone || '';
+        
+        // Update header info
+        document.getElementById('userName').textContent = userData.name || 'User';
+        document.getElementById('profileName').textContent = userData.name || 'User';
+        document.getElementById('profileEmail').textContent = userData.email || user.email;
+        document.getElementById('userAvatar').textContent = (userData.name || 'U').charAt(0).toUpperCase();
+        document.getElementById('profileAvatar').textContent = (userData.name || 'U').charAt(0).toUpperCase();
+
+      } catch (error) {
+        console.error('Error loading profile:', error);
+        showError('Failed to load profile');
+      }
+    });
+
+    // Handle form submit
+    profileForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      if (!currentUser || !userDataPath) {
+        showError('User not authenticated');
+        return;
+      }
+
+      const name = document.getElementById('name').value.trim();
+      const phone = document.getElementById('phone').value.trim();
+
+      if (!name) {
+        showWarning('Name is required');
+        return;
+      }
+
+      if (phone && !isValidPhone(phone)) {
+        showError('Please enter a valid 10-digit phone number');
+        return;
+      }
+
+      setButtonLoading(submitBtn, true, 'Saving...');
+      btnText.textContent = 'Saving...';
+
+      try {
+        const updates = {
+          name: name,
+          phone: phone || null,
+          updatedAt: new Date().toISOString()
+        };
+
+        // Add role-specific fields
+        if (userRole === 'owner') {
+          updates.gymName = document.getElementById('gymName').value.trim() || null;
+        }
+        if (userRole === 'trainer') {
+          updates.specialization = document.getElementById('specialization').value || null;
+        }
+        if (userRole === 'member') {
+          updates.address = document.getElementById('address').value.trim() || null;
+        }
+
+        await update(ref(database, userDataPath), updates);
+        
+        showSuccess('Profile updated successfully!');
+        
+        // Update UI
+        document.getElementById('userName').textContent = name;
+        document.getElementById('profileName').textContent = name;
+        document.getElementById('userAvatar').textContent = name.charAt(0).toUpperCase();
+        document.getElementById('profileAvatar').textContent = name.charAt(0).toUpperCase();
+
+        setButtonLoading(submitBtn, false);
+        btnText.textContent = 'Save Changes';
+
+      } catch (error) {
+        console.error('Error updating profile:', error);
+        showError('Failed to update profile');
+        setButtonLoading(submitBtn, false);
+        btnText.textContent = 'Save Changes';
+      }
+    });
+  </script>
+</body>
+</html>

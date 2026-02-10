@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Create Bill</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link rel="stylesheet" href="owner_dashboard.css" />
+  <style>
+    .form-container {
+      max-width: 500px;
+      margin: 30px auto;
+      background: white;
+      padding: 25px;
+      border-radius: 10px;
+      box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+    }
+
+    .form-container h2 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .form-container label {
+      font-weight: bold;
+      display: block;
+      margin-top: 10px;
+    }
+
+    .form-container input, .form-container select {
+      width: 100%;
+      padding: 10px;
+      margin-top: 6px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+
+    .form-container button {
+      width: 100%;
+      margin-top: 20px;
+      background: #4CAF50;
+      color: white;
+      padding: 12px;
+      border: none;
+      border-radius: 6px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    .form-container button:hover {
+      background-color: #45a049;
+    }
+  </style>
+</head>
+<body>
+  <div class="form-container">
+    <h2>Create Bill for Member</h2>
+    <form id="billForm">
+      <label for="member">Select Member</label>
+      <select id="memberSelect" required>
+        <option value="">Loading members...</option>
+      </select>
+
+      <label for="amount">Amount (₹)</label>
+      <input type="number" id="amount" placeholder="Enter amount" required />
+
+      <label for="date">Billing Date</label>
+      <input type="date" id="date" required />
+
+      <label for="status">Status</label>
+      <select id="status" required>
+        <option value="Paid">Paid</option>
+        <option value="Unpaid">Unpaid</option>
+      </select>
+
+      <button type="submit">Generate Bill</button>
+    </form>
+  </div>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+
+  <!-- EmailJS SDK -->
+  <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
+  <script>
+    emailjs.init("H94D_5IfN2JtyGYZI"); // ✅ Your public key
+
+    function sendEmailNotification(toEmail, toName, messageText) {
+      emailjs.send("tanmayup123", "contact_us", {
+        to_email: toEmail,
+        to_name: toName,
+        message: messageText
+      }).then(
+        (response) => {
+          console.log("✅ Email sent!", response.status, response.text);
+        },
+        (error) => {
+          console.error("❌ Email failed:", error);
+        }
+      );
+    }
+  </script>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyC-oca5z39s7l77EDY_Jx1psRroWtfZ2pM",
+      authDomain: "fit-track-be443.firebaseapp.com",
+      databaseURL: "https://fit-track-be443-default-rtdb.firebaseio.com",
+      projectId: "fit-track-be443",
+      storageBucket: "fit-track-be443.appspot.com",
+      messagingSenderId: "485684449281",
+      appId: "1:485684449281:web:88991ce3596959c0433000"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.database();
+
+    const memberSelect = document.getElementById("memberSelect");
+
+    auth.onAuthStateChanged(user => {
+      if (!user) {
+        alert("Login required");
+        window.location.href = "index.html";
+        return;
+      }
+
+      const ownerId = user.uid;
+      const ref = db.ref(`owners/${ownerId}/members`);
+      ref.once("value", snapshot => {
+        memberSelect.innerHTML = "";
+        const members = snapshot.val();
+        if (!members) {
+          memberSelect.innerHTML = "<option value=''>No members found</option>";
+          return;
+        }
+
+        for (const [id, member] of Object.entries(members)) {
+          const option = document.createElement("option");
+          option.value = id;
+          option.text = `${member.name} (${member.email})`;
+          memberSelect.appendChild(option);
+        }
+      });
+    });
+
+    document.getElementById("billForm").addEventListener("submit", function (e) {
+      e.preventDefault();
+
+      const memberId = memberSelect.value;
+      const amount = parseFloat(document.getElementById("amount").value.trim());
+      const date = document.getElementById("date").value;
+      const status = document.getElementById("status").value;
+
+      if (!memberId || isNaN(amount) || !date || !status) {
+        alert("Please fill all fields correctly.");
+        return;
+      }
+
+      const billRef = db.ref(`bills/${memberId}/bill_receipts`).push();
+      billRef.set({
+        amount,
+        date,
+        status
+      }).then(() => {
+        alert("✅ Bill created successfully!");
+        document.getElementById("billForm").reset();
+
+        // 🔔 Email notification to member
+        db.ref("owners").once("value").then(snapshot => {
+          snapshot.forEach(ownerSnap => {
+            const members = ownerSnap.child("members").val();
+            if (members && members[memberId]) {
+              const member = members[memberId];
+              sendEmailNotification(
+                member.email,
+                member.name,
+                `A new bill of ₹${amount} (status: ${status}) was generated on ${date}.`
+              );
+            }
+          });
+        });
+
+      }).catch(err => {
+        alert("❌ Error: " + err.message);
+      });
+    });
+  </script>
+</body>
+</html>

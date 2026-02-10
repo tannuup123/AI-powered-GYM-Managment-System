@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="View Receipts - Fit Track Pro">
+  <title>View Receipts - Fit Track Pro</title>
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  
+  <!-- Styles -->
+  <link rel="stylesheet" href="./src/styles/main.css">
+  <link rel="icon" href="./public/logo.png" type="image/png">
+</head>
+<body>
+  <div class="dashboard">
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <img src="./public/logo.png" alt="Fit Track Pro" class="sidebar-logo">
+        <span class="sidebar-brand">Fit Track Pro</span>
+      </div>
+      
+      <nav class="sidebar-nav">
+        <div class="nav-section">
+          <span class="nav-section-title">Main</span>
+          <a href="./owner-dashboard.html" class="nav-link">
+            <i class="fa-solid fa-home"></i>
+            <span>Dashboard</span>
+          </a>
+        </div>
+        
+        <div class="nav-section">
+          <span class="nav-section-title">Billing</span>
+          <a href="./create-bill.html" class="nav-link">
+            <i class="fa-solid fa-file-invoice-dollar"></i>
+            <span>Create Bill</span>
+          </a>
+          <a href="./view-receipts.html" class="nav-link active">
+            <i class="fa-solid fa-receipt"></i>
+            <span>View Receipts</span>
+          </a>
+        </div>
+      </nav>
+      
+      <div class="sidebar-footer">
+        <div class="user-info">
+          <div class="avatar avatar-placeholder" id="userAvatar">O</div>
+          <div class="user-details">
+            <div class="user-name" id="userName">Loading...</div>
+            <div class="user-role">Gym Owner</div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Mobile Sidebar Toggle -->
+    <button class="sidebar-toggle" id="sidebarToggle">
+      <i class="fa-solid fa-bars"></i>
+    </button>
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <div class="page-header">
+        <a href="./owner-dashboard.html" style="display: inline-flex; align-items: center; gap: var(--space-2); color: var(--text-muted); margin-bottom: var(--space-4); font-size: var(--text-sm);">
+          <i class="fa-solid fa-arrow-left"></i>
+          Back to Dashboard
+        </a>
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: var(--space-4);">
+          <div>
+            <h1><i class="fa-solid fa-receipt" style="color: var(--primary-400);"></i> View Receipts</h1>
+            <p>View and manage all billing receipts</p>
+          </div>
+          <a href="./create-bill.html" class="btn btn-primary">
+            <i class="fa-solid fa-plus"></i>
+            Create Bill
+          </a>
+        </div>
+      </div>
+
+      <!-- Stats Cards -->
+      <div class="stats-grid" style="margin-bottom: var(--space-6);">
+        <div class="stat-card">
+          <div class="stat-icon primary">
+            <i class="fa-solid fa-file-invoice"></i>
+          </div>
+          <div class="stat-content">
+            <h3 id="totalBills">0</h3>
+            <p>Total Bills</p>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon success">
+            <i class="fa-solid fa-check-circle"></i>
+          </div>
+          <div class="stat-content">
+            <h3 id="paidBills">0</h3>
+            <p>Paid</p>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon warning">
+            <i class="fa-solid fa-clock"></i>
+          </div>
+          <div class="stat-content">
+            <h3 id="unpaidBills">0</h3>
+            <p>Unpaid</p>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon accent">
+            <i class="fa-solid fa-indian-rupee-sign"></i>
+          </div>
+          <div class="stat-content">
+            <h3 id="totalRevenue">₹0</h3>
+            <p>Total Revenue</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Filter -->
+      <div class="card" style="margin-bottom: var(--space-6);">
+        <div style="display: flex; gap: var(--space-4); flex-wrap: wrap;">
+          <div class="form-group" style="flex: 1; min-width: 200px; margin: 0;">
+            <input 
+              type="text" 
+              id="searchInput" 
+              class="form-input" 
+              placeholder="Search by member name..."
+            >
+          </div>
+          <select id="filterStatus" class="form-input" style="width: auto;">
+            <option value="">All Status</option>
+            <option value="Paid">Paid</option>
+            <option value="Unpaid">Unpaid</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Receipts Table -->
+      <div class="card">
+        <div class="table-responsive">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Member</th>
+                <th>Plan</th>
+                <th>Amount</th>
+                <th>Bill Date</th>
+                <th>Due Date</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="receiptsTableBody">
+              <tr>
+                <td colspan="7" style="text-align: center; padding: var(--space-8); color: var(--text-muted);">
+                  <i class="fa-solid fa-spinner fa-spin" style="font-size: 1.5rem;"></i>
+                  <p style="margin-top: var(--space-2);">Loading receipts...</p>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Scripts -->
+  <script type="module">
+    import { auth, database } from './src/config/firebase.js';
+    import { onAuthStateChanged } from 'firebase/auth';
+    import { ref, get, update, remove } from 'firebase/database';
+    import { showToast, showSuccess, showError, showWarning, showInfo } from './src/components/toast.js';
+
+    // DOM Elements
+    const sidebar = document.getElementById('sidebar');
+    const sidebarToggle = document.getElementById('sidebarToggle');
+    const sidebarOverlay = document.getElementById('sidebarOverlay');
+    const receiptsTableBody = document.getElementById('receiptsTableBody');
+    const searchInput = document.getElementById('searchInput');
+    const filterStatus = document.getElementById('filterStatus');
+
+    let currentOwnerId = null;
+    let allReceipts = [];
+
+    // Mobile sidebar toggle
+    sidebarToggle.addEventListener('click', () => {
+      sidebar.classList.toggle('open');
+      sidebarOverlay.classList.toggle('active');
+    });
+
+    sidebarOverlay.addEventListener('click', () => {
+      sidebar.classList.remove('open');
+      sidebarOverlay.classList.remove('active');
+    });
+
+    // Auth state
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        showError('Please log in to continue');
+        setTimeout(() => window.location.href = './login.html', 1500);
+        return;
+      }
+
+      currentOwnerId = user.uid;
+
+      try {
+        const ownerSnap = await get(ref(database, `owners/${user.uid}`));
+        if (ownerSnap.exists()) {
+          const owner = ownerSnap.val();
+          document.getElementById('userName').textContent = owner.name || 'Owner';
+          document.getElementById('userAvatar').textContent = (owner.name || 'O').charAt(0).toUpperCase();
+        }
+
+        loadReceipts();
+      } catch (error) {
+        console.error('Error loading data:', error);
+      }
+    });
+
+    // Load all receipts
+    async function loadReceipts() {
+      try {
+        const billsSnap = await get(ref(database, 'bills'));
+        
+        allReceipts = [];
+        let paid = 0, unpaid = 0, totalRevenue = 0;
+        
+        if (billsSnap.exists()) {
+          billsSnap.forEach(memberSnap => {
+            const memberId = memberSnap.key;
+            const receipts = memberSnap.child('bill_receipts').val();
+            
+            if (receipts) {
+              Object.entries(receipts).forEach(([billId, bill]) => {
+                // Only show bills for this owner
+                if (bill.ownerId === currentOwnerId) {
+                  allReceipts.push({ id: billId, memberId, ...bill });
+                  
+                  if (bill.status === 'Paid') {
+                    paid++;
+                    totalRevenue += parseFloat(bill.amount) || 0;
+                  } else {
+                    unpaid++;
+                  }
+                }
+              });
+            }
+          });
+        }
+
+        // Update stats
+        document.getElementById('totalBills').textContent = allReceipts.length;
+        document.getElementById('paidBills').textContent = paid;
+        document.getElementById('unpaidBills').textContent = unpaid;
+        document.getElementById('totalRevenue').textContent = `₹${totalRevenue.toLocaleString()}`;
+
+        // Sort by date (newest first)
+        allReceipts.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+        
+        renderReceipts(allReceipts);
+      } catch (error) {
+        console.error('Error loading receipts:', error);
+        showError('Failed to load receipts');
+      }
+    }
+
+    // Render receipts table
+    function renderReceipts(receipts) {
+      if (receipts.length === 0) {
+        receiptsTableBody.innerHTML = `
+          <tr>
+            <td colspan="7" style="text-align: center; padding: var(--space-8); color: var(--text-muted);">
+              <i class="fa-solid fa-receipt" style="font-size: 2rem; margin-bottom: var(--space-2);"></i>
+              <p>No receipts found</p>
+              <a href="./create-bill.html" class="btn btn-primary" style="margin-top: var(--space-4);">Create First Bill</a>
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+      receiptsTableBody.innerHTML = receipts.map(receipt => `
+        <tr>
+          <td>
+            <div style="font-weight: var(--font-medium);">${receipt.memberName || 'Unknown'}</div>
+          </td>
+          <td><span class="badge badge-primary">${receipt.plan || 'N/A'}</span></td>
+          <td style="font-weight: var(--font-semibold);">₹${(receipt.amount || 0).toLocaleString()}</td>
+          <td>${receipt.billDate || 'N/A'}</td>
+          <td>${receipt.dueDate || 'N/A'}</td>
+          <td>
+            <span class="badge ${receipt.status === 'Paid' ? 'badge-success' : 'badge-warning'}">
+              ${receipt.status || 'Unpaid'}
+            </span>
+          </td>
+          <td>
+            <div style="display: flex; gap: var(--space-2);">
+              ${receipt.status === 'Unpaid' ? `
+                <button class="btn btn-ghost btn-icon" onclick="markAsPaid('${receipt.memberId}', '${receipt.id}')" title="Mark as Paid" style="color: var(--success-400);">
+                  <i class="fa-solid fa-check"></i>
+                </button>
+              ` : ''}
+              <button class="btn btn-ghost btn-icon" onclick="deleteReceipt('${receipt.memberId}', '${receipt.id}')" title="Delete" style="color: var(--error-400);">
+                <i class="fa-solid fa-trash"></i>
+              </button>
+            </div>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    // Filter receipts
+    function filterReceipts() {
+      const search = searchInput.value.toLowerCase();
+      const status = filterStatus.value;
+
+      const filtered = allReceipts.filter(r => {
+        const matchSearch = !search || (r.memberName && r.memberName.toLowerCase().includes(search));
+        const matchStatus = !status || r.status === status;
+        return matchSearch && matchStatus;
+      });
+
+      renderReceipts(filtered);
+    }
+
+    searchInput.addEventListener('input', filterReceipts);
+    filterStatus.addEventListener('change', filterReceipts);
+
+    // Mark as paid
+    window.markAsPaid = async function(memberId, billId) {
+      try {
+        await update(ref(database, `bills/${memberId}/bill_receipts/${billId}`), {
+          status: 'Paid',
+          paidDate: new Date().toISOString()
+        });
+        showSuccess('Bill marked as paid!');
+        loadReceipts();
+      } catch (error) {
+        console.error('Error updating bill:', error);
+        showError('Failed to update bill status');
+      }
+    };
+
+    // Delete receipt
+    window.deleteReceipt = async function(memberId, billId) {
+      if (!confirm('Are you sure you want to delete this receipt?')) {
+        return;
+      }
+
+      try {
+        await remove(ref(database, `bills/${memberId}/bill_receipts/${billId}`));
+        showSuccess('Receipt deleted successfully');
+        loadReceipts();
+      } catch (error) {
+        console.error('Error deleting receipt:', error);
+        showError('Failed to delete receipt');
+      }
+    };
+  </script>
+</body>
+</html>

@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Choose your role to sign up for Fit Track Pro">
+  <title>Select Role - Fit Track Pro</title>
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  
+  <!-- Styles -->
+  <link rel="stylesheet" href="./src/styles/main.css">
+  <link rel="icon" href="./public/logo.png" type="image/png">
+</head>
+<body>
+  <div class="auth-page">
+    <div class="auth-container" style="max-width: 600px;">
+      <div class="auth-card">
+        <!-- Logo -->
+        <div class="auth-logo">
+          <img src="./public/logo.png" alt="Fit Track Pro Logo">
+          <h1>Join Fit Track Pro</h1>
+          <p>Select your role to get started</p>
+        </div>
+
+        <!-- Role Selection -->
+        <div class="role-selection">
+          <a href="./owner-signup.html" class="role-card">
+            <i class="fa-solid fa-building"></i>
+            <span>Gym Owner</span>
+            <small style="color: var(--text-muted); font-size: var(--text-xs);">Manage your gym</small>
+          </a>
+          
+          <a href="./trainer-signup.html" class="role-card">
+            <i class="fa-solid fa-dumbbell"></i>
+            <span>Trainer</span>
+            <small style="color: var(--text-muted); font-size: var(--text-xs);">Train members</small>
+          </a>
+          
+          <a href="./member-signup.html" class="role-card">
+            <i class="fa-solid fa-user"></i>
+            <span>Member</span>
+            <small style="color: var(--text-muted); font-size: var(--text-xs);">Join a gym</small>
+          </a>
+        </div>
+
+        <!-- Footer -->
+        <div class="auth-footer">
+          <p>Already have an account? <a href="./login.html">Sign in</a></p>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

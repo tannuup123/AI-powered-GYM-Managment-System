@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Edit Owner Profile</title>
+  <link rel="stylesheet" href="signup.css" />
+</head>
+<body>
+  <div class="form-container">
+    <h2>Edit Profile</h2>
+    <form id="editOwnerForm">
+      <input type="text" id="ownerName" placeholder="Owner Name" required />
+      <input type="email" id="email" placeholder="Email (readonly)" required readonly />
+      <input type="text" id="gymName" placeholder="Gym Name" required />
+      <input type="text" id="location" placeholder="Location" required />
+      <input type="tel" id="contact" placeholder="Contact Number" required />
+      <button type="submit">Update Profile</button>
+    </form>
+    <p><a href="owner_dashboard.html">⬅ Back to Dashboard</a></p>
+  </div>
+
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyC-oca5z39s7l77EDY_Jx1psRroWtfZ2pM",
+      authDomain: "fit-track-be443.firebaseapp.com",
+      databaseURL: "https://fit-track-be443-default-rtdb.firebaseio.com",
+      projectId: "fit-track-be443",
+      storageBucket: "fit-track-be443.appspot.com",
+      messagingSenderId: "485684449281",
+      appId: "1:485684449281:web:88991ce3596959c0433000"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.database();
+
+    auth.onAuthStateChanged(user => {
+      if (!user) {
+        alert("Please log in.");
+        window.location.href = "login.html";
+        return;
+      }
+
+      const ownerRef = db.ref("owners/" + user.uid);
+
+      // 🟡 Load data
+      ownerRef.once("value").then(snapshot => {
+        const data = snapshot.val();
+        if (data) {
+          document.getElementById("ownerName").value = data.ownerName || "";
+          document.getElementById("email").value = data.email || user.email; // fallback to auth email
+          document.getElementById("gymName").value = data.gymName || "";
+          document.getElementById("location").value = data.location || "";
+          document.getElementById("contact").value = data.contact || "";
+        } else {
+          alert("❌ No profile data found.");
+        }
+      });
+
+      // ✅ Update logic
+      document.getElementById("editOwnerForm").addEventListener("submit", function (e) {
+        e.preventDefault();
+
+        const updatedData = {
+          ownerName: document.getElementById("ownerName").value.trim(),
+          gymName: document.getElementById("gymName").value.trim(),
+          location: document.getElementById("location").value.trim(),
+          contact: document.getElementById("contact").value.trim(),
+          email: user.email // Email is read-only and kept consistent
+        };
+
+        ownerRef.update(updatedData).then(() => {
+          alert("✅ Profile updated successfully!");
+          window.location.href = "owner_dashboard.html";
+        }).catch(err => {
+          console.error("❌ Update failed:", err);
+          alert("Failed to update profile.");
+        });
+      });
+    });
+  </script>
+</body>
+</html>

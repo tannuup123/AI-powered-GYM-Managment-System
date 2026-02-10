@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="AI Coaching Assistant - Fit Track Pro">
+  <title>AI Coach Assistant - Fit Track Pro</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="./src/styles/main.css">
+  <link rel="icon" href="./public/logo.png" type="image/png">
+  <style>
+    .ai-tabs { display: flex; gap: var(--space-2); margin-bottom: var(--space-6); overflow-x: auto; padding-bottom: var(--space-2); }
+    .ai-tab { padding: var(--space-3) var(--space-5); background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-lg); color: var(--text-muted); cursor: pointer; transition: all 0.3s; white-space: nowrap; font-size: var(--text-sm); display: flex; align-items: center; gap: var(--space-2); }
+    .ai-tab:hover { border-color: var(--primary-400); color: var(--text-primary); }
+    .ai-tab.active { background: linear-gradient(135deg, var(--primary-600), var(--accent-600)); border-color: transparent; color: white; box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3); }
+    .ai-section { display: none; animation: fadeIn 0.3s ease; }
+    .ai-section.active { display: block; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    
+    .chat-container { height: 500px; display: flex; flex-direction: column; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-lg); overflow: hidden; }
+    .chat-messages { flex: 1; overflow-y: auto; padding: var(--space-4); display: flex; flex-direction: column; gap: var(--space-3); }
+    .chat-msg { max-width: 80%; padding: var(--space-3) var(--space-4); border-radius: var(--radius-lg); font-size: var(--text-sm); line-height: 1.5; animation: fadeIn 0.3s ease; }
+    .chat-msg.user { align-self: flex-end; background: linear-gradient(135deg, var(--primary-600), var(--accent-600)); color: white; border-bottom-right-radius: 4px; }
+    .chat-msg.bot { align-self: flex-start; background: rgba(255,255,255,0.05); border: 1px solid var(--border-color); border-bottom-left-radius: 4px; }
+    .chat-msg.bot .msg-label { font-size: var(--text-xs); color: var(--primary-400); font-weight: var(--font-semibold); margin-bottom: var(--space-1); }
+    .chat-input-area { display: flex; gap: var(--space-2); padding: var(--space-3); border-top: 1px solid var(--border-color); background: rgba(0,0,0,0.2); }
+    .chat-input-area input { flex: 1; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: var(--space-3) var(--space-4); color: var(--text-primary); font-size: var(--text-sm); }
+    .chat-input-area input:focus { outline: none; border-color: var(--primary-400); }
+    .chat-input-area button { background: linear-gradient(135deg, var(--primary-600), var(--accent-600)); border: none; border-radius: var(--radius-md); padding: var(--space-3) var(--space-4); color: white; cursor: pointer; transition: all 0.2s; }
+    .chat-input-area button:hover { transform: scale(1.05); }
+    
+    .quick-actions { display: flex; gap: var(--space-2); padding: var(--space-2) var(--space-3); overflow-x: auto; border-top: 1px solid var(--border-color); }
+    .quick-action { padding: var(--space-1) var(--space-3); background: rgba(99, 102, 241, 0.1); border: 1px solid rgba(99, 102, 241, 0.2); border-radius: var(--radius-full); color: var(--primary-400); font-size: var(--text-xs); cursor: pointer; white-space: nowrap; transition: all 0.2s; }
+    .quick-action:hover { background: rgba(99, 102, 241, 0.2); }
+    
+    .member-card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: var(--space-4); margin-bottom: var(--space-3); transition: all 0.3s; }
+    .member-card:hover { border-color: var(--primary-400); transform: translateY(-2px); }
+    
+    .ai-loading { display: flex; flex-direction: column; align-items: center; gap: var(--space-4); padding: var(--space-8); color: var(--text-muted); }
+    .ai-loading .spinner { width: 40px; height: 40px; border: 3px solid var(--border-color); border-top: 3px solid var(--primary-400); border-radius: 50%; animation: spin 0.8s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .typing-indicator { display: flex; gap: 4px; padding: var(--space-2); }
+    .typing-indicator span { width: 8px; height: 8px; background: var(--primary-400); border-radius: 50%; animation: bounce 1.4s infinite ease-in-out; }
+    .typing-indicator span:nth-child(1) { animation-delay: -0.32s; }
+    .typing-indicator span:nth-child(2) { animation-delay: -0.16s; }
+    @keyframes bounce { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1); } }
+    
+    .ai-stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: var(--space-4); margin-bottom: var(--space-6); }
+    .ai-stat { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: var(--space-4); text-align: center; transition: all 0.3s; }
+    .ai-stat:hover { border-color: var(--primary-400); transform: translateY(-2px); }
+    .ai-stat .stat-value { font-size: var(--text-2xl); font-weight: var(--font-bold); color: var(--primary-400); }
+    .ai-stat .stat-label { font-size: var(--text-xs); color: var(--text-muted); margin-top: var(--space-1); }
+  </style>
+</head>
+<body>
+  <div class="dashboard">
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <img src="./public/logo.png" alt="Fit Track Pro" class="sidebar-logo">
+        <span class="sidebar-brand">Fit Track Pro</span>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="nav-section">
+          <span class="nav-section-title">Main</span>
+          <a href="./trainer-dashboard.html" class="nav-link"><i class="fa-solid fa-home"></i><span>Dashboard</span></a>
+        </div>
+        <div class="nav-section">
+          <span class="nav-section-title">AI Coach</span>
+          <a href="./trainer-ai.html" class="nav-link active">
+            <i class="fa-solid fa-robot"></i><span>AI Coach Assistant</span>
+            <span class="badge badge-primary" style="margin-left: auto; font-size: 9px; padding: 2px 6px;">AI</span>
+          </a>
+        </div>
+        <div class="nav-section">
+          <span class="nav-section-title">Training</span>
+          <a href="./trainer-schedule.html" class="nav-link"><i class="fa-solid fa-calendar-alt"></i><span>My Schedule</span></a>
+        </div>
+        <div class="nav-section">
+          <span class="nav-section-title">Account</span>
+          <a href="./edit-profile.html" class="nav-link"><i class="fa-solid fa-user-edit"></i><span>Edit Profile</span></a>
+        </div>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="user-info">
+          <div class="avatar avatar-placeholder" id="userAvatar">T</div>
+          <div class="user-details">
+            <div class="user-name" id="userName">Loading...</div>
+            <div class="user-role">Trainer</div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <button class="sidebar-toggle" id="sidebarToggle"><i class="fa-solid fa-bars"></i></button>
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <main class="main-content">
+      <div class="page-header">
+        <a href="./trainer-dashboard.html" style="display: inline-flex; align-items: center; gap: var(--space-2); color: var(--text-muted); margin-bottom: var(--space-4); font-size: var(--text-sm);">
+          <i class="fa-solid fa-arrow-left"></i> Back to Dashboard
+        </a>
+        <h1><i class="fa-solid fa-robot" style="color: var(--primary-400);"></i> AI Coach Assistant</h1>
+        <p>Smart coaching insights powered by AI</p>
+      </div>
+
+      <div class="ai-tabs">
+        <button class="ai-tab active" data-tab="members"><i class="fa-solid fa-users"></i> Member Analysis</button>
+        <button class="ai-tab" data-tab="suggestions"><i class="fa-solid fa-lightbulb"></i> AI Suggestions</button>
+        <button class="ai-tab" data-tab="chat"><i class="fa-solid fa-comments"></i> AI Chat</button>
+      </div>
+
+      <!-- Member Analysis -->
+      <div class="ai-section active" id="section-members">
+        <div class="ai-stat-grid">
+          <div class="ai-stat"><div class="stat-value" id="totalAssigned">-</div><div class="stat-label">Assigned Members</div></div>
+          <div class="ai-stat"><div class="stat-value" id="activeSessions">-</div><div class="stat-label">Active Sessions</div></div>
+        </div>
+
+        <button class="btn btn-primary" id="analyzeBtn" style="margin-bottom: var(--space-6);">
+          <i class="fa-solid fa-wand-magic-sparkles"></i> Analyze Members
+        </button>
+
+        <div id="memberAnalysis">
+          <div class="card" style="text-align: center; padding: var(--space-8);">
+            <i class="fa-solid fa-users" style="font-size: 3rem; color: var(--text-muted); opacity: 0.3; margin-bottom: var(--space-4);"></i>
+            <p style="color: var(--text-muted);">Click "Analyze Members" to get AI-powered member performance insights</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- AI Suggestions -->
+      <div class="ai-section" id="section-suggestions">
+        <button class="btn btn-primary" id="getSuggestionsBtn" style="margin-bottom: var(--space-6);">
+          <i class="fa-solid fa-wand-magic-sparkles"></i> Get AI Training Suggestions
+        </button>
+        <div id="suggestionsResult">
+          <div class="card" style="text-align: center; padding: var(--space-8);">
+            <i class="fa-solid fa-lightbulb" style="font-size: 3rem; color: var(--text-muted); opacity: 0.3; margin-bottom: var(--space-4);"></i>
+            <p style="color: var(--text-muted);">Get personalized coaching suggestions based on your member data</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- AI Chat -->
+      <div class="ai-section" id="section-chat">
+        <div class="chat-container">
+          <div class="chat-messages" id="chatMessages">
+            <div class="chat-msg bot">
+              <div class="msg-label">🏋️ CoachBot</div>
+              Hey Coach! I'm your AI coaching assistant. Ask me about training methods, member management, or workout programming! 💪
+            </div>
+          </div>
+          <div class="quick-actions">
+            <button class="quick-action" onclick="sendQuickMessage('How to motivate lazy clients?')">Motivate clients?</button>
+            <button class="quick-action" onclick="sendQuickMessage('Best workout split for beginners?')">Beginner split?</button>
+            <button class="quick-action" onclick="sendQuickMessage('How to handle client plateau?')">Client plateau?</button>
+            <button class="quick-action" onclick="sendQuickMessage('Tips for building client trust')">Build trust?</button>
+          </div>
+          <div class="chat-input-area">
+            <input type="text" id="chatInput" placeholder="Ask about coaching, training, or your members..." autocomplete="off">
+            <button id="chatSendBtn"><i class="fa-solid fa-paper-plane"></i></button>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script type="module">
+    import { auth, database } from './src/config/firebase.js';
+    import { onAuthStateChanged } from 'firebase/auth';
+    import { ref, get } from 'firebase/database';
+    import { showSuccess, showError } from './src/components/toast.js';
+    import { chatWithTrainerAI, askGeminiJSON } from './src/services/gemini-service.js';
+
+    const sidebar = document.getElementById('sidebar');
+    const sidebarToggle = document.getElementById('sidebarToggle');
+    const sidebarOverlay = document.getElementById('sidebarOverlay');
+
+    let trainerId = null;
+    let trainerData = null;
+    let trainerContext = {};
+    let membersList = [];
+
+    sidebarToggle.addEventListener('click', () => { sidebar.classList.toggle('open'); sidebarOverlay.classList.toggle('active'); });
+    sidebarOverlay.addEventListener('click', () => { sidebar.classList.remove('open'); sidebarOverlay.classList.remove('active'); });
+
+    document.querySelectorAll('.ai-tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('.ai-tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.ai-section').forEach(s => s.classList.remove('active'));
+        tab.classList.add('active');
+        document.getElementById(`section-${tab.dataset.tab}`).classList.add('active');
+      });
+    });
+
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) { window.location.href = './login.html'; return; }
+      trainerId = user.uid;
+
+      try {
+        const trainerSnap = await get(ref(database, `trainers/${trainerId}`));
+        if (!trainerSnap.exists()) { window.location.href = './login.html'; return; }
+        trainerData = trainerSnap.val();
+
+        document.getElementById('userName').textContent = trainerData.name || 'Trainer';
+        document.getElementById('userAvatar').textContent = (trainerData.name || 'T').charAt(0).toUpperCase();
+
+        // Get assigned members
+        let assignedCount = 0;
+        if (trainerData.assignedMembers) {
+          assignedCount = Object.keys(trainerData.assignedMembers).length;
+          
+          // Load member details
+          const gymId = trainerData.gymId;
+          if (gymId) {
+            const membersSnap = await get(ref(database, `owners/${gymId}/members`));
+            if (membersSnap.exists()) {
+              const allMembers = membersSnap.val();
+              Object.keys(trainerData.assignedMembers).forEach(mId => {
+                if (allMembers[mId]) {
+                  membersList.push({ id: mId, ...allMembers[mId] });
+                }
+              });
+            }
+          }
+        }
+
+        // Count sessions
+        let sessionCount = 0;
+        const scheduleSnap = await get(ref(database, `trainer_schedules/${trainerId}`));
+        if (scheduleSnap.exists()) {
+          sessionCount = Object.keys(scheduleSnap.val()).length;
+        }
+
+        document.getElementById('totalAssigned').textContent = assignedCount;
+        document.getElementById('activeSessions').textContent = sessionCount;
+
+        trainerContext = {
+          name: trainerData.name || 'Trainer',
+          specialization: trainerData.specialization || 'General',
+          memberCount: assignedCount,
+          members: membersList.map(m => m.name).join(', ')
+        };
+      } catch (error) {
+        console.error('Error loading trainer data:', error);
+      }
+    });
+
+    // Analyze Members
+    document.getElementById('analyzeBtn').addEventListener('click', async () => {
+      const resultDiv = document.getElementById('memberAnalysis');
+      
+      if (membersList.length === 0) {
+        resultDiv.innerHTML = `<div class="card" style="text-align: center; padding: var(--space-8);">
+          <p style="color: var(--text-muted);">No assigned members found. Members need to be assigned to you first.</p>
+        </div>`;
+        return;
+      }
+
+      resultDiv.innerHTML = `<div class="ai-loading"><div class="spinner"></div><p>🤖 Analyzing member performance...</p></div>`;
+
+      try {
+        const memberInfo = membersList.map(m => `- ${m.name} (Joined: ${m.joiningDate || 'N/A'})`).join('\n');
+        
+        const prompt = `Analyze these gym members assigned to trainer ${trainerData.name} (${trainerData.specialization || 'General'}):
+${memberInfo}
+
+Provide coaching insights. Respond in JSON:
+{
+  "overview": "Brief overview of the client roster",
+  "memberInsights": [
+    { "name": "Member name", "status": "active/needs_attention/new", "recommendation": "Brief coaching recommendation" }
+  ],
+  "generalTips": ["Tip 1", "Tip 2"],
+  "trainingPriority": "What to focus on this week"
+}`;
+
+        const data = await askGeminiJSON(prompt, 'You are an AI coaching assistant for gym trainers. Give practical, actionable coaching advice.');
+
+        let html = '';
+        
+        if (data.overview) {
+          html += `<div class="card" style="margin-bottom: var(--space-4); background: linear-gradient(135deg, rgba(99,102,241,0.1), rgba(168,85,247,0.1));">
+            <h3>📋 Client Roster Overview</h3>
+            <p style="color: var(--text-muted); font-size: var(--text-sm); margin-top: var(--space-2);">${data.overview}</p>
+          </div>`;
+        }
+
+        if (data.memberInsights) {
+          data.memberInsights.forEach(member => {
+            const statusColor = { active: 'var(--success-400)', needs_attention: 'var(--warning-400)', new: 'var(--primary-400)' }[member.status] || 'var(--text-muted)';
+            html += `<div class="member-card">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-2);">
+                <h4>${member.name}</h4>
+                <span style="font-size: var(--text-xs); padding: 2px 8px; border-radius: var(--radius-full); background: ${statusColor}20; color: ${statusColor};">${member.status}</span>
+              </div>
+              <p style="font-size: var(--text-sm); color: var(--text-muted);">💡 ${member.recommendation}</p>
+            </div>`;
+          });
+        }
+
+        if (data.trainingPriority) {
+          html += `<div class="card" style="margin-top: var(--space-4); border-left: 3px solid var(--primary-400);">
+            <h4><i class="fa-solid fa-bullseye" style="color: var(--primary-400);"></i> This Week's Priority</h4>
+            <p style="font-size: var(--text-sm); color: var(--text-muted); margin-top: var(--space-2);">${data.trainingPriority}</p>
+          </div>`;
+        }
+
+        resultDiv.innerHTML = html;
+        showSuccess('Member analysis complete! 📋');
+      } catch (error) {
+        resultDiv.innerHTML = `<div class="card" style="text-align: center; padding: var(--space-8);"><p>Failed to analyze. Please try again.</p></div>`;
+      }
+    });
+
+    // AI Suggestions
+    document.getElementById('getSuggestionsBtn').addEventListener('click', async () => {
+      const resultDiv = document.getElementById('suggestionsResult');
+      resultDiv.innerHTML = `<div class="ai-loading"><div class="spinner"></div><p>🤖 Generating coaching suggestions...</p></div>`;
+
+      try {
+        const prompt = `Generate personalized coaching suggestions for trainer:
+- Name: ${trainerData.name}
+- Specialization: ${trainerData.specialization || 'General Fitness'}
+- Assigned Members: ${membersList.length}
+- Members: ${membersList.map(m => m.name).join(', ') || 'None assigned'}
+
+Respond in JSON:
+{
+  "weeklyFocus": "What to focus on this week",
+  "suggestions": [
+    { "category": "Training/Nutrition/Motivation/Communication", "title": "Suggestion title", "detail": "Detailed suggestion" }
+  ],
+  "exerciseOfWeek": { "name": "Exercise name", "benefit": "Why it's great", "formTip": "Quick form tip" },
+  "motivationalQuote": "An inspiring fitness quote"
+}`;
+
+        const data = await askGeminiJSON(prompt, 'You are an expert fitness coaching AI. Provide practical, evidence-based training suggestions.');
+
+        let html = '';
+
+        if (data.weeklyFocus) {
+          html += `<div class="card" style="margin-bottom: var(--space-4); background: linear-gradient(135deg, rgba(16,185,129,0.1), rgba(99,102,241,0.1));">
+            <h3>🎯 Weekly Focus</h3>
+            <p style="color: var(--text-muted); font-size: var(--text-sm); margin-top: var(--space-2);">${data.weeklyFocus}</p>
+          </div>`;
+        }
+
+        if (data.suggestions) {
+          data.suggestions.forEach(s => {
+            const icons = { Training: 'fa-dumbbell', Nutrition: 'fa-utensils', Motivation: 'fa-heart', Communication: 'fa-comments' };
+            html += `<div class="member-card">
+              <h4><i class="fa-solid ${icons[s.category] || 'fa-lightbulb'}" style="color: var(--primary-400);"></i> ${s.title}</h4>
+              <p style="font-size: var(--text-xs); color: var(--primary-400); margin-bottom: var(--space-2);">${s.category}</p>
+              <p style="font-size: var(--text-sm); color: var(--text-muted);">${s.detail}</p>
+            </div>`;
+          });
+        }
+
+        if (data.exerciseOfWeek) {
+          html += `<div class="card" style="margin-top: var(--space-4);">
+            <h4>💪 Exercise of the Week: ${data.exerciseOfWeek.name}</h4>
+            <p style="font-size: var(--text-sm); color: var(--text-muted); margin-top: var(--space-2);">${data.exerciseOfWeek.benefit}</p>
+            <p style="font-size: var(--text-sm); color: var(--accent-400); margin-top: var(--space-1);">📐 Form: ${data.exerciseOfWeek.formTip}</p>
+          </div>`;
+        }
+
+        if (data.motivationalQuote) {
+          html += `<div class="card" style="margin-top: var(--space-4); text-align: center; font-style: italic; color: var(--text-muted);">
+            "${data.motivationalQuote}" 🔥
+          </div>`;
+        }
+
+        resultDiv.innerHTML = html;
+        showSuccess('Suggestions generated! 💡');
+      } catch (error) {
+        resultDiv.innerHTML = `<div class="card" style="text-align: center; padding: var(--space-8);"><p>Failed to generate suggestions. Try again.</p></div>`;
+      }
+    });
+
+    // Chat
+    const chatMessages = document.getElementById('chatMessages');
+    const chatInput = document.getElementById('chatInput');
+
+    async function sendMessage(message) {
+      if (!message.trim()) return;
+      chatMessages.innerHTML += `<div class="chat-msg user">${escapeHtml(message)}</div>`;
+      chatInput.value = '';
+      scrollToBottom();
+
+      const typingId = 'typing-' + Date.now();
+      chatMessages.innerHTML += `<div class="chat-msg bot" id="${typingId}"><div class="msg-label">🏋️ CoachBot</div><div class="typing-indicator"><span></span><span></span><span></span></div></div>`;
+      scrollToBottom();
+
+      try {
+        const response = await chatWithTrainerAI(message, trainerContext);
+        document.getElementById(typingId).remove();
+        chatMessages.innerHTML += `<div class="chat-msg bot"><div class="msg-label">🏋️ CoachBot</div>${formatResponse(response)}</div>`;
+        scrollToBottom();
+      } catch (error) {
+        document.getElementById(typingId).remove();
+        chatMessages.innerHTML += `<div class="chat-msg bot"><div class="msg-label">🏋️ CoachBot</div>Sorry, having trouble connecting. Try again! 😅</div>`;
+        scrollToBottom();
+      }
+    }
+
+    function formatResponse(text) { return text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>'); }
+    function escapeHtml(text) { const div = document.createElement('div'); div.textContent = text; return div.innerHTML; }
+    function scrollToBottom() { chatMessages.scrollTop = chatMessages.scrollHeight; }
+
+    document.getElementById('chatSendBtn').addEventListener('click', () => sendMessage(chatInput.value));
+    chatInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') sendMessage(chatInput.value); });
+    window.sendQuickMessage = function(msg) { chatInput.value = msg; sendMessage(msg); };
+  </script>
+</body>
+</html>

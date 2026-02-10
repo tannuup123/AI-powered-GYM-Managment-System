@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Add Member</title>
+  <link rel="stylesheet" href="form.css" />
+ 
+</head>
+<body>
+  <h2>Add New Gym Member</h2>
+  <form id="addMemberForm">
+    <input type="text" placeholder="Member Name" name="name" required />
+    <input type="email" placeholder="Email" name="email" required />
+    <input type="tel" placeholder="Contact Number" name="contact" required />
+    <input type="text" placeholder="Membership Plan" name="plan" required />
+    <button type="submit">Add Member</button>
+  </form>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+<script>
+    // ✅ Your Firebase Config
+    const firebaseConfig = {
+      apiKey: "AIzaSyC-oca5z39s7l77EDY_Jx1psRroWtfZ2pM",
+      authDomain: "fit-track-be443.firebaseapp.com",
+      databaseURL: "https://fit-track-be443-default-rtdb.firebaseio.com",
+      projectId: "fit-track-be443",
+      storageBucket: "fit-track-be443.appspot.com",
+      messagingSenderId: "485684449281",
+      appId: "1:485684449281:web:88991ce3596959c0433000"
+
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    // 🔒 Mock Owner ID (You can replace this with dynamic ID from localStorage/session/user login)
+    const ownerId = "owner123"; // Change to actual owner ID as needed
+
+    document.getElementById('memberForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+
+      const name = document.getElementById('name').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const amount = parseFloat(document.getElementById('amount').value.trim());
+
+      if (!name || !email || isNaN(amount)) {
+        alert("Please fill all fields correctly.");
+        return;
+      }
+
+      const newMemberRef = db.ref(`owners/${ownerId}/members`).push();
+
+      newMemberRef.set({
+        name,
+        email,
+        amount
+      })
+      .then(() => alert("Member added under owner successfully!"))
+      .catch((error) => alert("Error adding member: " + error.message));
+    });
+  </script>
+ 
+
+
+</body>
+</html>

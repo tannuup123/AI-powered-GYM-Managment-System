@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Member Registration</title>
+  <link rel="stylesheet" href="member_signup.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+</head>
+<body>
+  <div class="signup-container">
+    <h2>Member Registration</h2>
+    <form id="memberSignupForm">
+      <input type="text" id="name" placeholder="Full Name" required />
+      <input type="email" id="email" placeholder="Email" required />
+      <input type="password" id="password" placeholder="Password" required />
+      <input type="text" id="phone" placeholder="Phone Number" required />
+      <select id="ownerSelect" required>
+        <option value="">Select Your Gym</option>
+      </select>
+      <button type="submit">Register</button>
+    </form>
+    <p>Already have an account? <a href="index.html">Login</a></p>
+  </div>
+
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+
+  <script>
+    // ✅ Firebase config
+    const firebaseConfig = {
+      apiKey: "AIzaSyC-oca5z39s7l77EDY_Jx1psRroWtfZ2pM",
+      authDomain: "fit-track-be443.firebaseapp.com",
+      databaseURL: "https://fit-track-be443-default-rtdb.firebaseio.com",
+      projectId: "fit-track-be443"
+    };
+
+    // ✅ Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const database = firebase.database();
+
+    // 🔽 Load gyms into dropdown
+    const ownerSelect = document.getElementById("ownerSelect");
+
+    window.addEventListener("DOMContentLoaded", () => {
+      database.ref("owners").once("value")
+        .then(snapshot => {
+          ownerSelect.innerHTML = "<option value=''>Select Your Gym</option>";
+          snapshot.forEach(ownerSnap => {
+            const ownerId = ownerSnap.key;
+            const data = ownerSnap.val();
+            const gymName = data.gymName || data.ownerName || "Unnamed Gym";
+
+            const option = document.createElement("option");
+            option.value = ownerId;
+            option.textContent = gymName;
+            ownerSelect.appendChild(option);
+          });
+        })
+        .catch(error => {
+          console.error("❌ Failed to load gyms:", error);
+          alert("Failed to load gyms.");
+        });
+    });
+
+    // ✅ Member Registration Logic
+    document.getElementById("memberSignupForm").addEventListener("submit", function (e) {
+      e.preventDefault();
+
+      const name = document.getElementById("name").value.trim();
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value;
+      const phone = document.getElementById("phone").value.trim();
+      const ownerId = ownerSelect.value;
+
+      if (!name || !email || !password || !phone || !ownerId) {
+        alert("⚠️ Please fill all fields and select a gym.");
+        return;
+      }
+
+      auth.createUserWithEmailAndPassword(email, password)
+        .then(userCredential => {
+          const user = userCredential.user;
+          const uid = user.uid;
+          const joiningDate = new Date().toLocaleDateString();
+
+          const memberData = { name, email, phone, joiningDate };
+          const updates = {};
+          updates[`members/${uid}`] = memberData;
+          updates[`owners/${ownerId}/members/${uid}`] = memberData;
+
+          return database.ref().update(updates);
+        })
+        .then(() => {
+          alert("✅ Member registered successfully!");
+          window.location.href = "index.html";
+        })
+        .catch(error => {
+          console.error("❌ Registration Error:", error);
+          alert(error.message);
+        });
+    });
+  </script>
+</body>
+</html>
