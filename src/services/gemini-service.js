@@ -2,15 +2,25 @@
 // Uses Google Gemini Free Tier API
 
 const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
-const GEMINI_API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`;
+const GEMINI_MODEL = 'gemini-1.5-flash';
+const GEMINI_API_URL = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_API_KEY}`;
+
+// Validate API key on load
+if (!GEMINI_API_KEY) {
+    console.warn('⚠️ VITE_GEMINI_API_KEY is not set! AI features will not work.');
+}
 
 /**
- * Send a prompt to Gemini and get a response
+ * Send a prompt to Gemini and get a response with retry logic
  * @param {string} prompt - The prompt to send
  * @param {string} systemInstruction - System context for the AI
  * @returns {Promise<string>} - The AI response text
  */
-export async function askGemini(prompt, systemInstruction = '') {
+export async function askGemini(prompt, systemInstruction = '', retries = 2) {
+    if (!GEMINI_API_KEY) {
+        throw new Error('Gemini API key not configured. Please add VITE_GEMINI_API_KEY to environment variables.');
+    }
+
     try {
         const contents = [];
 
@@ -45,8 +55,18 @@ export async function askGemini(prompt, systemInstruction = '') {
         });
 
         if (!response.ok) {
-            const errData = await response.json();
-            throw new Error(errData.error?.message || 'Gemini API error');
+            const errData = await response.json().catch(() => ({}));
+            const errMsg = errData.error?.message || `HTTP ${response.status}`;
+            console.error(`Gemini API Error [${response.status}]:`, errMsg);
+
+            // Retry on rate limit (429) or server errors (5xx)
+            if (retries > 0 && (response.status === 429 || response.status >= 500)) {
+                console.log(`Retrying... (${retries} attempts left)`);
+                await new Promise(r => setTimeout(r, 1500));
+                return askGemini(prompt, systemInstruction, retries - 1);
+            }
+
+            throw new Error(errMsg);
         }
 
         const data = await response.json();
