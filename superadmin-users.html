@@ -20,30 +20,7 @@
   <link rel="icon" href="./public/logo.png" type="image/png">
   
   <style>
-    .page-container {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: var(--space-6);
-    }
-    
-    .page-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: var(--space-6);
-    }
-    
-    .page-header h1 {
-      font-size: var(--text-2xl);
-      display: flex;
-      align-items: center;
-      gap: var(--space-3);
-    }
-    
-    .page-header h1 i {
-      color: var(--primary-400);
-    }
-    
+    /* Table specific styles that might not be in dashboard.css yet */
     .filter-tabs {
       display: flex;
       gap: var(--space-2);
@@ -53,7 +30,7 @@
     
     .filter-tab {
       padding: var(--space-2) var(--space-4);
-      background: transparent;
+      background: var(--surface-hover);
       border: 1px solid var(--border-color);
       border-radius: var(--radius-md);
       color: var(--text-muted);
@@ -115,6 +92,7 @@
     td {
       padding: var(--space-4);
       border-bottom: 1px solid var(--border-color);
+      vertical-align: middle;
     }
     
     tr:last-child td {
@@ -154,25 +132,10 @@
       text-transform: uppercase;
     }
     
-    .role-badge.owner {
-      background: rgba(139, 92, 246, 0.1);
-      color: #a78bfa;
-    }
-    
-    .role-badge.trainer {
-      background: rgba(16, 185, 129, 0.1);
-      color: var(--success-400);
-    }
-    
-    .role-badge.member {
-      background: rgba(59, 130, 246, 0.1);
-      color: #60a5fa;
-    }
-    
-    .role-badge.pending {
-      background: rgba(245, 158, 11, 0.1);
-      color: #fbbf24;
-    }
+    .role-badge.owner { background: rgba(139, 92, 246, 0.1); color: #a78bfa; }
+    .role-badge.trainer { background: rgba(16, 185, 129, 0.1); color: var(--success-400); }
+    .role-badge.member { background: rgba(59, 130, 246, 0.1); color: #60a5fa; }
+    .role-badge.pending { background: rgba(245, 158, 11, 0.1); color: #fbbf24; }
     
     .status-badge {
       padding: 4px 10px;
@@ -180,20 +143,9 @@
       font-size: var(--text-xs);
     }
     
-    .status-badge.approved {
-      background: rgba(16, 185, 129, 0.1);
-      color: var(--success-400);
-    }
-    
-    .status-badge.pending {
-      background: rgba(245, 158, 11, 0.1);
-      color: #fbbf24;
-    }
-    
-    .status-badge.rejected {
-      background: rgba(239, 68, 68, 0.1);
-      color: var(--error-400);
-    }
+    .status-badge.approved { background: rgba(16, 185, 129, 0.1); color: var(--success-400); }
+    .status-badge.pending { background: rgba(245, 158, 11, 0.1); color: #fbbf24; }
+    .status-badge.rejected { background: rgba(239, 68, 68, 0.1); color: var(--error-400); }
     
     .action-btns {
       display: flex;
@@ -217,57 +169,118 @@
     
     .action-btns button.approve:hover {
       border-color: var(--success-400);
+      background: rgba(16, 185, 129, 0.1);
       color: var(--success-400);
     }
     
     .action-btns button.reject:hover {
       border-color: var(--error-400);
+      background: rgba(239, 68, 68, 0.1);
       color: var(--error-400);
     }
     
-    .empty-state {
-      text-align: center;
-      padding: var(--space-16);
-      color: var(--text-muted);
-    }
-    
-    .empty-state i {
-      font-size: 3rem;
-      opacity: 0.3;
-      margin-bottom: var(--space-4);
+    @media (max-width: 768px) {
+      .table-header-hidden-mobile {
+        display: none;
+      }
+      td {
+        display: block;
+        width: 100%;
+        text-align: right;
+        padding: var(--space-2) var(--space-4);
+        border: none;
+      }
+      td::before {
+        content: attr(data-label);
+        float: left;
+        font-weight: bold;
+        color: var(--text-muted);
+      }
+      td:first-child {
+        padding-top: var(--space-4);
+      }
+      td:last-child {
+        padding-bottom: var(--space-4);
+        border-bottom: 1px solid var(--border-color);
+      }
+      .user-cell {
+        flex-direction: row-reverse;
+        justify-content: flex-end;
+      }
+      .action-btns {
+        justify-content: flex-end;
+      }
     }
   </style>
 </head>
 <body>
-  <!-- Navigation -->
-  <nav class="dashboard-nav">
-    <a href="./superadmin-dashboard.html" class="nav-brand">
-      <img src="./public/logo.png" alt="Fit Track Pro">
-      <span>Super Admin</span>
-    </a>
-    <div class="nav-links">
-      <a href="./superadmin-dashboard.html" class="btn btn-ghost">
-        <i class="fa-solid fa-home"></i>
-        Dashboard
-      </a>
-      <a href="./superadmin-gyms.html" class="btn btn-ghost">
-        <i class="fa-solid fa-building"></i>
-        Gyms
-      </a>
-      <button id="logoutBtn" class="btn btn-ghost" style="color: var(--error-400);">
-        <i class="fa-solid fa-sign-out-alt"></i>
-        Logout
-      </button>
-    </div>
-  </nav>
+  <div class="dashboard">
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <img src="./public/logo.png" alt="Fit Track Pro" class="sidebar-logo">
+        <span class="sidebar-brand">Fit Track Pro</span>
+      </div>
+      
+      <nav class="sidebar-nav">
+        <div class="nav-section">
+          <span class="nav-section-title">Overview</span>
+          <a href="./superadmin-dashboard.html" class="nav-link">
+            <i class="fa-solid fa-chart-pie"></i>
+            <span>Dashboard</span>
+          </a>
+        </div>
+        
+        <div class="nav-section">
+          <span class="nav-section-title">Management</span>
+          <a href="./superadmin-gyms.html" class="nav-link">
+            <i class="fa-solid fa-building"></i>
+            <span>Manage Gyms</span>
+          </a>
+          <a href="./superadmin-users.html" class="nav-link active">
+            <i class="fa-solid fa-users-cog"></i>
+            <span>Manage Users</span>
+          </a>
+        </div>
+        
+        <div class="nav-section">
+          <span class="nav-section-title">Requests</span>
+          <a href="./superadmin-users.html?tab=pending" class="nav-link" id="pendingLinkSidebar">
+            <i class="fa-solid fa-user-clock"></i>
+            <span>Pending Approvals</span>
+            <span class="badge badge-warning" id="pendingBadge" style="margin-left: auto; display: none;">0</span>
+          </a>
+        </div>
+      </nav>
+      
+      <div class="sidebar-footer">
+        <div class="user-info">
+          <div class="avatar avatar-placeholder" style="background: var(--primary-600); color: white;">SA</div>
+          <div class="user-details">
+            <div class="user-name" id="adminEmail">Super Admin</div>
+            <div class="user-role">System Administrator</div>
+          </div>
+          <button class="btn btn-ghost btn-icon" id="logoutBtn" title="Logout">
+            <i class="fa-solid fa-sign-out-alt"></i>
+          </button>
+        </div>
+      </div>
+    </aside>
 
-  <main class="main-content" style="padding-top: 80px;">
-    <div class="page-container">
+    <!-- Mobile Sidebar Toggle -->
+    <button class="sidebar-toggle" id="sidebarToggle">
+      <i class="fa-solid fa-bars"></i>
+    </button>
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- Main Content -->
+    <main class="main-content">
       <div class="page-header">
         <h1>
-          <i class="fa-solid fa-users"></i>
+          <i class="fa-solid fa-users" style="color: var(--primary-400); margin-right: 8px;"></i>
           Manage Users
         </h1>
+        <p>Controls all users across the platform</p>
       </div>
       
       <!-- Filter Tabs -->
@@ -301,7 +314,7 @@
         <div class="table-scroll">
           <table>
             <thead>
-              <tr>
+              <tr class="table-header-hidden-mobile">
                 <th>User</th>
                 <th>Role</th>
                 <th>Gym</th>
@@ -313,8 +326,8 @@
             <tbody id="usersTableBody">
               <tr>
                 <td colspan="6">
-                  <div class="empty-state">
-                    <i class="fa-solid fa-spinner fa-spin"></i>
+                  <div style="text-align: center; padding: var(--space-8); color: var(--text-muted);">
+                    <i class="fa-solid fa-spinner fa-spin fa-2x" style="margin-bottom: var(--space-4);"></i>
                     <p>Loading users...</p>
                   </div>
                 </td>
@@ -323,8 +336,8 @@
           </table>
         </div>
       </div>
-    </div>
-  </main>
+    </main>
+  </div>
 
   <!-- Scripts -->
   <script type="module">
@@ -337,9 +350,24 @@
     let currentFilter = 'all';
     let gymsMap = {};
 
-    // DOM
+    // DOM Elements
     const usersTableBody = document.getElementById('usersTableBody');
     const filterTabs = document.querySelectorAll('.filter-tab');
+    const sidebar = document.getElementById('sidebar');
+    const sidebarToggle = document.getElementById('sidebarToggle');
+    const sidebarOverlay = document.getElementById('sidebarOverlay');
+    const logoutBtn = document.getElementById('logoutBtn');
+
+    // Mobile sidebar toggle
+    sidebarToggle.addEventListener('click', () => {
+      sidebar.classList.toggle('open');
+      sidebarOverlay.classList.toggle('active');
+    });
+
+    sidebarOverlay.addEventListener('click', () => {
+      sidebar.classList.remove('open');
+      sidebarOverlay.classList.remove('active');
+    });
 
     // Check auth
     onAuthStateChanged(auth, async (user) => {
@@ -354,6 +382,9 @@
         return;
       }
 
+      const userEmail = user.email || 'Admin';
+      document.getElementById('adminEmail').textContent = userEmail;
+
       // Check URL for tab
       const urlParams = new URLSearchParams(window.location.search);
       const tabParam = urlParams.get('tab');
@@ -361,13 +392,14 @@
         currentFilter = 'pending';
         filterTabs.forEach(t => t.classList.remove('active'));
         document.querySelector('[data-filter="pending"]').classList.add('active');
+        document.getElementById('pendingLinkSidebar').classList.add('active');
       }
 
       loadAllUsers();
     });
 
     // Logout
-    document.getElementById('logoutBtn').addEventListener('click', async () => {
+    logoutBtn.addEventListener('click', async () => {
       await signOut(auth);
       window.location.href = './superadmin-login.html';
     });
@@ -427,6 +459,7 @@
 
         // Load pending requests
         const requestsSnap = await get(ref(database, 'pending_requests'));
+        let pendingCount = 0;
         if (requestsSnap.exists()) {
           requestsSnap.forEach(snap => {
             const req = snap.val();
@@ -439,21 +472,31 @@
               req.gymName = gymsMap[req.gymId] || 'Unknown Gym';
             }
             req.isPending = req.status === 'pending';
+            if (req.isPending) pendingCount++;
             allUsers.push(req);
           });
         }
 
         // Update counts
         document.getElementById('allCount').textContent = allUsers.length;
-        document.getElementById('pendingCount').textContent = allUsers.filter(u => u.status === 'pending').length;
+        document.getElementById('pendingCount').textContent = pendingCount;
+        
+        // Update sidebar pending badge
+        const badge = document.getElementById('pendingBadge');
+        if (pendingCount > 0) {
+            badge.textContent = pendingCount;
+            badge.style.display = 'inline-flex';
+        } else {
+            badge.style.display = 'none';
+        }
 
         renderUsers();
       } catch (error) {
         console.error('Error loading users:', error);
         usersTableBody.innerHTML = `
           <tr><td colspan="6">
-            <div class="empty-state">
-              <i class="fa-solid fa-exclamation-triangle"></i>
+            <div style="text-align: center; padding: var(--space-8); color: var(--error-400);">
+              <i class="fa-solid fa-exclamation-triangle fa-2x" style="margin-bottom: var(--space-4);"></i>
               <p>Failed to load users</p>
             </div>
           </td></tr>
@@ -478,9 +521,9 @@
       if (filtered.length === 0) {
         usersTableBody.innerHTML = `
           <tr><td colspan="6">
-            <div class="empty-state">
-              <i class="fa-solid fa-users"></i>
-              <p>No users found</p>
+            <div style="text-align: center; padding: var(--space-16); color: var(--text-muted);">
+              <i class="fa-solid fa-users fa-3x" style="margin-bottom: var(--space-4); opacity: 0.2;"></i>
+              <p>No ${currentFilter === 'all' ? 'users' : currentFilter} found</p>
             </div>
           </td></tr>
         `;
@@ -489,7 +532,7 @@
 
       usersTableBody.innerHTML = filtered.map(user => `
         <tr>
-          <td>
+          <td data-label="User">
             <div class="user-cell">
               <div class="user-avatar">${(user.name || 'U').charAt(0).toUpperCase()}</div>
               <div>
@@ -498,30 +541,30 @@
               </div>
             </div>
           </td>
-          <td>
+          <td data-label="Role">
             <span class="role-badge ${user.role} ${user.status === 'pending' ? 'pending' : ''}">
               <i class="fa-solid ${getRoleIcon(user.role)}"></i>
               ${user.role}
             </span>
           </td>
-          <td>${user.gymName || (user.role === 'owner' ? user.gymName : '-')}</td>
-          <td>
+          <td data-label="Gym">${user.gymName || (user.role === 'owner' ? user.gymName : '-')}</td>
+          <td data-label="Contact">
             <div style="font-size: var(--text-sm);">${user.phone || '-'}</div>
           </td>
-          <td>
+          <td data-label="Status">
             <span class="status-badge ${user.status || 'approved'}">${user.status || 'Active'}</span>
           </td>
-          <td>
+          <td data-label="Actions">
             <div class="action-btns">
               ${user.status === 'pending' ? `
-                <button class="approve" onclick="approveUser('${user.id}', '${user.role}')" title="Approve">
+                <button class="approve" onclick="window.approveUser('${user.id}', '${user.role}')" title="Approve">
                   <i class="fa-solid fa-check"></i>
                 </button>
-                <button class="reject" onclick="rejectUser('${user.id}')" title="Reject">
+                <button class="reject" onclick="window.rejectUser('${user.id}')" title="Reject">
                   <i class="fa-solid fa-times"></i>
                 </button>
               ` : `
-                <button onclick="deleteUser('${user.id}', '${user.role}', '${user.gymId || ''}')" title="Delete">
+                <button onclick="window.deleteUser('${user.id}', '${user.role}', '${user.gymId || ''}')" title="Delete">
                   <i class="fa-solid fa-trash"></i>
                 </button>
               `}
@@ -540,7 +583,7 @@
       return icons[role] || 'fa-user';
     }
 
-    // Approve user
+    // Approve user (Global)
     window.approveUser = async function(userId, type) {
       const user = allUsers.find(u => u.id === userId);
       if (!user) return;
@@ -609,7 +652,7 @@
       }
     };
 
-    // Reject user
+    // Reject user (Global)
     window.rejectUser = async function(userId) {
       if (!confirm('Reject this request?')) return;
 
@@ -625,9 +668,9 @@
       }
     };
 
-    // Delete user
+    // Delete user (Global)
     window.deleteUser = async function(userId, role, gymId) {
-      if (!confirm('Delete this user? This will remove all their data and cannot be undone.')) return;
+      if (!confirm('Are you sure you want to delete this user? \n\n⚠️ This will remove all their data and cannot be undone.')) return;
 
       try {
         // Delete from main collection based on role
