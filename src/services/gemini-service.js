@@ -2,8 +2,14 @@
 // Uses Google Gemini Free Tier API
 
 const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
-const GEMINI_MODEL = 'gemini-1.5-flash-latest';
-const GEMINI_API_URL = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_API_KEY}`;
+
+// List of models to try in order of preference (Flash is fastest/cheapest, Pro is fallback)
+const GEMINI_MODELS = [
+    'gemini-1.5-flash',
+    'gemini-1.5-flash-001',
+    'gemini-1.5-pro',
+    'gemini-pro'
+];
 
 // Validate API key on load
 if (!GEMINI_API_KEY) {
@@ -11,15 +17,21 @@ if (!GEMINI_API_KEY) {
 }
 
 /**
- * Send a prompt to Gemini and get a response with retry logic
- * @param {string} prompt - The prompt to send
- * @param {string} systemInstruction - System context for the AI
- * @returns {Promise<string>} - The AI response text
+ * Send a prompt to Gemini with automatic model fallback
  */
-export async function askGemini(prompt, systemInstruction = '', retries = 2) {
+export async function askGemini(prompt, systemInstruction = '', modelIndex = 0) {
     if (!GEMINI_API_KEY) {
         throw new Error('Gemini API key not configured. Please add VITE_GEMINI_API_KEY to environment variables.');
     }
+
+    if (modelIndex >= GEMINI_MODELS.length) {
+        throw new Error('All Gemini models failed. Please check your API key and quota.');
+    }
+
+    const currentModel = GEMINI_MODELS[modelIndex];
+    const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/${currentModel}:generateContent?key=${GEMINI_API_KEY}`;
+
+    console.log(`Using Gemini Model: ${currentModel}`);
 
     try {
         const contents = [];
@@ -40,7 +52,7 @@ export async function askGemini(prompt, systemInstruction = '', retries = 2) {
             parts: [{ text: prompt }]
         });
 
-        const response = await fetch(GEMINI_API_URL, {
+        const response = await fetch(API_URL, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -57,13 +69,12 @@ export async function askGemini(prompt, systemInstruction = '', retries = 2) {
         if (!response.ok) {
             const errData = await response.json().catch(() => ({}));
             const errMsg = errData.error?.message || `HTTP ${response.status}`;
-            console.error(`Gemini API Error [${response.status}]:`, errMsg);
+            console.warn(`Model ${currentModel} failed [${response.status}]:`, errMsg);
 
-            // Retry on rate limit (429) or server errors (5xx)
-            if (retries > 0 && (response.status === 429 || response.status >= 500)) {
-                console.log(`Retrying... (${retries} attempts left)`);
-                await new Promise(r => setTimeout(r, 1500));
-                return askGemini(prompt, systemInstruction, retries - 1);
+            // If 404 (Not Found) or 429 (Rate Limit) or 5xx (Server Error), try next model
+            if (response.status === 404 || response.status === 429 || response.status >= 500) {
+                console.log(`Switching to next model...`);
+                return askGemini(prompt, systemInstruction, modelIndex + 1);
             }
 
             throw new Error(errMsg);
@@ -72,7 +83,12 @@ export async function askGemini(prompt, systemInstruction = '', retries = 2) {
         const data = await response.json();
         return data.candidates?.[0]?.content?.parts?.[0]?.text || 'No response generated.';
     } catch (error) {
-        console.error('Gemini API Error:', error);
+        // If it's a fetch error (network), we might want to retry the same model or switch
+        // For now, let's try switching models as a safe fallback
+        console.error(`Error with ${currentModel}:`, error);
+        if (modelIndex < GEMINI_MODELS.length - 1) {
+            return askGemini(prompt, systemInstruction, modelIndex + 1);
+        }
         throw error;
     }
 }
