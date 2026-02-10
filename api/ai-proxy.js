@@ -30,7 +30,7 @@ export default async function handler(req, res) {
 
     // Mistral-7B-Instruct-v0.3
     const MODEL_ID = "mistralai/Mistral-7B-Instruct-v0.3";
-    const API_URL = `https://api-inference.huggingface.co/models/${MODEL_ID}`;
+    const API_URL = `https://router.huggingface.co/mistralai/Mistral-7B-Instruct-v0.3`;
 
     const fullPrompt = `<s>[INST] ${systemInstruction ? systemInstruction + '\n\n' : ''}${prompt} [/INST]`;
 
