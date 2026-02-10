@@ -1,63 +1,33 @@
-// AI Service - Handles all AI API calls using Hugging Face Inference API
-// Model: mistralai/Mistral-7B-Instruct-v0.3
-
-const HF_TOKEN = import.meta.env.VITE_HUGGING_FACE_TOKEN;
-const MODEL_ID = "mistralai/Mistral-7B-Instruct-v0.3";
-const API_URL = `https://api-inference.huggingface.co/models/${MODEL_ID}`;
-
-// Validate API key on load
-if (!HF_TOKEN) {
-    console.warn('⚠️ VITE_HUGGING_FACE_TOKEN is not set! AI features will not work.');
-}
+// AI Service - Handles all AI API calls using Vercel Serverless Function (Proxy)
+// This avoids CORS issues by routing requests through our own backend
 
 /**
- * Send a prompt to Hugging Face and get a response
+ * Send a prompt to AI Proxy (which calls Hugging Face)
  */
 export async function askAI(prompt, systemInstruction = '') {
-    if (!HF_TOKEN) {
-        throw new Error('Hugging Face Token not configured. Please add VITE_HUGGING_FACE_TOKEN to environment variables.');
-    }
-
-    // Mistral instruction format: <s>[INST] {system} {user} [/INST]
-    const fullPrompt = `<s>[INST] ${systemInstruction ? systemInstruction + '\n\n' : ''}${prompt} [/INST]`;
-
     try {
-        const response = await fetch(API_URL, {
+        const response = await fetch('/api/ai-proxy', {
             method: "POST",
             headers: {
-                "Authorization": `Bearer ${HF_TOKEN}`,
                 "Content-Type": "application/json"
             },
             body: JSON.stringify({
-                inputs: fullPrompt,
-                parameters: {
-                    max_new_tokens: 1024,
-                    temperature: 0.7,
-                    top_p: 0.95,
-                    return_full_text: false
-                }
+                prompt,
+                systemInstruction
             })
         });
 
         if (!response.ok) {
             const errData = await response.json().catch(() => ({}));
             const errMsg = errData.error || `HTTP ${response.status}`;
-
-            // Check for model loading state (common with free inference API)
-            if (errMsg.includes("loading")) {
-                throw new Error("Model is loading (Hugging Face cold start). Please try again in 30 seconds.");
-            }
-
-            throw new Error(`AI Error: ${errMsg}`);
+            throw new Error(errMsg);
         }
 
         const result = await response.json();
-        // Hugging Face Inference return format: [{ generated_text: "..." }]
-        let text = result[0]?.generated_text || "No response generated.";
-        return text.trim();
+        return result.text;
 
     } catch (error) {
-        console.error('Hugging Face API Error:', error);
+        console.error('AI Service Error:', error);
         throw error;
     }
 }
