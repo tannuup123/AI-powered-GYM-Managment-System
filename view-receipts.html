@@ -16,6 +16,7 @@
   
   <!-- Styles -->
   <link rel="stylesheet" href="./src/styles/main.css">
+  <link rel="stylesheet" href="./src/styles/dashboard.css">
   <link rel="icon" href="./public/logo.png" type="image/png">
 </head>
 <body>
@@ -290,19 +291,19 @@
 
       receiptsTableBody.innerHTML = receipts.map(receipt => `
         <tr>
-          <td>
+          <td data-label="Member">
             <div style="font-weight: var(--font-medium);">${receipt.memberName || 'Unknown'}</div>
           </td>
-          <td><span class="badge badge-primary">${receipt.plan || 'N/A'}</span></td>
-          <td style="font-weight: var(--font-semibold);">₹${(receipt.amount || 0).toLocaleString()}</td>
-          <td>${receipt.billDate || 'N/A'}</td>
-          <td>${receipt.dueDate || 'N/A'}</td>
-          <td>
+          <td data-label="Plan"><span class="badge badge-primary">${receipt.plan || 'N/A'}</span></td>
+          <td data-label="Amount" style="font-weight: var(--font-semibold);">₹${(receipt.amount || 0).toLocaleString()}</td>
+          <td data-label="Bill Date">${receipt.billDate || 'N/A'}</td>
+          <td data-label="Due Date">${receipt.dueDate || 'N/A'}</td>
+          <td data-label="Status">
             <span class="badge ${receipt.status === 'Paid' ? 'badge-success' : 'badge-warning'}">
               ${receipt.status || 'Unpaid'}
             </span>
           </td>
-          <td>
+          <td data-label="Actions">
             <div style="display: flex; gap: var(--space-2);">
               ${receipt.status === 'Unpaid' ? `
                 <button class="btn btn-ghost btn-icon" onclick="markAsPaid('${receipt.memberId}', '${receipt.id}')" title="Mark as Paid" style="color: var(--success-400);">

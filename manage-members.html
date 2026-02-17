@@ -16,6 +16,7 @@
   
   <!-- Styles -->
   <link rel="stylesheet" href="./src/styles/main.css">
+  <link rel="stylesheet" href="./src/styles/dashboard.css">
   <link rel="icon" href="./public/logo.png" type="image/png">
 </head>
 <body>
@@ -305,7 +306,7 @@
 
       membersTableBody.innerHTML = members.map(member => `
         <tr>
-          <td>
+          <td data-label="Member">
             <div style="display: flex; align-items: center; gap: var(--space-3);">
               <div class="avatar avatar-placeholder" style="width: 40px; height: 40px; font-size: var(--text-sm);">
                 ${(member.name || 'M').charAt(0).toUpperCase()}
@@ -316,15 +317,15 @@
               </div>
             </div>
           </td>
-          <td>${member.phone || 'N/A'}</td>
-          <td><span class="badge badge-primary">${member.plan || 'N/A'}</span></td>
-          <td>${member.joiningDate || 'N/A'}</td>
-          <td>
+          <td data-label="Contact">${member.phone || 'N/A'}</td>
+          <td data-label="Plan"><span class="badge badge-primary">${member.plan || 'N/A'}</span></td>
+          <td data-label="Joined">${member.joiningDate || 'N/A'}</td>
+          <td data-label="Status">
             <span class="badge ${member.status === 'Active' ? 'badge-success' : 'badge-warning'}">
               ${member.status || 'Active'}
             </span>
           </td>
-          <td>
+          <td data-label="Actions">
             <div style="display: flex; gap: var(--space-2);">
               <button class="btn btn-ghost btn-icon" onclick="editMember('${member.id}')" title="Edit">
                 <i class="fa-solid fa-edit"></i>
