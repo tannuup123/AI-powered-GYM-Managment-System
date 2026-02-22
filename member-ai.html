@@ -179,7 +179,8 @@
     }
     
     .ai-stat:hover { border-color: var(--primary-400); transform: translateY(-2px); }
-    .ai-stat .stat-value { font-size: var(--text-2xl); font-weight: var(--font-bold); color: var(--primary-400); }
+    .ai-stat .stat-value { font-size: var(--text-2xl); font-weight: var(--font-bold); color: var(--primary-400); word-break: break-word; overflow-wrap: break-word; line-height: 1.2; }
+    .ai-stat .stat-category { font-size: var(--text-xs); color: var(--warning-400); font-weight: var(--font-medium); margin-top: 2px; }
     .ai-stat .stat-label { font-size: var(--text-xs); color: var(--text-muted); margin-top: var(--space-1); }
     
     /* Workout Plan Cards */
@@ -454,6 +455,7 @@
             </div>
             <div class="ai-stat">
               <div class="stat-value" id="statBMI">-</div>
+              <div class="stat-category" id="statBMICategory"></div>
               <div class="stat-label">BMI</div>
             </div>
             <div class="ai-stat">
@@ -654,7 +656,8 @@
       document.getElementById('statProtein').textContent = stats.macros.protein + 'g';
       document.getElementById('statCarbs').textContent = stats.macros.carbs + 'g';
       document.getElementById('statFat').textContent = stats.macros.fat + 'g';
-      document.getElementById('statBMI').textContent = stats.bmi.value + ' (' + stats.bmi.category + ')';
+      document.getElementById('statBMI').textContent = stats.bmi.value;
+      document.getElementById('statBMICategory').textContent = stats.bmi.category;
       document.getElementById('statWater').textContent = stats.water + 'L';
       document.getElementById('statsDisplay').style.display = 'block';
     }
