@@ -20,6 +20,38 @@
   <link rel="icon" href="./public/logo.png" type="image/png">
   
   <style>
+    .dashboard-nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: var(--space-3) var(--space-6);
+      background: rgba(15, 15, 35, 0.95);
+      border-bottom: 1px solid var(--border-color);
+      backdrop-filter: blur(12px);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .nav-brand {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      text-decoration: none;
+      color: var(--text-primary);
+      font-weight: var(--font-bold);
+      font-size: var(--text-lg);
+    }
+    .nav-brand img {
+      width: 36px;
+      height: 36px;
+      object-fit: contain;
+      border-radius: var(--radius-md);
+    }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+    }
     .requests-container {
       max-width: 1000px;
       margin: 0 auto;
