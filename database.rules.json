@@ -44,6 +44,10 @@
     "superadmins": {
       ".read": "auth != null",
       ".write": false
+    },
+    "otp_verifications": {
+      ".read": true,
+      ".write": true
     }
   }
 }
