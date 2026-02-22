@@ -470,6 +470,7 @@
     import { ref, set, get } from 'firebase/database';
     import { showToast, showSuccess, showError, showWarning, showInfo } from './src/components/toast.js';
     import { setButtonLoading, isValidEmail, isValidPhone } from './src/js/utils.js';
+    import { generateOTP, verifyOTP } from './src/js/otp-utils.js';
 
     // DOM Elements
     const signupForm = document.getElementById('signupForm');
@@ -629,19 +630,10 @@
       sendOtpBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Sending...';
 
       try {
-        const response = await fetch('/api/send-otp', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email, phone, action: 'generate' })
-        });
+        const result = await generateOTP(phone, email);
 
-        const data = await response.json();
-
-        if (!response.ok) {
-          throw new Error(data.error || 'Failed to send OTP');
-        }
-
-        showSuccess('OTP sent to your email! Check inbox.');
+        showSuccess(`OTP for phone verification: ${result.otp}`);
+        showInfo('Enter this OTP below to verify your phone number');
         otpGroup.classList.add('show');
         phoneBadge.style.display = 'inline-flex';
         phoneInput.readOnly = true;
@@ -654,7 +646,7 @@
 
       } catch (error) {
         console.error('OTP send error:', error);
-        showError(error.message || 'Failed to send OTP');
+        showError(error.message || 'Failed to generate OTP');
         sendOtpBtn.disabled = false;
         sendOtpBtn.innerHTML = '<i class="fa-solid fa-message"></i> Send OTP';
       }
@@ -674,16 +666,10 @@
       verifyOtpBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
 
       try {
-        const response = await fetch('/api/send-otp', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ phone, otp, action: 'verify' })
-        });
+        const result = await verifyOTP(phone, otp);
 
-        const data = await response.json();
-
-        if (!response.ok) {
-          throw new Error(data.error || 'Invalid OTP');
+        if (!result.success) {
+          throw new Error(result.error || 'Invalid OTP');
         }
 
         phoneVerified = true;
@@ -708,7 +694,7 @@
     function startOtpTimer(seconds) {
       if (otpTimerInterval) clearInterval(otpTimerInterval);
       let remaining = seconds;
-      otpTimer.textContent = `OTP sent to your email. Expires in ${formatTime(remaining)}`;
+      otpTimer.textContent = `OTP expires in ${formatTime(remaining)}`;
 
       otpTimerInterval = setInterval(() => {
         remaining--;
@@ -717,7 +703,7 @@
           otpTimer.textContent = 'OTP expired. Click Resend to get a new one.';
           otpTimer.style.color = '#ef4444';
         } else {
-          otpTimer.textContent = `OTP sent to your email. Expires in ${formatTime(remaining)}`;
+          otpTimer.textContent = `OTP expires in ${formatTime(remaining)}`;
         }
       }, 1000);
     }
