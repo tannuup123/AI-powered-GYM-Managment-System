@@ -706,6 +706,15 @@
       try {
         const plan = await generateWorkoutPlan(fitnessProfile);
         
+        if (plan.error) {
+          resultDiv.innerHTML = `<div class="card" style="text-align: center; padding: var(--space-8);">
+            <i class="fa-solid fa-exclamation-triangle" style="font-size: 2rem; color: var(--warning-400); margin-bottom: var(--space-4);"></i>
+            <p>${plan.error}</p>
+            <p style="font-size: var(--text-xs); color: var(--text-muted); margin-top: var(--space-2);">Please try again</p>
+          </div>`;
+          return;
+        }
+
         let html = '';
         
         if (plan.summary) {

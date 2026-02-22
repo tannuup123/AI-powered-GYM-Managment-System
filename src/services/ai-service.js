@@ -33,21 +33,24 @@ export async function askAI(prompt, systemInstruction = '') {
 }
 
 /**
- * Ask AI and parse JSON from response
+ * Ask AI and parse JSON from response — robust parser
  */
 export async function askAIJSON(prompt, systemInstruction = '') {
-    const jsonInstruction = systemInstruction + '\n\nIMPORTANT: Respond ONLY with valid JSON. Do not include markdown formatting like ```json ... ```. Just the raw JSON object.';
+    const jsonInstruction = systemInstruction + '\n\nIMPORTANT: Respond ONLY with valid JSON. No markdown, no explanation, no code fences. Just the raw JSON object.';
 
     // Retry logic for JSON parsing
     let attempts = 0;
-    while (attempts < 2) {
+    let lastError = null;
+    while (attempts < 3) {
         try {
             const text = await askAI(prompt, jsonInstruction);
 
             // Clean response
             let cleaned = text.trim();
-            // Remove markdown code blocks if the model ignores the instruction
-            cleaned = cleaned.replace(/^```json/i, '').replace(/^```/, '').replace(/```$/, '');
+
+            // Remove markdown code blocks
+            cleaned = cleaned.replace(/^```(?:json)?\s*/i, '').replace(/\s*```\s*$/, '');
+            cleaned = cleaned.trim();
 
             // Find the first { and last }
             const start = cleaned.indexOf('{');
@@ -56,18 +59,55 @@ export async function askAIJSON(prompt, systemInstruction = '') {
                 cleaned = cleaned.substring(start, end + 1);
             }
 
-            return JSON.parse(cleaned);
+            // Fix common AI JSON issues:
+            // 1. Remove trailing commas before ] or }
+            cleaned = cleaned.replace(/,\s*([\]}])/g, '$1');
+            // 2. Fix single quotes to double quotes (careful with apostrophes)
+            // 3. Remove comments
+            cleaned = cleaned.replace(/\/\/[^\n]*/g, '');
+
+            try {
+                return JSON.parse(cleaned);
+            } catch (parseErr) {
+                // Try to fix truncated JSON by closing unclosed brackets
+                let fixed = cleaned;
+                let openBraces = (fixed.match(/{/g) || []).length;
+                let closeBraces = (fixed.match(/}/g) || []).length;
+                let openBrackets = (fixed.match(/\[/g) || []).length;
+                let closeBrackets = (fixed.match(/\]/g) || []).length;
+
+                // Remove any trailing incomplete key-value (e.g., `"key": "val` or `"key":`)
+                fixed = fixed.replace(/,\s*"[^"]*"\s*:\s*("[^"]*)?$/g, '');
+                fixed = fixed.replace(/,\s*{[^}]*$/g, '');
+
+                // Re-count after cleanup
+                openBraces = (fixed.match(/{/g) || []).length;
+                closeBraces = (fixed.match(/}/g) || []).length;
+                openBrackets = (fixed.match(/\[/g) || []).length;
+                closeBrackets = (fixed.match(/\]/g) || []).length;
+
+                // Close unclosed brackets/braces
+                while (closeBrackets < openBrackets) { fixed += ']'; closeBrackets++; }
+                while (closeBraces < openBraces) { fixed += '}'; closeBraces++; }
+
+                // Remove trailing commas again after fixes
+                fixed = fixed.replace(/,\s*([\]}])/g, '$1');
+
+                return JSON.parse(fixed);
+            }
         } catch (e) {
             console.warn(`JSON Parse Attempt ${attempts + 1} failed:`, e);
+            lastError = e;
             attempts++;
-            if (attempts >= 2) {
-                return {
-                    error: "Failed to parse JSON",
-                    raw: "Could not generate valid JSON."
-                };
-            }
         }
     }
+
+    // All attempts failed - return a fallback structure
+    console.error('All JSON parse attempts failed:', lastError);
+    return {
+        error: "Failed to parse AI response",
+        raw: "The AI returned an invalid response. Please try again."
+    };
 }
 
 // ==========================================
